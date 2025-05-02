@@ -537,8 +537,6 @@ function calculateResizeDimensions(
 // Generate SVG from processed image data
 export function generateSVG(imageData: ImageData, settings: Settings): string {
   const {
-    width,
-    height,
     originalWidth,
     originalHeight,
     resizedWidth,
@@ -550,7 +548,6 @@ export function generateSVG(imageData: ImageData, settings: Settings): string {
   const {
     gridSizeX,
     gridSizeY,
-    invert,
     continuousPaths,
     processingMode,
     visiblePaths,

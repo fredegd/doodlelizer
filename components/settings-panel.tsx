@@ -24,8 +24,6 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
   // Berechne die Max Density basierend auf der Kachelbreite
   const calculatedDensity = useMemo(() => {
     const MAX_DIMENSION = 560; // Feste maximale Dimension wie in image-processor.ts
-    const aspectRatio = 1; // Standardwert, wenn keine Originalbreite/höhe bekannt
-
     // Berechne die Ausgabebreite basierend auf dem festen MAX_DIMENSION
     let outputWidth = MAX_DIMENSION;
 
@@ -274,7 +272,7 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                   <Slider
                     id="pathDistanceThreshold"
                     min={1}
-                    max={30}
+                    max={300}
                     step={1}
                     value={[settings.pathDistanceThreshold]}
                     onValueChange={(value) => onSettingsChange({ pathDistanceThreshold: value[0] })}
