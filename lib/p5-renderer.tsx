@@ -32,9 +32,8 @@ export default function P5Renderer({ imageData, settings }: P5RendererProps) {
         p.strokeWeight(0.1)
       }
 
+      // Only draw once
       p.draw = () => {
-        // Only draw once
-        p.background(settings.processingMode === "cmyk" || settings.processingMode === "monochrome" ? 255 : settings.invert ? 255 : 0)
 
         // Draw paths for each color group
         if (imageData.colorGroups) {
