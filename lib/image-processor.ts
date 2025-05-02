@@ -574,13 +574,6 @@ export function generateSVG(imageData: ImageData, settings: Settings): string {
     <processingMode>${processingMode}</processingMode>
     <continuousPaths>${continuousPaths}</continuousPaths>
   </metadata>
-  <rect width="100%" height="100%" fill="${
-    processingMode === "cmyk" || processingMode === "monochrome"
-      ? "white"
-      : invert
-      ? "white"
-      : "black"
-  }" />
   `;
 
   // Generate paths for each color group

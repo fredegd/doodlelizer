@@ -8,6 +8,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Info } from "lucide-react"
 import type { Settings, ProcessingMode } from "@/lib/types"
+import { useMemo } from "react"
 
 interface SettingsPanelProps {
   settings: Settings
@@ -19,6 +20,21 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
   const handleProcessingModeChange = (value: ProcessingMode) => {
     onSettingsChange({ processingMode: value })
   }
+
+  // Berechne die Max Density basierend auf der Kachelbreite
+  const calculatedDensity = useMemo(() => {
+    const MAX_DIMENSION = 560; // Feste maximale Dimension wie in image-processor.ts
+    const aspectRatio = 1; // Standardwert, wenn keine Originalbreite/höhe bekannt
+
+    // Berechne die Ausgabebreite basierend auf dem festen MAX_DIMENSION
+    let outputWidth = MAX_DIMENSION;
+
+    // Berechne die Kachelbreite
+    const tileWidth = Math.floor(outputWidth / settings.columnsCount);
+
+    // Gib die berechnete Kachelbreite als maxDensity zurück
+    return tileWidth;
+  }, [settings.columnsCount]);
 
   return (
     <TooltipProvider>
@@ -295,13 +311,14 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                 <Slider
                   id="minDensity"
                   min={0}
-                  max={10}
+                  max={calculatedDensity - 1}
                   step={1}
-                  value={[settings.minDensity]}
+                  value={[Math.min(settings.minDensity, calculatedDensity)]}
                   onValueChange={(value) => onSettingsChange({ minDensity: value[0] })}
                   disabled={disabled}
                 />
-                <p className="text-xs text-gray-400">Minimum zigzag density for bright areas</p>
+                <p className="text-xs text-gray-400">Minimum zigzag density for bright areas (auto-adjusted to tile width: {calculatedDensity}px)
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -311,13 +328,15 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                 <Slider
                   id="maxDensity"
                   min={2}
-                  max={16}
+                  max={calculatedDensity}
                   step={1}
-                  value={[settings.maxDensity]}
+                  value={[Math.min(settings.maxDensity, calculatedDensity)]}
                   onValueChange={(value) => onSettingsChange({ maxDensity: value[0] })}
                   disabled={disabled}
                 />
-                <p className="text-xs text-gray-400">Maximum zigzag density for dark areas</p>
+                <p className="text-xs text-gray-400">
+                  Maximum zigzag density for dark areas (auto-adjusted to tile width: {calculatedDensity}px)
+                </p>
               </div>
 
               <div className="flex items-center justify-between">

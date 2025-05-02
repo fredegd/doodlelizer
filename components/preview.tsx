@@ -66,7 +66,7 @@ const Preview = memo(function Preview({
                 <p className="text-gray-400">Processing image...</p>
               </div>
             ) : svgContent ? (
-              <div ref={svgContainerRef} className="w-full h-full flex items-center justify-center"></div>
+              <div ref={svgContainerRef} className="w-full h-full flex items-center justify-center bg-white"></div>
             ) : (
               <p className="text-gray-400">Vector preview will appear here</p>
             )}
