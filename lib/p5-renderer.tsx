@@ -34,7 +34,8 @@ export default function P5Renderer({ imageData, settings }: P5RendererProps) {
 
       // Only draw once
       p.draw = () => {
-
+        // Clear the canvas
+        p.clear()
         // Draw paths for each color group
         if (imageData.colorGroups) {
           Object.entries(imageData.colorGroups).forEach(([colorKey, group]) => {
