@@ -179,7 +179,7 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                 </div>
                 <Slider
                   id="columnsCount"
-                  min={10}
+                  min={1}
                   max={200}
                   step={1}
                   value={[settings.columnsCount]}
@@ -195,7 +195,7 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                 </div>
                 <Slider
                   id="rowsCount"
-                  min={10}
+                  min={1}
                   max={200}
                   step={1}
                   value={[settings.rowsCount]}
