@@ -31,7 +31,7 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
     let tileWidth = Math.floor(outputWidth / settings.columnsCount);
     tileWidth = tileWidth % 2 === 0 ? tileWidth : tileWidth - 1;
     // Gib die berechnete Kachelbreite als maxDensity zurück
-    return tileWidth * 1.5;
+    return tileWidth * 2;
   }, [settings.columnsCount]);
 
   return (
@@ -316,7 +316,7 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                   onValueChange={(value) => onSettingsChange({ minDensity: value[0] })}
                   disabled={disabled}
                 />
-                <p className="text-xs text-gray-400">Minimum zigzag density for bright areas (auto-adjusted to tile width: {calculatedDensity / 1.5}px)
+                <p className="text-xs text-gray-400">Minimum zigzag density for bright areas (auto-adjusted to tile width: {calculatedDensity / 2}px)
                 </p>
               </div>
 
@@ -334,7 +334,7 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                   disabled={disabled}
                 />
                 <p className="text-xs text-gray-400">
-                  Maximum zigzag density for dark areas (auto-adjusted to tile width: {calculatedDensity / 1.5}px)
+                  Maximum zigzag density for dark areas (auto-adjusted to tile width: {calculatedDensity / 2}px)
                 </p>
               </div>
 

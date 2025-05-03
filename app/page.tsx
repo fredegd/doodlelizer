@@ -22,7 +22,7 @@ export default function Home() {
     gridSizeY: 10,
     brightnessThreshold: 255,
     minDensity: 2,
-    maxDensity: 10,
+    maxDensity: 5,
     rowsCount: 100,
     columnsCount: 100,
     invert: false,
