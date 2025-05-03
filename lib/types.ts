@@ -10,6 +10,7 @@ export interface Settings {
   rowsCount: number;
   columnsCount: number;
   continuousPaths: boolean;
+  curvedPaths: boolean; // Option für geschwungene statt eckiger Pfade
   pathDistanceThreshold: number;
   processingMode: ProcessingMode;
   colorsAmt: number;

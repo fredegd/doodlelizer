@@ -26,6 +26,7 @@ export default function Home() {
     rowsCount: 10,
     columnsCount: 10,
     continuousPaths: true,
+    curvedPaths: false, // Standardmäßig gerade Pfade verwenden
     pathDistanceThreshold: 10,
     processingMode: "posterize",
     colorsAmt: 5,

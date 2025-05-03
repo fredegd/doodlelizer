@@ -253,6 +253,28 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                 />
               </div>
 
+              <div className="flex items-center justify-between mt-3">
+                <Label htmlFor="curvedPaths" className="flex items-center gap-2">
+                  Curved Paths
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="h-4 w-4 text-gray-400" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs">
+                        When enabled, creates smooth, curved paths. When disabled, uses straight lines with sharp corners.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </Label>
+                <Switch
+                  id="curvedPaths"
+                  checked={settings.curvedPaths}
+                  onCheckedChange={(checked) => onSettingsChange({ curvedPaths: checked })}
+                  disabled={disabled}
+                />
+              </div>
+
               {settings.continuousPaths && (
                 <div className="space-y-2 mt-3 ml-4">
                   <div className="flex justify-between">

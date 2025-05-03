@@ -12,8 +12,8 @@ export function generateSVG(imageData: ImageData, settings: Settings): string {
   const svgWidth = outputWidth;
   const svgHeight = outputHeight;
 
-  // Start SVG content
-  let svgContent = `<svg width="${widthInMM} mm" height="${heightInMM} mm" viewBox="0 0 ${svgWidth} ${svgHeight}" xmlns="http://www.w3.org/2000/svg">
+  // Start SVG content with additional shape-rendering attribute to ensure smooth corners
+  let svgContent = `<svg width="${widthInMM} mm" height="${heightInMM} mm" viewBox="0 0 ${svgWidth} ${svgHeight}" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" style="stroke-linejoin: round; stroke-linecap: round;">
   `;
 
   // Generate paths for each color group
@@ -51,6 +51,7 @@ export function generateContinuousPath(
   settings: Settings
 ): string {
   const { color, points } = colorGroup;
+  const { curvedPaths } = settings;
 
   // Sort points by row, then by column (accounting for row direction)
   points.sort((a, b) => {
@@ -81,7 +82,7 @@ export function generateContinuousPath(
     if (firstPoint || needNewPath) {
       // If we have existing path data, add it to the SVG content
       if (pathData && !firstPoint) {
-        svgContent += `<path d="${pathData}" stroke="${color}" fill="none" stroke-width="1" vector-effect="non-scaling-stroke" />\n`;
+        svgContent += `<path d="${pathData}" stroke="${color}" fill="none" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" />\n`;
         pathData = "";
       }
 
@@ -98,7 +99,8 @@ export function generateContinuousPath(
       point.height,
       point.density,
       point.direction,
-      pathData.length === 0 // isFirst is true only if pathData is empty
+      pathData.length === 0, // isFirst is true only if pathData is empty
+      curvedPaths // Parameter für geschwungene Pfade
     );
 
     if (tilePathData) {
@@ -111,7 +113,7 @@ export function generateContinuousPath(
 
   // Add the final path to SVG content if it's not empty
   if (pathData) {
-    svgContent += `<path d="${pathData}" stroke="${color}" fill="none" stroke-width="1" vector-effect="non-scaling-stroke" />\n`;
+    svgContent += `<path d="${pathData}" stroke="${color}" fill="none" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" />\n`;
   }
 
   return svgContent;
@@ -125,7 +127,8 @@ export function createTilePathData(
   height: number,
   density: number,
   direction: number,
-  isFirst: boolean
+  isFirst: boolean,
+  useCurvedPaths: boolean = false
 ): string {
   if (density <= 0) return "";
 
@@ -140,34 +143,74 @@ export function createTilePathData(
     pathData = `L ${x} ${y} `;
   }
 
-  // For each segment in the zigzag pattern
-  for (let i = 0; i < density; i++) {
-    const currentX = x + i * step * direction;
-    const nextX = x + (i + 1) * step * direction;
+  if (useCurvedPaths) {
+    // Geschwungene Pfade nach dem Muster in expected.svg
+    const curveWidth = width * 0.33; // Kurvenstärke für die horizontalen Bewegungen
 
-    if (i % 2 === 0) {
-      // Vertical segment (downward)
-      pathData += `L ${currentX} ${y + height} `;
+    for (let i = 0; i < density; i++) {
+      const currentX = x + i * step * direction;
+      const nextX = x + (i + 1) * step * direction;
 
-      // If not the last segment, add horizontal segment
-      if (i < density - 1) {
-        pathData += `L ${nextX} ${y + height} `;
-      } else if (density % 2 === 1) {
-        // If this is the last segment and density is odd,
-        // add final horizontal segment to the right edge
-        pathData += `L ${nextX} ${y + height} `;
+      if (i % 2 === 0) {
+        // Abwärts verlaufende Kurve: von (currentX, y) nach (currentX, y + height)
+        pathData += `c 0,0 -${curveWidth},${height * 0.75} 0,${height} ${
+          curveWidth * 0.15
+        },${curveWidth * 0.15} ${curveWidth * 0.48},${curveWidth * 0.15} ${
+          curveWidth * 0.63
+        },0 `;
+
+        // Wenn nicht das letzte Segment, füge horizontale Bewegung hinzu
+        if (i < density - 1) {
+          const horizontalDistance = (nextX - currentX) * direction;
+          pathData += `${curveWidth} 0 ${
+            horizontalDistance - curveWidth
+          } 0 ${horizontalDistance} 0 `;
+        }
+      } else {
+        // Aufwärts verlaufende Kurve: von (currentX, y + height) nach (currentX, y)
+        pathData += `c 0,0 -${curveWidth},-${height * 0.75} 0,-${height} ${
+          curveWidth * 0.15
+        },-${curveWidth * 0.15} ${curveWidth * 0.48},-${curveWidth * 0.15} ${
+          curveWidth * 0.63
+        },0 `;
+
+        // Wenn nicht das letzte Segment, füge horizontale Bewegung hinzu
+        if (i < density - 1) {
+          const horizontalDistance = (nextX - currentX) * direction;
+          pathData += `${curveWidth} 0 ${
+            horizontalDistance - curveWidth
+          } 0 ${horizontalDistance} 0 `;
+        }
       }
-    } else {
-      // Vertical segment (upward)
-      pathData += `L ${currentX} ${y} `;
+    }
+  } else {
+    // Ursprüngliche Implementierung mit geraden Linien
+    for (let i = 0; i < density; i++) {
+      const currentX = x + i * step * direction;
+      const nextX = x + (i + 1) * step * direction;
 
-      // If not the last segment, add horizontal segment
-      if (i < density - 1) {
-        pathData += `L ${nextX} ${y} `;
-      } else if (density % 2 === 0) {
-        // If this is the last segment and density is even,
-        // add final horizontal segment to the right edge
-        pathData += `L ${nextX} ${y} `;
+      if (i % 2 === 0) {
+        // Vertikales Segment (abwärts)
+        pathData += `L ${currentX} ${y + height} `;
+
+        // Wenn nicht das letzte Segment, füge horizontales Segment hinzu
+        if (i < density - 1) {
+          pathData += `L ${nextX} ${y + height} `;
+        } else if (density % 2 === 1) {
+          // Falls dies das letzte Segment ist und die Dichte ungerade
+          pathData += `L ${nextX} ${y + height} `;
+        }
+      } else {
+        // Vertikales Segment (aufwärts)
+        pathData += `L ${currentX} ${y} `;
+
+        // Wenn nicht das letzte Segment, füge horizontales Segment hinzu
+        if (i < density - 1) {
+          pathData += `L ${nextX} ${y} `;
+        } else if (density % 2 === 0) {
+          // Falls dies das letzte Segment ist und die Dichte gerade
+          pathData += `L ${nextX} ${y} `;
+        }
       }
     }
   }
@@ -181,6 +224,7 @@ export function generateIndividualPaths(
   settings: Settings
 ): string {
   const { color, points } = colorGroup;
+  const { curvedPaths } = settings;
   // No need for a nested g element since we're already in a color group
   let svgContent = "";
 
@@ -193,7 +237,8 @@ export function generateIndividualPaths(
       point.height,
       point.density,
       point.direction,
-      color
+      color,
+      curvedPaths
     );
   });
 
@@ -208,51 +253,112 @@ export function generateSerpentinePath(
   height: number,
   density: number,
   direction: number,
-  color: string
+  color: string,
+  useCurvedPaths: boolean = false
 ): string {
   if (density <= 0) return "";
 
+  // Beginne den Pfad
   let pathData = `<path d="`;
-
   const step = width / density;
 
-  // Initialize with position at top left corner
-  pathData += `M ${x} ${y}`;
+  if (useCurvedPaths) {
+    // Geschwungene Pfadvariante ähnlich wie in expected.svg
+    // Verwende das M-Kommando (absolut) für den Startpunkt
+    pathData += `m ${x},${y} v 0 `;
 
-  // For each segment in the zigzag pattern
-  for (let i = 0; i < density; i++) {
-    const currentX = x + i * step * direction;
-    const nextX = x + (i + 1) * step * direction;
+    // Parameter für die wellenförmigen Kurven basierend auf der Dichte
+    const amplitude = width * 0.33; // Kurvenstärke
 
-    if (i % 2 === 0) {
-      // Vertical segment (downward)
-      pathData += ` L ${currentX} ${y + height}`;
-
-      // If not the last segment, add horizontal segment
-      if (i < density - 1) {
-        pathData += ` L ${nextX} ${y + height}`;
-      } else if (density % 2 === 1) {
-        // If this is the last segment and density is odd,
-        // add final horizontal segment to the right edge
-        pathData += ` L ${nextX} ${y + height}`;
-      }
+    if (density === 1) {
+      // Für Dichte 1: einfache geschwungene Linie nach unten
+      pathData += `c 0,0 -${amplitude * 0.25},${height * 0.75} 0,${height} `;
+      pathData += `${amplitude * 0.15},${amplitude * 0.15} ${
+        amplitude * 0.48
+      },${amplitude * 0.15} ${amplitude * 0.63},0 `;
     } else {
-      // Vertical segment (upward)
-      pathData += ` L ${currentX} ${y}`;
+      // Für Dichte > 1: Schlangenlinie
+      // Beginne mit einer Beschreibung der Kurvenform (wie in expected.svg)
+      pathData += `c 0,0 -${amplitude * direction},${
+        height * 0.75
+      } 0,${height} `;
 
-      // If not the last segment, add horizontal segment
-      if (i < density - 1) {
-        pathData += ` L ${nextX} ${y}`;
-      } else if (density % 2 === 0) {
-        // If this is the last segment and density is even,
-        // add final horizontal segment to the right edge
-        pathData += ` L ${nextX} ${y}`;
+      // Füge Kontrollpunkte für die Rundungen hinzu
+      pathData += `${amplitude * 0.15},${amplitude * 0.15} ${
+        amplitude * 0.48
+      },${amplitude * 0.15} ${amplitude * 0.63},0 `;
+
+      // Füge weitere wellenartige Kurven hinzu, basierend auf der Dichte
+      for (let i = 1; i < density; i++) {
+        const isUp = i % 2 === 1;
+        const yDirection = isUp ? -1 : 1;
+
+        // Kurvenstärke - für natürlichere Formen
+        pathData += `${amplitude * direction},${
+          -amplitude * 0.05 * yDirection
+        } ${amplitude * direction},${-height * 0.75 * yDirection} 0,${
+          -height * yDirection
+        } `;
+
+        // Rundungskontrollpunkte
+        pathData += `${amplitude * 0.15},${-amplitude * 0.15 * yDirection} ${
+          amplitude * 0.48
+        },${-amplitude * 0.15 * yDirection} ${amplitude * 0.63},0 `;
+
+        // Wenn nicht das letzte Segment, füge horizontale Bewegung hinzu
+        if (i < density - 1) {
+          // Welligkeit zwischen den Segmenten
+          pathData += `${amplitude * direction},${
+            amplitude * 0.05 * yDirection
+          } ${amplitude * direction},${height * 0.75 * yDirection} 0,${
+            height * yDirection
+          } `;
+
+          // Rundungskontrollpunkte
+          pathData += `${amplitude * 0.15},${amplitude * 0.15 * yDirection} ${
+            amplitude * 0.48
+          },${amplitude * 0.15 * yDirection} ${amplitude * 0.63},0 `;
+        }
+      }
+    }
+  } else {
+    // Original-Implementierung mit geraden Linien
+    // Initialisiere mit Position in der oberen linken Ecke
+    pathData += `M ${x} ${y}`;
+
+    // For each segment in the zigzag pattern
+    for (let i = 0; i < density; i++) {
+      const currentX = x + i * step * direction;
+      const nextX = x + (i + 1) * step * direction;
+
+      if (i % 2 === 0) {
+        // Vertikales Segment (abwärts)
+        pathData += ` L ${currentX} ${y + height}`;
+
+        // Wenn nicht das letzte Segment, füge horizontales Segment hinzu
+        if (i < density - 1) {
+          pathData += ` L ${nextX} ${y + height}`;
+        } else if (density % 2 === 1) {
+          // Falls dies das letzte Segment ist und die Dichte ungerade
+          pathData += ` L ${nextX} ${y + height}`;
+        }
+      } else {
+        // Vertikales Segment (aufwärts)
+        pathData += ` L ${currentX} ${y}`;
+
+        // Wenn nicht das letzte Segment, füge horizontales Segment hinzu
+        if (i < density - 1) {
+          pathData += ` L ${nextX} ${y}`;
+        } else if (density % 2 === 0) {
+          // Falls dies das letzte Segment ist und die Dichte gerade
+          pathData += ` L ${nextX} ${y}`;
+        }
       }
     }
   }
 
-  // Close path and add style
-  pathData += `" stroke="${color}" fill="none" stroke-width="1" vector-effect="non-scaling-stroke" />\n`;
+  // Schließe den Pfad und füge Stileigenschaften hinzu
+  pathData += `" stroke="${color}" fill="none" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" />\n`;
 
   return pathData;
 }
@@ -297,6 +403,11 @@ export function extractColorGroupSVG(
     newSvg.setAttribute("height", height);
     newSvg.setAttribute("viewBox", viewBox);
     newSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    newSvg.setAttribute("shape-rendering", "geometricPrecision");
+    newSvg.setAttribute(
+      "style",
+      "stroke-linejoin: round; stroke-linecap: round;"
+    );
 
     // Add metadata if it exists
     if (metadata) {

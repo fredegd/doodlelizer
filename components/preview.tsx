@@ -25,7 +25,9 @@ const Preview = memo(function Preview({
 
   useEffect(() => {
     if (svgContent && svgContainerRef.current) {
-      svgContainerRef.current.innerHTML = svgContent
+      // Füge ein style-Tag hinzu, um sicherzustellen, dass alle Pfade abgerundete Ecken haben
+      const enhancedSvgContent = svgContent.replace('<svg ', '<svg style="shape-rendering: geometricPrecision; stroke-linejoin: round; stroke-linecap: round;" ');
+      svgContainerRef.current.innerHTML = enhancedSvgContent;
     }
   }, [svgContent])
 
