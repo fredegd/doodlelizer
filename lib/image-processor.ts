@@ -186,6 +186,12 @@ export async function processImage(
   });
 }
 
+// Helper function to ensure density is either 0 or an even number
+function ensureEvenDensity(density: number): number {
+  if (density <= 0) return 0;
+  return density % 2 === 0 ? density : density - 1;
+}
+
 // Process image in grayscale mode
 function processGrayscale(
   imageData: ImageData,
@@ -260,8 +266,10 @@ function processGrayscale(
 
       // Calculate density based on brightness
       const normalizedBrightness = (255 - grayValue) / 255;
-      const density = Math.round(
-        minDensity + normalizedBrightness * (maxDensity - minDensity)
+      const density = ensureEvenDensity(
+        Math.round(
+          minDensity + normalizedBrightness * (maxDensity - minDensity)
+        )
       );
 
       // Determine direction based on row
@@ -353,8 +361,10 @@ function processPosterize(
       // Calculate brightness for density
       const brightness = r * 0.299 + g * 0.587 + b * 0.114;
       const normalizedBrightness = (255 - brightness) / 255;
-      const density = Math.round(
-        minDensity + normalizedBrightness * (maxDensity - minDensity)
+      const density = ensureEvenDensity(
+        Math.round(
+          minDensity + normalizedBrightness * (maxDensity - minDensity)
+        )
       );
 
       // Determine direction based on row
@@ -432,8 +442,8 @@ function processCMYK(
         if (value > 0) {
           // Calculate density based on channel value
           const normalizedValue = value / 255;
-          const density = Math.round(
-            minDensity + normalizedValue * (maxDensity - minDensity)
+          const density = ensureEvenDensity(
+            Math.round(minDensity + normalizedValue * (maxDensity - minDensity))
           );
 
           // Determine direction based on row
@@ -1007,8 +1017,10 @@ function processMonochrome(
       // Calculate density based on brightness
       // Note: For monochrome, darker pixels have higher density
       const normalizedBrightness = (255 - pixel.brightness) / 255;
-      const density = Math.round(
-        minDensity + normalizedBrightness * (maxDensity - minDensity)
+      const density = ensureEvenDensity(
+        Math.round(
+          minDensity + normalizedBrightness * (maxDensity - minDensity)
+        )
       );
 
       // Determine direction based on row

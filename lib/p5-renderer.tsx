@@ -150,6 +150,10 @@ function drawTileZigzag(
   density: number,
   direction: number,
 ) {
+  // Ensure density is either 0 or an even number
+  if (density <= 0) return;
+  density = density % 2 === 0 ? density : density - 1;
+
   const step = width / density
 
   // Create zigzag pattern based on density

@@ -28,10 +28,10 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
     let outputWidth = MAX_DIMENSION;
 
     // Berechne die Kachelbreite
-    const tileWidth = Math.floor(outputWidth / settings.columnsCount);
-
+    let tileWidth = Math.floor(outputWidth / settings.columnsCount);
+    tileWidth = tileWidth % 2 === 0 ? tileWidth : tileWidth - 1;
     // Gib die berechnete Kachelbreite als maxDensity zurück
-    return tileWidth;
+    return tileWidth * 1.5;
   }, [settings.columnsCount]);
 
   return (
@@ -272,7 +272,7 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                   <Slider
                     id="pathDistanceThreshold"
                     min={1}
-                    max={300}
+                    max={200}
                     step={1}
                     value={[settings.pathDistanceThreshold]}
                     onValueChange={(value) => onSettingsChange({ pathDistanceThreshold: value[0] })}
@@ -309,13 +309,13 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                 <Slider
                   id="minDensity"
                   min={0}
-                  max={calculatedDensity - 1}
+                  max={calculatedDensity}
                   step={1}
                   value={[Math.min(settings.minDensity, calculatedDensity)]}
                   onValueChange={(value) => onSettingsChange({ minDensity: value[0] })}
                   disabled={disabled}
                 />
-                <p className="text-xs text-gray-400">Minimum zigzag density for bright areas (auto-adjusted to tile width: {calculatedDensity}px)
+                <p className="text-xs text-gray-400">Minimum zigzag density for bright areas (auto-adjusted to tile width: {calculatedDensity / 1.5}px)
                 </p>
               </div>
 
@@ -333,7 +333,7 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                   disabled={disabled}
                 />
                 <p className="text-xs text-gray-400">
-                  Maximum zigzag density for dark areas (auto-adjusted to tile width: {calculatedDensity}px)
+                  Maximum zigzag density for dark areas (auto-adjusted to tile width: {calculatedDensity / 1.5}px)
                 </p>
               </div>
 
