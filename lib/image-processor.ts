@@ -253,7 +253,7 @@ function processGrayscale(
       const pixel = pixelGrid[y][x];
       if (!pixel) continue;
 
-      // Find nearest gray level
+      // Find nearest gray
       const nearestGray = grayLevels.reduce((prev, curr) => {
         return Math.abs(curr - pixel.brightness) <
           Math.abs(prev - pixel.brightness)
@@ -728,42 +728,48 @@ function generateSerpentinePath(
   direction: number,
   color: string
 ): string {
+  if (density <= 0) return "";
+
   let pathData = `<path d="`;
 
-  // Start at the corner of the tile
+  // Initialize with position at top left corner
   pathData += `M ${x} ${y}`;
 
-  // Create zigzag pattern based on density
-  for (let d = 0; d < density; d++) {
-    const offset = d * (width / density);
-    const nextOffset = (d + 1) * (width / density);
+  const step = width / density;
 
-    // Toggle between top and bottom lines for the zigzag
-    if (d % 2 === 0) {
-      // Draw horizontal line along the top
-      pathData += ` L ${x + offset * direction} ${y}`;
-      pathData += ` L ${x + nextOffset * direction} ${y}`;
+  // For each segment in the zigzag pattern
+  for (let i = 0; i < density; i++) {
+    const currentX = x + i * step * direction;
+    const nextX = x + (i + 1) * step * direction;
+
+    if (i % 2 === 0) {
+      // Vertical segment (downward)
+      pathData += ` L ${currentX} ${y + height}`;
+
+      // If not the last segment, add horizontal segment
+      if (i < density - 1) {
+        pathData += ` L ${nextX} ${y + height}`;
+      } else if (density % 2 === 1) {
+        // If this is the last segment and density is odd,
+        // add final horizontal segment to the right edge
+        pathData += ` L ${nextX} ${y + height}`;
+      }
     } else {
-      // Draw horizontal line along the bottom
-      pathData += ` L ${x + offset * direction} ${y + height}`;
-      pathData += ` L ${x + nextOffset * direction} ${y + height}`;
-    }
+      // Vertical segment (upward)
+      pathData += ` L ${currentX} ${y}`;
 
-    // Add vertical connecting line if not the last segment
-    if (d < density - 1) {
-      if (d % 2 === 0) {
-        // Connect from top to bottom
-        pathData += ` L ${x + nextOffset * direction} ${y}`;
-        pathData += ` L ${x + nextOffset * direction} ${y + height}`;
-      } else {
-        // Connect from bottom to top
-        pathData += ` L ${x + nextOffset * direction} ${y + height}`;
-        pathData += ` L ${x + nextOffset * direction} ${y}`;
+      // If not the last segment, add horizontal segment
+      if (i < density - 1) {
+        pathData += ` L ${nextX} ${y}`;
+      } else if (density % 2 === 0) {
+        // If this is the last segment and density is even,
+        // add final horizontal segment to the right edge
+        pathData += ` L ${nextX} ${y}`;
       }
     }
   }
 
-  // Close the path and add stroke attributes
+  // Close path and add style
   pathData += `" stroke="${color}" fill="none" stroke-width="1" />\n`;
 
   return pathData;
@@ -788,36 +794,38 @@ function createTilePathData(
   if (isFirst) {
     pathData = `M ${x} ${y} `;
   } else {
-    // Otherwise, draw a line to the start of this tile
+    // Otherwise, draw a line to the start of this tile (if we're not already there)
     pathData = `L ${x} ${y} `;
   }
 
-  // Generate zigzag pattern within this tile
-  for (let d = 0; d < density; d++) {
-    const offset = d * step;
-    const nextOffset = (d + 1) * step;
+  // For each segment in the zigzag pattern
+  for (let i = 0; i < density; i++) {
+    const currentX = x + i * step * direction;
+    const nextX = x + (i + 1) * step * direction;
 
-    // Toggle between top and bottom lines for the zigzag
-    if (d % 2 === 0) {
-      // Draw horizontal line along the top
-      pathData += `L ${x + offset * direction} ${y} `;
-      pathData += `L ${x + nextOffset * direction} ${y} `;
+    if (i % 2 === 0) {
+      // Vertical segment (downward)
+      pathData += `L ${currentX} ${y + height} `;
+
+      // If not the last segment, add horizontal segment
+      if (i < density - 1) {
+        pathData += `L ${nextX} ${y + height} `;
+      } else if (density % 2 === 1) {
+        // If this is the last segment and density is odd,
+        // add final horizontal segment to the right edge
+        pathData += `L ${nextX} ${y + height} `;
+      }
     } else {
-      // Draw horizontal line along the bottom
-      pathData += `L ${x + offset * direction} ${y + height} `;
-      pathData += `L ${x + nextOffset * direction} ${y + height} `;
-    }
+      // Vertical segment (upward)
+      pathData += `L ${currentX} ${y} `;
 
-    // Add vertical connecting line if not the last segment
-    if (d < density - 1) {
-      if (d % 2 === 0) {
-        // Connect from top to bottom
-        pathData += `L ${x + nextOffset * direction} ${y} `;
-        pathData += `L ${x + nextOffset * direction} ${y + height} `;
-      } else {
-        // Connect from bottom to top
-        pathData += `L ${x + nextOffset * direction} ${y + height} `;
-        pathData += `L ${x + nextOffset * direction} ${y} `;
+      // If not the last segment, add horizontal segment
+      if (i < density - 1) {
+        pathData += `L ${nextX} ${y} `;
+      } else if (density % 2 === 0) {
+        // If this is the last segment and density is even,
+        // add final horizontal segment to the right edge
+        pathData += `L ${nextX} ${y} `;
       }
     }
   }
