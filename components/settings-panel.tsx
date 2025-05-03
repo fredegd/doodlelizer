@@ -337,16 +337,6 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                   Maximum zigzag density for dark areas (auto-adjusted to tile width: {calculatedDensity / 2}px)
                 </p>
               </div>
-
-              <div className="flex items-center justify-between">
-                <Label htmlFor="invert">Invert Colors</Label>
-                <Switch
-                  id="invert"
-                  checked={settings.invert}
-                  onCheckedChange={(checked) => onSettingsChange({ invert: checked })}
-                  disabled={disabled}
-                />
-              </div>
             </div>
           </div>
         </div>

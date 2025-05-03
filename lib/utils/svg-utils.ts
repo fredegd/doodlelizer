@@ -3,22 +3,8 @@ import type { ColorGroup, ImageData, Settings } from "../types";
 
 // Generate SVG from processed image data
 export function generateSVG(imageData: ImageData, settings: Settings): string {
-  const {
-    originalWidth,
-    originalHeight,
-    resizedWidth,
-    resizedHeight,
-    outputWidth,
-    outputHeight,
-    colorGroups,
-  } = imageData;
-  const {
-    gridSizeX,
-    gridSizeY,
-    continuousPaths,
-    processingMode,
-    visiblePaths,
-  } = settings;
+  const { outputWidth, outputHeight, colorGroups } = imageData;
+  const { continuousPaths, visiblePaths } = settings;
 
   const widthInMM = Math.round(outputWidth / 3.759);
   const heightInMM = Math.round(outputHeight / 3.759);
@@ -28,28 +14,17 @@ export function generateSVG(imageData: ImageData, settings: Settings): string {
 
   // Start SVG content
   let svgContent = `<svg width="${widthInMM} mm" height="${heightInMM} mm" viewBox="0 0 ${svgWidth} ${svgHeight}" xmlns="http://www.w3.org/2000/svg">
-  <metadata>
-    <originalWidth>${originalWidth}</originalWidth>
-    <originalHeight>${originalHeight}</originalHeight>
-    <resizedWidth>${resizedWidth}</resizedWidth>
-    <resizedHeight>${resizedHeight}</resizedHeight>
-    <outputWidth>${outputWidth}</outputWidth>
-    <outputHeight>${outputHeight}</outputHeight>
-    <gridSizeX>${gridSizeX}</gridSizeX>
-    <gridSizeY>${gridSizeY}</gridSizeY>
-    <processingMode>${processingMode}</processingMode>
-    <continuousPaths>${continuousPaths}</continuousPaths>
-  </metadata>
   `;
 
   // Generate paths for each color group
   if (colorGroups) {
-    Object.entries(colorGroups).forEach(([colorKey, group]) => {
+    Object.entries(colorGroups).forEach(([colorKey, group], index) => {
       // Skip if this path is not visible
       if (visiblePaths[colorKey] === false) return;
-
       // Create a group with id and custom data attributes for easier post-processing
-      svgContent += `<g id="color-group-${colorKey}" data-color="${group.color}" data-name="${group.displayName}">\n`;
+      svgContent += `<g id="${index + 1}color-group-${colorKey}" data-color="${
+        group.color
+      }" data-name="${group.displayName}">\n`;
 
       if (continuousPaths) {
         // Generate continuous path for this color group
@@ -142,88 +117,6 @@ export function generateContinuousPath(
   return svgContent;
 }
 
-// Generate individual paths for a color group
-export function generateIndividualPaths(
-  colorGroup: ColorGroup,
-  settings: Settings
-): string {
-  const { color, points } = colorGroup;
-  // No need for a nested g element since we're already in a color group
-  let svgContent = "";
-
-  // Add each path segment
-  points.forEach((point) => {
-    svgContent += generateSerpentinePath(
-      point.x,
-      point.y,
-      point.width,
-      point.height,
-      point.density,
-      point.direction,
-      color
-    );
-  });
-
-  return svgContent;
-}
-
-// Generate a serpentine path for a single tile
-export function generateSerpentinePath(
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  density: number,
-  direction: number,
-  color: string
-): string {
-  if (density <= 0) return "";
-
-  let pathData = `<path d="`;
-
-  // Initialize with position at top left corner
-  pathData += `M ${x} ${y}`;
-
-  const step = width / density;
-
-  // For each segment in the zigzag pattern
-  for (let i = 0; i < density; i++) {
-    const currentX = x + i * step * direction;
-    const nextX = x + (i + 1) * step * direction;
-
-    if (i % 2 === 0) {
-      // Vertical segment (downward)
-      pathData += ` L ${currentX} ${y + height}`;
-
-      // If not the last segment, add horizontal segment
-      if (i < density - 1) {
-        pathData += ` L ${nextX} ${y + height}`;
-      } else if (density % 2 === 1) {
-        // If this is the last segment and density is odd,
-        // add final horizontal segment to the right edge
-        pathData += ` L ${nextX} ${y + height}`;
-      }
-    } else {
-      // Vertical segment (upward)
-      pathData += ` L ${currentX} ${y}`;
-
-      // If not the last segment, add horizontal segment
-      if (i < density - 1) {
-        pathData += ` L ${nextX} ${y}`;
-      } else if (density % 2 === 0) {
-        // If this is the last segment and density is even,
-        // add final horizontal segment to the right edge
-        pathData += ` L ${nextX} ${y}`;
-      }
-    }
-  }
-
-  // Close path and add style
-  pathData += `" stroke="${color}" fill="none" stroke-width="1" vector-effect="non-scaling-stroke" />\n`;
-
-  return pathData;
-}
-
 // Create path data for a single tile in a continuous path
 export function createTilePathData(
   x: number,
@@ -278,6 +171,88 @@ export function createTilePathData(
       }
     }
   }
+
+  return pathData;
+}
+
+// Generate individual paths for a color group
+export function generateIndividualPaths(
+  colorGroup: ColorGroup,
+  settings: Settings
+): string {
+  const { color, points } = colorGroup;
+  // No need for a nested g element since we're already in a color group
+  let svgContent = "";
+
+  // Add each path segment
+  points.forEach((point) => {
+    svgContent += generateSerpentinePath(
+      point.x,
+      point.y,
+      point.width,
+      point.height,
+      point.density,
+      point.direction,
+      color
+    );
+  });
+
+  return svgContent;
+}
+
+// Generate a serpentine path for a single tile
+export function generateSerpentinePath(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  density: number,
+  direction: number,
+  color: string
+): string {
+  if (density <= 0) return "";
+
+  let pathData = `<path d="`;
+
+  const step = width / density;
+
+  // Initialize with position at top left corner
+  pathData += `M ${x} ${y}`;
+
+  // For each segment in the zigzag pattern
+  for (let i = 0; i < density; i++) {
+    const currentX = x + i * step * direction;
+    const nextX = x + (i + 1) * step * direction;
+
+    if (i % 2 === 0) {
+      // Vertical segment (downward)
+      pathData += ` L ${currentX} ${y + height}`;
+
+      // If not the last segment, add horizontal segment
+      if (i < density - 1) {
+        pathData += ` L ${nextX} ${y + height}`;
+      } else if (density % 2 === 1) {
+        // If this is the last segment and density is odd,
+        // add final horizontal segment to the right edge
+        pathData += ` L ${nextX} ${y + height}`;
+      }
+    } else {
+      // Vertical segment (upward)
+      pathData += ` L ${currentX} ${y}`;
+
+      // If not the last segment, add horizontal segment
+      if (i < density - 1) {
+        pathData += ` L ${nextX} ${y}`;
+      } else if (density % 2 === 0) {
+        // If this is the last segment and density is even,
+        // add final horizontal segment to the right edge
+        pathData += ` L ${nextX} ${y}`;
+      }
+    }
+  }
+
+  // Close path and add style
+  pathData += `" stroke="${color}" fill="none" stroke-width="1" vector-effect="non-scaling-stroke" />\n`;
 
   return pathData;
 }

@@ -100,17 +100,10 @@ export async function processImage(
               (r * 0.299 + g * 0.587 + b * 0.114) * a
             );
 
-            // Apply invert if needed
-            if (settings.invert) {
-              brightness = 255 - brightness;
-            }
-
             // Only include pixels that meet the threshold for non-CMYK modes
             if (
               settings.processingMode === "cmyk" ||
-              (settings.invert
-                ? brightness >= settings.brightnessThreshold
-                : brightness <= settings.brightnessThreshold)
+              brightness <= settings.brightnessThreshold
             ) {
               pixels.push({
                 x,

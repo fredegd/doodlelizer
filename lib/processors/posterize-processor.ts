@@ -1,6 +1,5 @@
 import type { ColorGroup, ImageData, PixelData, Settings } from "../types";
 import {
-  ensureEvenDensity,
   findNearestCentroid,
   kMeansClustering,
   calculateContextAwareDensity,

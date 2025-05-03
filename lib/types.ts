@@ -9,7 +9,6 @@ export interface Settings {
   maxDensity: number;
   rowsCount: number;
   columnsCount: number;
-  invert: boolean;
   continuousPaths: boolean;
   pathDistanceThreshold: number;
   processingMode: ProcessingMode;
