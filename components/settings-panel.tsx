@@ -49,6 +49,20 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
               disabled={disabled}
             >
               <div className="flex items-center space-x-2">
+                <RadioGroupItem value="monochrome" id="monochrome" />
+                <Label htmlFor="monochrome" className="cursor-pointer">
+                  Monochrome
+                </Label>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className="h-4 w-4 text-gray-400" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">Creates a single-color path with density based on brightness</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              <div className="flex items-center space-x-2">
                 <RadioGroupItem value="grayscale" id="grayscale" />
                 <Label htmlFor="grayscale" className="cursor-pointer">
                   Grayscale
@@ -90,20 +104,7 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="monochrome" id="monochrome" />
-                <Label htmlFor="monochrome" className="cursor-pointer">
-                  Monochrome
-                </Label>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Info className="h-4 w-4 text-gray-400" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="max-w-xs">Creates a single-color path with density based on brightness</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
+
             </RadioGroup>
 
             {(settings.processingMode === "grayscale" || settings.processingMode === "posterize") && (
