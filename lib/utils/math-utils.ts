@@ -160,3 +160,74 @@ export function ensureEvenDensity(density: number): number {
   if (density <= 0) return 0;
   return density % 2 === 0 ? density : density - 1;
 }
+
+// Calculate density with awareness of neighboring tiles
+// This function helps smooth transitions between adjacent tiles with different colors
+export function calculateContextAwareDensity(
+  pixelGrid: (PixelData | null)[][],
+  x: number,
+  y: number,
+  minDensity: number,
+  maxDensity: number,
+  normalizedValue: number // Value between 0 and 1, usually derived from brightness
+): number {
+  const height = pixelGrid.length;
+  const width = pixelGrid[0].length;
+
+  // Base density calculation for current tile
+  const baseDensity = Math.round(
+    minDensity + normalizedValue * (maxDensity - minDensity)
+  );
+
+  // If edge tile or no context awareness needed, return base density
+  if (x <= 0 || x >= width - 1 || y <= 0 || y >= height - 1) {
+    return ensureEvenDensity(baseDensity);
+  }
+
+  // Get neighboring pixels
+  const neighbors = [
+    pixelGrid[y - 1][x], // top
+    pixelGrid[y + 1][x], // bottom
+    pixelGrid[y][x - 1], // left
+    pixelGrid[y][x + 1], // right
+  ].filter((n) => n !== null);
+
+  // If we don't have enough neighbors for context, return base density
+  if (neighbors.length < 2) {
+    return ensureEvenDensity(baseDensity);
+  }
+
+  // Calculate average brightness of neighbors
+  const avgNeighborBrightness =
+    neighbors.reduce((sum, pixel) => sum + (pixel ? pixel.brightness : 0), 0) /
+    neighbors.length;
+
+  // Get current pixel
+  const currentPixel = pixelGrid[y][x];
+  if (!currentPixel) return ensureEvenDensity(baseDensity);
+
+  // Calculate brightness difference between current pixel and neighbors
+  const brightnessDiff = Math.abs(
+    currentPixel.brightness - avgNeighborBrightness
+  );
+
+  // If brightness difference is significant, adjust density
+  if (brightnessDiff > 50) {
+    // threshold can be adjusted
+    // Smooth density value based on neighbors
+    const smoothingFactor = Math.min(brightnessDiff / 255, 0.5); // max 50% smoothing
+    const neighborNormalizedValue = (255 - avgNeighborBrightness) / 255;
+    const neighborBaseDensity = Math.round(
+      minDensity + neighborNormalizedValue * (maxDensity - minDensity)
+    );
+
+    // Weighted average of current density and neighbor density
+    const smoothedDensity = Math.round(
+      baseDensity * (1 - smoothingFactor) + neighborBaseDensity * smoothingFactor
+    );
+
+    return ensureEvenDensity(smoothedDensity);
+  }
+
+  return ensureEvenDensity(baseDensity);
+}

@@ -106,7 +106,7 @@ export function generateContinuousPath(
     if (firstPoint || needNewPath) {
       // If we have existing path data, add it to the SVG content
       if (pathData && !firstPoint) {
-        svgContent += `<path d="${pathData}" stroke="${color}" fill="none" stroke-width="1" />\n`;
+        svgContent += `<path d="${pathData}" stroke="${color}" fill="none" stroke-width="1" vector-effect="non-scaling-stroke" />\n`;
         pathData = "";
       }
 
@@ -136,7 +136,7 @@ export function generateContinuousPath(
 
   // Add the final path to SVG content if it's not empty
   if (pathData) {
-    svgContent += `<path d="${pathData}" stroke="${color}" fill="none" stroke-width="1" />\n`;
+    svgContent += `<path d="${pathData}" stroke="${color}" fill="none" stroke-width="1" vector-effect="non-scaling-stroke" />\n`;
   }
 
   return svgContent;
@@ -219,7 +219,7 @@ export function generateSerpentinePath(
   }
 
   // Close path and add style
-  pathData += `" stroke="${color}" fill="none" stroke-width="1" />\n`;
+  pathData += `" stroke="${color}" fill="none" stroke-width="1" vector-effect="non-scaling-stroke" />\n`;
 
   return pathData;
 }

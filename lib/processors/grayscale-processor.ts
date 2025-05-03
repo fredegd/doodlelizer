@@ -1,5 +1,5 @@
 import type { ColorGroup, ImageData, PixelData, Settings } from "../types";
-import { ensureEvenDensity } from "../utils/math-utils";
+import { ensureEvenDensity, calculateContextAwareDensity } from "../utils/math-utils";
 import { rgbToHex } from "../converters/color-converters";
 
 // Process image in grayscale mode
@@ -74,12 +74,17 @@ export function processGrayscale(
       const grayValue = Math.round(nearestGray);
       const colorKey = `gray-${grayValue}`;
 
-      // Calculate density based on brightness
+      // Calculate density based on brightness with context awareness
       const normalizedBrightness = (255 - grayValue) / 255;
-      const density = ensureEvenDensity(
-        Math.round(
-          minDensity + normalizedBrightness * (maxDensity - minDensity)
-        )
+      
+      // Verwenden der neuen kontextbewussten Funktion
+      const density = calculateContextAwareDensity(
+        pixelGrid,
+        x,
+        y,
+        minDensity,
+        maxDensity,
+        normalizedBrightness
       );
 
       // Determine direction based on row

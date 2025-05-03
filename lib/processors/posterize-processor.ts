@@ -3,6 +3,7 @@ import {
   ensureEvenDensity,
   findNearestCentroid,
   kMeansClustering,
+  calculateContextAwareDensity,
 } from "../utils/math-utils";
 import {
   calculateHueAndBrightness,
@@ -79,10 +80,15 @@ export function processPosterize(
       // Calculate brightness for density
       const brightness = r * 0.299 + g * 0.587 + b * 0.114;
       const normalizedBrightness = (255 - brightness) / 255;
-      const density = ensureEvenDensity(
-        Math.round(
-          minDensity + normalizedBrightness * (maxDensity - minDensity)
-        )
+
+      // Use the new context-aware function
+      const density = calculateContextAwareDensity(
+        pixelGrid,
+        x,
+        y,
+        minDensity,
+        maxDensity,
+        normalizedBrightness
       );
 
       // Determine direction based on row

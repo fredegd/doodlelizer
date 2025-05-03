@@ -58,6 +58,8 @@ export async function processImage(
 
         // Draw image to canvas at resized dimensions
         ctx.drawImage(img, 0, 0, resizedWidth, resizedHeight);
+        //maintaint the stroke width
+        ctx.lineWidth = 1;
 
         // Calculate grid dimensions using the columnsCount and rowsCount
         const gridWidth = columnsCount;

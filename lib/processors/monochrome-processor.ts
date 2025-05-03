@@ -1,5 +1,8 @@
 import type { ColorGroup, ImageData, PixelData, Settings } from "../types";
-import { ensureEvenDensity } from "../utils/math-utils";
+import {
+  ensureEvenDensity,
+  calculateContextAwareDensity,
+} from "../utils/math-utils";
 import {
   hexToRgb,
   calculateHue,
@@ -39,13 +42,18 @@ export function processMonochrome(
       const pixel = pixelGrid[y][x];
       if (!pixel) continue;
 
-      // Calculate density based on brightness
+      // Calculate density based on brightness with context awareness
       // Note: For monochrome, darker pixels have higher density
       const normalizedBrightness = (255 - pixel.brightness) / 255;
-      const density = ensureEvenDensity(
-        Math.round(
-          minDensity + normalizedBrightness * (maxDensity - minDensity)
-        )
+
+      // Verwenden der neuen kontextbewussten Funktion
+      const density = calculateContextAwareDensity(
+        pixelGrid,
+        x,
+        y,
+        minDensity,
+        maxDensity,
+        normalizedBrightness
       );
 
       // Determine direction based on row
