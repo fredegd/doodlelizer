@@ -292,7 +292,9 @@ function processGrayscale(
 }
 
 // Process image in posterize mode
-function processPosterize(
+import { calculateHueAndBrightness } from "@/lib/image-processor";
+
+export function processPosterize(
   imageData: ImageData,
   settings: Settings
 ): Record<string, ColorGroup> {
@@ -383,7 +385,8 @@ function processPosterize(
     }
   }
 
-  return colorGroups;
+  // Calculate hue and brightness for sorting
+  return calculateHueAndBrightness(colorGroups);
 }
 
 // Process image in CMYK mode
@@ -563,12 +566,14 @@ export function generateSVG(imageData: ImageData, settings: Settings): string {
     visiblePaths,
   } = settings;
 
+  const widthInMM = Math.round(outputWidth / 3.759);
+  const heightInMM = Math.round(outputHeight / 3.759);
   // Set SVG dimensions to the calculated output dimensions
   const svgWidth = outputWidth;
   const svgHeight = outputHeight;
 
   // Start SVG content
-  let svgContent = `<svg width="100%" height="100%" viewBox="0 0 ${svgWidth} ${svgHeight}" xmlns="http://www.w3.org/2000/svg">
+  let svgContent = `<svg width="${widthInMM} mm" height="${heightInMM} mm" viewBox="0 0 ${svgWidth} ${svgHeight}" xmlns="http://www.w3.org/2000/svg">
   <metadata>
     <originalWidth>${originalWidth}</originalWidth>
     <originalHeight>${originalHeight}</originalHeight>
@@ -851,21 +856,20 @@ function kMeansClustering(
     }
   }
 
-  // Initialize centroids with random colors from the input
+  // Initialize centroids deterministically instead of randomly
+  // This ensures consistent results for the same input
   let centroids: [number, number, number][] = [];
-  const colorsCopy = [...colorsToProcess];
 
-  // Select initial centroids randomly
-  for (let i = 0; i < k; i++) {
-    if (colorsCopy.length === 0) break;
-    const randomIndex = Math.floor(Math.random() * colorsCopy.length);
-    centroids.push(colorsCopy[randomIndex]);
-    colorsCopy.splice(randomIndex, 1);
-  }
-
-  // If we couldn't get enough centroids, duplicate the last one
-  while (centroids.length < k) {
-    centroids.push([...centroids[centroids.length - 1]]);
+  if (colorsToProcess.length <= k) {
+    // If we have fewer colors than k, just use all colors
+    return [...colorsToProcess];
+  } else {
+    // Otherwise, select evenly distributed colors from the input
+    const step = Math.floor(colorsToProcess.length / k);
+    for (let i = 0; i < k; i++) {
+      const index = Math.min(i * step, colorsToProcess.length - 1);
+      centroids.push([...colorsToProcess[index]]);
+    }
   }
 
   let oldCentroids: [number, number, number][] = [];
@@ -1143,4 +1147,49 @@ export function extractAllColorGroups(
     console.error("Error extracting all color groups:", error);
     return {};
   }
+}
+
+import { ColorGroup } from "@/lib/types";
+
+export function calculateHueAndBrightness(
+  colorGroups: Record<string, ColorGroup>
+): Record<string, ColorGroup> {
+  return Object.fromEntries(
+    Object.entries(colorGroups).map(([key, group]) => {
+      const { r, g, b } = hexToRgb(group.color);
+      const hue = calculateHue(r, g, b);
+      const brightness = calculateBrightness(r, g, b);
+      return [key, { ...group, hue, brightness }];
+    })
+  );
+}
+
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  const bigint = parseInt(hex.slice(1), 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return { r, g, b };
+}
+
+function calculateHue(r: number, g: number, b: number): number {
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  let hue = 0;
+
+  if (max === min) {
+    hue = 0;
+  } else if (max === r) {
+    hue = ((g - b) / (max - min)) * 60;
+  } else if (max === g) {
+    hue = ((b - r) / (max - min)) * 60 + 120;
+  } else {
+    hue = ((r - g) / (max - min)) * 60 + 240;
+  }
+
+  return (hue + 360) % 360;
+}
+
+function calculateBrightness(r: number, g: number, b: number): number {
+  return 0.299 * r + 0.587 * g + 0.114 * b;
 }

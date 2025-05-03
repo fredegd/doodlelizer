@@ -10,6 +10,7 @@ interface PathVisibilityControlsProps {
   visiblePaths: Record<string, boolean>
   onVisibilityChange: (colorKey: string, visible: boolean) => void
   disabled: boolean
+  processingMode: "posterize" | "grayscale"
 }
 
 const PathVisibilityControls = React.memo(function PathVisibilityControls({
@@ -17,7 +18,18 @@ const PathVisibilityControls = React.memo(function PathVisibilityControls({
   visiblePaths,
   onVisibilityChange,
   disabled,
+  processingMode,
 }: PathVisibilityControlsProps) {
+  const sortedColorGroups = React.useMemo(() => {
+    const entries = Object.entries(colorGroups)
+    if (processingMode === "posterize") {
+      return entries.sort(([, a], [, b]) => a.hue - b.hue)
+    } else if (processingMode === "grayscale") {
+      return entries.sort(([, a], [, b]) => a.brightness - b.brightness)
+    }
+    return entries
+  }, [colorGroups, processingMode])
+
   const allVisible =
     Object.keys(colorGroups).length > 0 && Object.keys(colorGroups).every((key) => visiblePaths[key] !== false)
 
@@ -38,7 +50,7 @@ const PathVisibilityControls = React.memo(function PathVisibilityControls({
       </div>
 
       <div className="space-y-3">
-        {Object.entries(colorGroups).map(([colorKey, group]) => (
+        {sortedColorGroups.map(([colorKey, group]) => (
           <div key={colorKey} className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 rounded" style={{ backgroundColor: group.color }} />

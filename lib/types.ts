@@ -60,6 +60,8 @@ export interface ColorGroup {
   displayName: string;
   points: PathPoint[];
   pathData?: string;
+  hue: number; // Farbton für die Sortierung im "posterize"-Modus
+  brightness: number; // Helligkeit für die Sortierung im "grayscale"-Modus
 }
 
 export interface CMYKValues {
