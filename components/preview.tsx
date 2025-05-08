@@ -32,8 +32,8 @@ const Preview = memo(function Preview({
   }, [svgContent])
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-4 relative">
+    <div className="space-y-4 sticky top-0">
+      <div className="flex flex-col gap-4">
         <div className="bg-gray-800 rounded-lg p-4">
           <Button
             onClick={onNewImageUpload}
@@ -45,7 +45,7 @@ const Preview = memo(function Preview({
             <Upload className="h-4 w-4" />
           </Button>
           <h3 className="text-lg font-medium mb-2 text-center">Original Image</h3>
-          <div className="flex items-center justify-center h-64 overflow-hidden">
+          <div className="flex items-center justify-center h-32 overflow-hidden">
             <img
               src={originalImage || "/placeholder.svg"}
               alt="Original"
@@ -59,7 +59,7 @@ const Preview = memo(function Preview({
           )}
         </div>
 
-        <div className="bg-gray-800 rounded-lg p-4 sticky top-0 ">
+        <div className="bg-gray-800 rounded-lg p-4 ">
           <h3 className="text-lg font-medium mb-2 text-center">Vector Output</h3>
           <div className="flex items-center justify-center   overflow-hidden">
             {isProcessing ? (

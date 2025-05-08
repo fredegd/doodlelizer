@@ -3,14 +3,14 @@
 import React from "react"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-import type { ColorGroup } from "@/lib/types"
+import type { ColorGroup, ProcessingMode } from "@/lib/types"
 
 interface PathVisibilityControlsProps {
   colorGroups: Record<string, ColorGroup>
   visiblePaths: Record<string, boolean>
   onVisibilityChange: (colorKey: string, visible: boolean) => void
   disabled: boolean
-  processingMode: "posterize" | "grayscale"
+  processingMode?: ProcessingMode
 }
 
 const PathVisibilityControls = React.memo(function PathVisibilityControls({

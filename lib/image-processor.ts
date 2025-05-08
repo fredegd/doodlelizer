@@ -6,7 +6,7 @@ import { processCMYK } from "./processors/cmyk-processor";
 import { processMonochrome } from "./processors/monochrome-processor";
 import { calculateResizeDimensions } from "./utils/dimension-utils";
 import {
-  generateSVG,
+  generateSVG as generateSvgFromImageData,
   extractColorGroupSVG,
   extractAllColorGroups,
 } from "./utils/svg-utils";
@@ -183,9 +183,11 @@ export async function processImage(
   });
 }
 
+// Export the generateSVG function
+export const generateSVG = generateSvgFromImageData;
+
 // Re-export wichtiger Funktionen für externe Nutzung
 export {
-  generateSVG,
   extractColorGroupSVG,
   extractAllColorGroups,
   processGrayscale,

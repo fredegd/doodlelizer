@@ -6,6 +6,7 @@ import Preview from "@/components/preview"
 import SettingsPanel from "@/components/settings-panel"
 import PathVisibilityControls from "@/components/path-visibility-controls"
 import SvgDownloadOptions from "@/components/svg-download-options"
+import CurveControlsPanel, { DEFAULT_CURVE_CONTROLS } from "@/components/curve-controls-panel"
 import { Button } from "@/components/ui/button"
 import { processImage, generateSVG } from "@/lib/image-processor"
 import type { ImageData, Settings } from "@/lib/types"
@@ -32,6 +33,7 @@ export default function Home() {
     colorsAmt: 5,
     monochromeColor: "#000000",
     visiblePaths: {},
+    curveControls: DEFAULT_CURVE_CONTROLS, // Initialize with default curve controls
   })
 
   // Process image when it's uploaded or settings change
@@ -66,6 +68,21 @@ export default function Home() {
       setSvgContent(svg)
     }
   }, [settings.visiblePaths, processedData, originalImage, isProcessing])
+
+  // Handle curve control changes separately
+  useEffect(() => {
+    if (processedData && originalImage && !isProcessing && settings.curvedPaths) {
+      // Only regenerate SVG when curve controls change and curved paths are enabled
+      const svg = generateSVG(processedData, { ...settings })
+      setSvgContent(svg)
+    }
+  }, [
+    settings.curveControls,
+    settings.curvedPaths,
+    processedData,
+    originalImage,
+    isProcessing
+  ])
 
   const handleImageUpload = (imageDataUrl: string) => {
     setOriginalImage(imageDataUrl)
@@ -158,6 +175,16 @@ export default function Home() {
     }))
   }
 
+  const handleCurveControlsChange = (newCurveControls: Partial<typeof settings.curveControls>) => {
+    setSettings((prev) => ({
+      ...prev,
+      curveControls: {
+        ...prev.curveControls,
+        ...newCurveControls
+      }
+    }))
+  }
+
   return (
     <main className="min-h-screen bg-gray-900 text-gray-100 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
@@ -178,7 +205,7 @@ export default function Home() {
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 relative h-full">
             {!originalImage ? (
               <ImageUploader onImageUpload={handleImageUpload} />
             ) : (
@@ -198,6 +225,15 @@ export default function Home() {
               onSettingsChange={handleSettingsChange}
               disabled={!originalImage || isProcessing}
             />
+
+            {/* Show curve controls only when curved paths are enabled */}
+            {settings.curvedPaths && (
+              <CurveControlsPanel
+                curveControls={settings.curveControls}
+                onCurveControlsChange={handleCurveControlsChange}
+                disabled={!originalImage || isProcessing}
+              />
+            )}
 
             {processedData?.colorGroups && Object.keys(processedData.colorGroups).length > 0 && (
               <PathVisibilityControls

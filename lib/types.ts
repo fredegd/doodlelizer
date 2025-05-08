@@ -1,5 +1,32 @@
 export type ProcessingMode = "grayscale" | "posterize" | "cmyk" | "monochrome";
 
+export interface CurveControlSettings {
+  // Vertical curve control parameters
+  verticalCurveOffsetX: number; // Horizontal offset factor for control points in vertical curves
+  verticalCurveFirstPointY: number; // Vertical position factor for first control point in vertical curves
+  verticalCurveSecondPointY: number; // Vertical position factor for second control point in vertical curves
+
+  // Horizontal curve control parameters
+  horizontalCurveOffsetX: number; // Horizontal offset factor for control points in horizontal curves
+  horizontalCurveOffsetY: number; // Vertical offset factor for control points in horizontal curves
+  horizontalCurveFirstPointX: number; // Specific horizontal offset for first control point (0-1)
+  horizontalCurveSecondPointX: number; // Specific horizontal offset for second control point (0-1)
+
+  // Tile junction control parameters
+  junctionFirstControlScale: number; // Scale factor for first control point at tile junctions (0-1)
+  junctionSecondControlScale: number; // Scale factor for second control point at tile junctions (0-1)
+
+  // Enhanced junction tangent control parameters
+  junctionTangentDirectionX: number; // Modifier for tangent direction X component at junctions (-4 to 4)
+  junctionTangentDirectionY: number; // Modifier for tangent direction Y component at junctions (-4 to 4)
+  horizontalJunctionSmoothing: number; // Smoothness factor for horizontal tile transitions
+  verticalJunctionSmoothing: number; // Smoothness factor for vertical tile transitions
+  junctionContinuityFactor: number; // Controls how strictly the tangent continuity is preserved at junctions
+
+  // Tile size parameters
+  tileHeightScale: number; // Scale factor for tile height (0-1)
+}
+
 export interface Settings {
   gridSize: number;
   gridSizeX: number;
@@ -16,6 +43,7 @@ export interface Settings {
   colorsAmt: number;
   monochromeColor: string;
   visiblePaths: Record<string, boolean>;
+  curveControls: CurveControlSettings; // Added curve control settings
 }
 
 export interface PixelData {
