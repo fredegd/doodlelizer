@@ -27,8 +27,14 @@ const Preview = memo(function Preview({
 
   useEffect(() => {
     if (svgContent) {
+      // Process SVG content to fix unit issues and ensure proper scaling
+      let processedSvg = svgContent;
+
+      // Remove or fix problematic width/height with mm units
+      processedSvg = processedSvg.replace(/(width|height)="([^"]*?\s*mm)"/g, '');
+
       // Add styling to ensure SVGs are properly scaled and have rounded corners
-      const enhancedSvgContent = svgContent.replace('<svg ', '<svg style="shape-rendering: geometricPrecision; stroke-linejoin: round; stroke-linecap: round; max-width: 100%; max-height: 45vh; width: auto; height: auto;" ');
+      const enhancedSvgContent = processedSvg.replace('<svg ', '<svg style="shape-rendering: geometricPrecision; stroke-linejoin: round; stroke-linecap: round; max-width: 100%; max-height: 45vh; width: auto; height: auto;" ');
 
       if (svgContainerRef.current) {
         svgContainerRef.current.innerHTML = enhancedSvgContent;
@@ -38,8 +44,12 @@ const Preview = memo(function Preview({
         try {
           // Create a safer version of the SVG for fullscreen mode
           const parser = new DOMParser();
-          const svgDoc = parser.parseFromString(svgContent, 'image/svg+xml');
+          const svgDoc = parser.parseFromString(processedSvg, 'image/svg+xml');
           const svgElement = svgDoc.documentElement;
+
+          // Remove problematic attributes if they still exist
+          svgElement.removeAttribute('width');
+          svgElement.removeAttribute('height');
 
           // Apply styles directly to the SVG element
           svgElement.setAttribute('style', 'shape-rendering: geometricPrecision; stroke-linejoin: round; stroke-linecap: round; max-width: 90%; max-height: 90%;');
