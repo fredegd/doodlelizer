@@ -63,9 +63,8 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
 
   return (
     <div
-      className={`border-2 border-dashed rounded-lg p-12 flex flex-col items-center justify-center h-96 transition-colors ${
-        isDragging ? "border-primary bg-primary/10" : "border-gray-700 hover:border-gray-500"
-      }`}
+      className={`border-2 border-dashed rounded-lg p-12 flex flex-col items-center justify-center h-96 transition-colors ${isDragging ? "border-primary bg-primary/10" : "border-gray-700 hover:border-gray-500"
+        }`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -81,7 +80,8 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
           )}
         </div>
         <h3 className="text-xl font-medium mb-2">{isDragging ? "Drop your image here" : "Upload an image"}</h3>
-        <p className="text-gray-400 mb-4">Drag and drop or click to browse</p>
+        <p className="text-gray-400 mb-4">Upload an image and convert it into a vector wave paths</p>
+
         <Button onClick={handleButtonClick} variant="outline">
           Select Image
         </Button>

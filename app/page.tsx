@@ -16,6 +16,7 @@ export default function Home() {
   const [processedData, setProcessedData] = useState<ImageData | null>(null)
   const [svgContent, setSvgContent] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [isSettingsPanelVisible, setIsSettingsPanelVisible] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [settings, setSettings] = useState<Settings>({
     gridSize: 10,
@@ -71,8 +72,8 @@ export default function Home() {
 
   // Handle curve control changes separately
   useEffect(() => {
-    if (processedData && originalImage && !isProcessing && settings.curvedPaths) {
-      // Only regenerate SVG when curve controls change and curved paths are enabled
+    if (processedData && originalImage && !isProcessing) {
+      // Regenerate SVG when curve controls change or curved paths setting changes
       const svg = generateSVG(processedData, { ...settings })
       setSvgContent(svg)
     }
@@ -86,6 +87,7 @@ export default function Home() {
 
   const handleImageUpload = (imageDataUrl: string) => {
     setOriginalImage(imageDataUrl)
+    setIsSettingsPanelVisible(true)
   }
 
   const handleNewImageUpload = () => {
@@ -108,6 +110,7 @@ export default function Home() {
       reader.onload = (e) => {
         if (e.target && typeof e.target.result === "string") {
           setOriginalImage(e.target.result)
+          setIsSettingsPanelVisible(true)
           // Clear the input value so the same file can be selected again
           if (fileInputRef.current) {
             fileInputRef.current.value = ''
@@ -185,14 +188,31 @@ export default function Home() {
     }))
   }
 
+  const toggleSettingsPanel = () => {
+    setIsSettingsPanelVisible(prev => !prev);
+  }
+
   return (
     <main className="min-h-screen bg-gray-900 text-gray-100 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <header className="mb-8 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Image to SVG Vector Converter</h1>
-          <p className="text-gray-400">
-            Upload an image to convert it into a vector representation based on pixel brightness
-          </p>
+        <header className="mb-8 text-center flex justify-between items-center">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">Wave Paths Doddlelizer</h1> {/* Hamburger menu button for mobile - only visible when an image is present */}
+          {originalImage && !isSettingsPanelVisible && (
+            <div className="mb-4 flex lg:hidden justify-end">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={toggleSettingsPanel}
+                aria-label="Toggle settings panel"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-menu">
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+              </Button>
+            </div>
+          )}
         </header>
 
         {/* Hidden file input for new image upload */}
@@ -204,7 +224,18 @@ export default function Home() {
           className="hidden"
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+
+        {/* Overlay for mobile when settings panel is open */}
+        {originalImage && isSettingsPanelVisible && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            onClick={toggleSettingsPanel}
+            aria-hidden="true"
+          />
+        )}
+
+        <div className={`grid grid-cols-1 ${originalImage ? 'lg:grid-cols-3' : ''} gap-6`}>
           <div className="lg:col-span-2 relative h-full">
             {!originalImage ? (
               <ImageUploader onImageUpload={handleImageUpload} />
@@ -219,39 +250,66 @@ export default function Home() {
             )}
           </div>
 
-          <div className="space-y-6">
-            <SettingsPanel
-              settings={settings}
-              onSettingsChange={handleSettingsChange}
-              disabled={!originalImage || isProcessing}
-            />
+          {originalImage && (
+            <div className={`
+              ${isSettingsPanelVisible ? 'block' : 'hidden lg:block'}
+              ${isSettingsPanelVisible ? 'fixed right-0 top-0 bottom-0 w-[70%] z-50  overflow-y-auto p-4 lg:shadow-lg lg:shadow-black/50 transition-all duration-300 ease-in-out' : ''}
+              lg:static lg:z-auto lg:overflow-visible lg:p-0 lg:space-y-6 lg:w-auto lg:shadow-none
+            `}>
+              {/* Close button - only visible on mobile */}
+              {isSettingsPanelVisible && (
+                <div className="flex items-center justify-end mb-4 lg:hidden border-b border-gray-700 pb-3">
 
-            {/* Show curve controls only when curved paths are enabled */}
-            {settings.curvedPaths && (
-              <CurveControlsPanel
-                curveControls={settings.curveControls}
-                onCurveControlsChange={handleCurveControlsChange}
-                disabled={!originalImage || isProcessing}
-              />
-            )}
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={toggleSettingsPanel}
+                    aria-label="Close settings panel"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-x">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </Button>
+                </div>
+              )}
 
-            {processedData?.colorGroups && Object.keys(processedData.colorGroups).length > 0 && (
-              <PathVisibilityControls
-                colorGroups={processedData.colorGroups}
-                visiblePaths={settings.visiblePaths}
-                onVisibilityChange={handlePathVisibilityChange}
-                disabled={isProcessing}
-              />
-            )}
+              <div className="space-y-6 pb-20 md:pb-0">
+                <SettingsPanel
+                  settings={settings}
+                  onSettingsChange={handleSettingsChange}
+                  disabled={!originalImage || isProcessing}
+                />
 
-            {svgContent && (
-              <SvgDownloadOptions
-                svgContent={svgContent}
-                colorGroups={processedData?.colorGroups}
-                isProcessing={isProcessing}
-              />
-            )}
-          </div>
+                {/* Show curve controls only when curved paths are enabled */}
+                {settings.curvedPaths && (
+                  <CurveControlsPanel
+                    curveControls={settings.curveControls}
+                    onCurveControlsChange={handleCurveControlsChange}
+                    disabled={!originalImage || isProcessing}
+                  />
+                )}
+
+                {processedData?.colorGroups && Object.keys(processedData.colorGroups).length > 0 && (
+                  <PathVisibilityControls
+                    colorGroups={processedData.colorGroups}
+                    visiblePaths={settings.visiblePaths}
+                    onVisibilityChange={handlePathVisibilityChange}
+                    disabled={isProcessing}
+                  />
+                )}
+
+                {svgContent && (
+                  <SvgDownloadOptions
+                    svgContent={svgContent}
+                    colorGroups={processedData?.colorGroups}
+                    isProcessing={isProcessing}
+                  />
+                )}
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     </main>

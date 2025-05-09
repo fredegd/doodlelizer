@@ -36,7 +36,7 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
 
   return (
     <TooltipProvider>
-      <div className="bg-gray-800 rounded-lg p-6">
+      <div className="bg-gray-800/70 backdrop-blur rounded-lg p-6">
         <h2 className="text-xl font-bold mb-4">Settings</h2>
 
         <div className="space-y-6">

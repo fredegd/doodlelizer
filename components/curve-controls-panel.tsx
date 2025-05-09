@@ -31,7 +31,7 @@ export default function CurveControlsPanel({
 
     return (
         <TooltipProvider>
-            <div className="bg-gray-800 rounded-lg p-6">
+            <div className="bg-gray-800/70 backdrop-blur rounded-lg p-6">
                 <details open>
                     <summary className="cursor-pointer text-xl font-bold mb-4 flex items-center justify-between">
                         <span>Curve Controls</span>

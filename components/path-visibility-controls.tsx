@@ -41,7 +41,7 @@ const PathVisibilityControls = React.memo(function PathVisibilityControls({
   }, [colorGroups, onVisibilityChange, allVisible])
 
   return (
-    <div className="bg-gray-800 rounded-lg p-6">
+    <div className="bg-gray-800/70 backdrop-blur rounded-lg p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Path Visibility</h2>
         <button className="text-sm text-gray-400 hover:text-white" onClick={handleToggleAll} disabled={disabled}>
