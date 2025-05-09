@@ -1,5 +1,5 @@
 import type { ColorGroup, ImageData, PixelData, Settings } from "../types";
-import { ensureEvenDensity, calculateContextAwareDensity } from "../utils/math-utils";
+import { calculateContextAwareDensity } from "../utils/math-utils";
 import { rgbToHex } from "../converters/color-converters";
 
 // Process image in grayscale mode
@@ -76,7 +76,7 @@ export function processGrayscale(
 
       // Calculate density based on brightness with context awareness
       const normalizedBrightness = (255 - grayValue) / 255;
-      
+
       // Verwenden der neuen kontextbewussten Funktion
       const density = calculateContextAwareDensity(
         pixelGrid,

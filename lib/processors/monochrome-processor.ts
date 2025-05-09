@@ -1,8 +1,5 @@
 import type { ColorGroup, ImageData, PixelData, Settings } from "../types";
-import {
-  ensureEvenDensity,
-  calculateContextAwareDensity,
-} from "../utils/math-utils";
+import { calculateContextAwareDensity } from "../utils/math-utils";
 import {
   hexToRgb,
   calculateHue,

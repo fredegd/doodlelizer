@@ -1,5 +1,5 @@
 import type { ColorGroup, ImageData, PixelData, Settings } from "../types";
-import { ensureEvenDensity, calculateContextAwareDensity } from "../utils/math-utils";
+import { calculateContextAwareDensity } from "../utils/math-utils";
 import { rgbToCMYK } from "../converters/color-converters";
 
 // Process image in CMYK mode
@@ -58,7 +58,7 @@ export function processCMYK(
         if (value > 0) {
           // Calculate density based on channel value with context awareness
           const normalizedValue = value / 255;
-          
+
           // Verwenden der neuen kontextbewussten Funktion
           const density = calculateContextAwareDensity(
             pixelGrid,

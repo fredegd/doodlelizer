@@ -181,7 +181,7 @@ export function calculateContextAwareDensity(
 
   // If edge tile or no context awareness needed, return base density
   if (x <= 0 || x >= width - 1 || y <= 0 || y >= height - 1) {
-    return ensureEvenDensity(baseDensity);
+    return baseDensity;
   }
 
   // Get neighboring pixels
@@ -194,7 +194,7 @@ export function calculateContextAwareDensity(
 
   // If we don't have enough neighbors for context, return base density
   if (neighbors.length < 2) {
-    return ensureEvenDensity(baseDensity);
+    return baseDensity;
   }
 
   // Calculate average brightness of neighbors
@@ -204,7 +204,7 @@ export function calculateContextAwareDensity(
 
   // Get current pixel
   const currentPixel = pixelGrid[y][x];
-  if (!currentPixel) return ensureEvenDensity(baseDensity);
+  if (!currentPixel) return baseDensity;
 
   // Calculate brightness difference between current pixel and neighbors
   const brightnessDiff = Math.abs(
@@ -223,11 +223,12 @@ export function calculateContextAwareDensity(
 
     // Weighted average of current density and neighbor density
     const smoothedDensity = Math.round(
-      baseDensity * (1 - smoothingFactor) + neighborBaseDensity * smoothingFactor
+      baseDensity * (1 - smoothingFactor) +
+        neighborBaseDensity * smoothingFactor
     );
 
-    return ensureEvenDensity(smoothedDensity);
+    return smoothedDensity;
   }
 
-  return ensureEvenDensity(baseDensity);
+  return baseDensity;
 }
