@@ -66,198 +66,211 @@ export function generateContinuousPath(
   });
 
   let svgContent = "";
-  let pathData = "";
-  let firstPoint = true;
-  let lastPoint = null;
-  let lastTangentX = 0; // Track the last tangent direction X component
-  let lastTangentY = 0; // Track the last tangent direction Y component
 
-  // Process each point in order
+  // Generate vertices array from the points
+  let pathVertices: { x: number; y: number }[] = [];
+
+  // Process each point to generate all the vertices for the continuous path
   for (let i = 0; i < points.length; i++) {
     const point = points[i];
-
-    // Variables to track incoming tangent for this segment
-    let incomingTangentX = 0;
-    let incomingTangentY = 0;
 
     // Skip zero-density points
     if (point.density <= 0) continue;
 
     // Check if we need to start a new path due to distance threshold
+    const lastPoint =
+      pathVertices.length > 0 ? pathVertices[pathVertices.length - 1] : null;
     const needNewPath =
       lastPoint &&
       calculateDistance(lastPoint.x, lastPoint.y, point.x, point.y) >
         settings.pathDistanceThreshold;
 
-    // If this is the first point or we need a new path due to distance
-    if (firstPoint || needNewPath) {
-      // If we have existing path data, add it to the SVG content
-      if (pathData && !firstPoint) {
-        svgContent += `<path d="${pathData}" stroke="${color}" fill="none" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" />\n`;
-        pathData = "";
-      }
-
-      // Start a new path
-      pathData = `M ${point.x} ${point.y} `;
-      firstPoint = false;
-      // Reset tangent tracking for new paths
-      lastTangentX = 0;
-      lastTangentY = 0;
-    } else if (lastPoint && curvedPaths && !needNewPath) {
-      // Add a smooth connection between tiles using a Bézier curve
-      // Only add if we have curved paths enabled and a valid last point
-      const distX = point.x - lastPoint.x;
-      const distY = point.y - lastPoint.y;
-
-      // Use the tangent direction modifiers to adjust the tangent direction
-      // This allows for fine-tuning the junction curve shape
-      let tangentX = lastTangentX + curveControls.junctionTangentDirectionX;
-      let tangentY = lastTangentY + curveControls.junctionTangentDirectionY;
-
-      // Apply continuity factor to balance between original tangent and optimal new direction
-      // Higher values preserve the original tangent more strictly
-      const continuityFactor = curveControls.junctionContinuityFactor;
-      const idealTangentX = distX > 0 ? 1 : -1;
-      const idealTangentY = distY > 0 ? 1 : -1;
-
-      // Blend between ideal tangent and current tangent based on continuity factor
-      tangentX =
-        tangentX * continuityFactor + idealTangentX * (1 - continuityFactor);
-      tangentY =
-        tangentY * continuityFactor + idealTangentY * (1 - continuityFactor);
-
-      // Determine if this is primarily a horizontal or vertical junction
-      // to apply the appropriate smoothing factor
-      const isHorizontalJunction = Math.abs(distX) > Math.abs(distY);
-      const smoothingFactor = isHorizontalJunction
-        ? curveControls.horizontalJunctionSmoothing
-        : curveControls.verticalJunctionSmoothing;
-
-      // ENHANCED BÉZIER CURVE MATHEMATICS FOR PERFECT TANGENT CONTINUITY
-
-      // Normalize tangent vectors for better mathematical handling
-      const tangentMagnitude = Math.sqrt(
-        tangentX * tangentX + tangentY * tangentY
+    if (needNewPath && pathVertices.length > 0) {
+      // Create path from accumulated vertices
+      svgContent += createPathFromVertices(
+        pathVertices,
+        color,
+        curvedPaths,
+        curveControls?.junctionContinuityFactor || 0.7
       );
-      if (tangentMagnitude > 0) {
-        tangentX = tangentX / tangentMagnitude;
-        tangentY = tangentY / tangentMagnitude;
-      }
-
-      // Calculate the optimal distance along the tangent for control points
-      // This is critical for maintaining C1 continuity (matching both position and tangent direction)
-      const junctionLength = Math.sqrt(distX * distX + distY * distY);
-
-      // For smooth Bézier curves, a common rule is using 1/3 of the distance for control points
-      // Here we allow the scale factors to adjust this proportion
-      const firstCtrlDistance =
-        junctionLength *
-        curveControls.junctionFirstControlScale *
-        smoothingFactor;
-      const secondCtrlDistance =
-        junctionLength *
-        curveControls.junctionSecondControlScale *
-        smoothingFactor;
-
-      // Project the first control point along the exit tangent direction from last point
-      const ctrl1X = lastPoint.x + tangentX * firstCtrlDistance;
-      const ctrl1Y = lastPoint.y + tangentY * firstCtrlDistance;
-
-      // For the second control point, we need to use the negative incoming tangent at the next point
-      // This ensures the curve arrives at the next point with the correct tangent direction
-
-      // Calculate the incoming tangent direction at the next point
-      // For perfect C1 continuity, we want this to align with the first segment of the next tile
-      incomingTangentX = -distX / junctionLength; // Default to direction opposite of path
-      incomingTangentY = -distY / junctionLength;
-
-      // Adjust the incoming tangent based on the next tile's expected direction
-      // This is a sophisticated calculation that ensures the curve flows naturally into the next tile
-
-      // For vertical segments, the incoming tangent should ideally be vertical (0,±1)
-      // For horizontal segments, the incoming tangent should ideally be horizontal (±1,0)
-      // We blend between these based on the continuity factor
-
-      // Calculate ideal incoming tangent based on next segment's primary direction
-      let idealIncomingTangentX = 0;
-      let idealIncomingTangentY = 0;
-
-      // Determine the primary direction of the next segment
-      if (i + 1 < points.length) {
-        const nextPoint = points[i + 1];
-        const nextDistX = nextPoint.x - point.x;
-        const nextDistY = nextPoint.y - point.y;
-        const isPrimaryHorizontal = Math.abs(nextDistX) > Math.abs(nextDistY);
-
-        if (isPrimaryHorizontal) {
-          idealIncomingTangentX = nextDistX > 0 ? 1 : -1;
-          idealIncomingTangentY = 0;
-        } else {
-          idealIncomingTangentX = 0;
-          idealIncomingTangentY = nextDistY > 0 ? 1 : -1;
-        }
-      }
-
-      // Blend between default and ideal incoming tangent
-      incomingTangentX =
-        incomingTangentX * (1 - continuityFactor) +
-        idealIncomingTangentX * continuityFactor;
-      incomingTangentY =
-        incomingTangentY * (1 - continuityFactor) +
-        idealIncomingTangentY * continuityFactor;
-
-      // Normalize the incoming tangent
-      const incomingTangentMagnitude = Math.sqrt(
-        incomingTangentX * incomingTangentX +
-          incomingTangentY * incomingTangentY
-      );
-      if (incomingTangentMagnitude > 0) {
-        incomingTangentX = incomingTangentX / incomingTangentMagnitude;
-        incomingTangentY = incomingTangentY / incomingTangentMagnitude;
-      }
-
-      // Project the second control point along the incoming tangent direction toward the next point
-      const ctrl2X = point.x + incomingTangentX * secondCtrlDistance;
-      const ctrl2Y = point.y + incomingTangentY * secondCtrlDistance;
-
-      // Use a cubic Bézier curve to smoothly connect the tiles with perfect tangent continuity
-      pathData += `C ${ctrl1X},${ctrl1Y} ${ctrl2X},${ctrl2Y} ${point.x},${point.y} `;
+      // Reset vertices array for next path
+      pathVertices = [];
     }
 
-    // Generate path data for this tile
-    const { pathSegment, exitTangentX, exitTangentY } =
-      createTilePathDataWithTangent(
-        point.x,
-        point.y,
-        point.width,
-        point.height,
-        point.density,
-        point.direction,
-        pathData.length === 0, // isFirst is true only if pathData is empty
-        curvedPaths, // Parameter für geschwungene Pfade
-        incomingTangentX || lastTangentX, // Pass the calculated incoming tangent if available
-        incomingTangentY || lastTangentY, // Otherwise use the last tangent
-        curveControls // Pass curve controls to the function
-      );
+    // Add vertices for this point/tile
+    const tileVertices = createTileVertices(
+      point.x,
+      point.y,
+      point.width,
+      point.height * (curveControls?.tileHeightScale || 1.0),
+      point.density,
+      point.direction
+    );
 
-    if (pathSegment) {
-      pathData += pathSegment;
-      // Update the last tangent for connecting to the next tile
-      lastTangentX = exitTangentX;
-      lastTangentY = exitTangentY;
+    // If this is not the first point in the current path and we have vertices,
+    // we may need to adjust the first vertex of this tile for smoother connection
+    if (pathVertices.length > 0 && !needNewPath) {
+      // The first tile vertex replaces the last vertex of the accumulated path
+      // to ensure a continuous path without jumps
+      pathVertices.pop(); // Remove last vertex from previous tile
     }
 
-    // Update the last point
-    lastPoint = point;
+    // Add all vertices from this tile
+    pathVertices = [...pathVertices, ...tileVertices];
   }
 
-  // Add the final path to SVG content if it's not empty
-  if (pathData) {
-    svgContent += `<path d="${pathData}" stroke="${color}" fill="none" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" />\n`;
+  // Add the final path to SVG content if there are vertices left
+  if (pathVertices.length > 0) {
+    svgContent += createPathFromVertices(
+      pathVertices,
+      color,
+      curvedPaths,
+      curveControls?.junctionContinuityFactor || 0.7
+    );
   }
 
   return svgContent;
 }
+
+// Create all vertices for a tile based on its properties
+function createTileVertices(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  density: number,
+  direction: number
+): { x: number; y: number }[] {
+  if (density <= 0) return [];
+
+  const vertices: { x: number; y: number }[] = [];
+  const step = width / density;
+
+  // Start with the first point
+  vertices.push({ x, y });
+
+  // For each segment of the zigzag
+  for (let i = 0; i < density; i++) {
+    const currentX = x + i * step * direction;
+    const nextX = x + (i + 1) * step * direction;
+
+    if (i % 2 === 0) {
+      // Vertical segment down
+      vertices.push({ x: currentX, y: y + height });
+
+      // Horizontal segment if not the last one
+      if (i < density - 1) {
+        vertices.push({ x: nextX, y: y + height });
+      } else if (density % 2 === 1) {
+        // Last segment with odd density
+        vertices.push({ x: nextX, y: y + height });
+      }
+    } else {
+      // Vertical segment up
+      vertices.push({ x: currentX, y });
+
+      // Horizontal segment if not the last one
+      if (i < density - 1) {
+        vertices.push({ x: nextX, y });
+      } else if (density % 2 === 0) {
+        // Last segment with even density
+        vertices.push({ x: nextX, y });
+      }
+    }
+  }
+
+  return vertices;
+}
+
+// Create a path from an array of vertices, applying the curved path algorithm from example.tsx
+function createPathFromVertices(
+  vertices: { x: number; y: number }[],
+  color: string,
+  useCurvedPaths: boolean,
+  smoothness: number = 0.1
+): string {
+  if (vertices.length === 0) return "";
+
+  let pathData = "";
+
+  if (useCurvedPaths) {
+    // Use the curve algorithm from example.tsx
+    pathData = convertToCurvePath(vertices, smoothness);
+  } else {
+    // Use straight lines
+    pathData = convertToLinePath(vertices);
+  }
+
+  return `<path d="${pathData}" stroke="${color}" fill="none" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" />\n`;
+}
+
+// Straight line path conversion (from example.tsx)
+function convertToLinePath(points: { x: number; y: number }[]): string {
+  return points
+    .map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`))
+    .join(" ");
+}
+
+// Curved path conversion (from example.tsx)
+function convertToCurvePath(
+  points: { x: number; y: number }[],
+  smoothness = 0.1
+): string {
+  if (points.length < 2) return "";
+
+  // Start with the first point
+  let path = `M ${points[0].x} ${points[0].y}`;
+
+  // Calculate control points for each actual vertex
+  for (let i = 0; i < points.length - 1; i++) {
+    const current = points[i];
+    const next = points[i + 1];
+
+    // For the first point, use itself as the "previous" point
+    const previous = i > 0 ? points[i - 1] : current;
+
+    // For the last point pair, the "next next" point is the last point itself
+    const nextNext = i < points.length - 2 ? points[i + 2] : next;
+
+    // Calculate direction vectors
+    const v1 = {
+      x: next.x - previous.x,
+      y: next.y - previous.y,
+    };
+
+    const v2 = {
+      x: nextNext.x - current.x,
+      y: nextNext.y - current.y,
+    };
+
+    // Calculate control point distances
+    const len1 = Math.sqrt(v1.x * v1.x + v1.y * v1.y);
+    const len2 = Math.sqrt(v2.x * v2.x + v2.y * v2.y);
+
+    // Normalize vectors and scale by smoothness
+    const distance1 = Math.min(len1 * smoothness, len1 / 2);
+    const distance2 = Math.min(len2 * smoothness, len2 / 2);
+
+    // Calculate control points
+    const cp1 = {
+      x: current.x + (v1.x / len1) * distance1,
+      y: current.y + (v1.y / len1) * distance1,
+    };
+
+    const cp2 = {
+      x: next.x - (v2.x / len2) * distance2,
+      y: next.y - (v2.y / len2) * distance2,
+    };
+
+    // Add the curve segment
+    path += ` C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${next.x} ${next.y}`;
+  }
+
+  return path;
+}
+
+// The following are existing functions that can remain unchanged as they'll be gradually
+// replaced with the new implementation or kept for compatibility
 
 // Create path data for a single tile in a continuous path, now with tangent information
 export function createTilePathDataWithTangent(
@@ -271,32 +284,16 @@ export function createTilePathDataWithTangent(
   useCurvedPaths: boolean = false,
   incomingTangentX: number = 0,
   incomingTangentY: number = 0,
-  curveControls?: CurveControlSettings // Added curve control settings parameter
+  curveControls?: CurveControlSettings
 ): { pathSegment: string; exitTangentX: number; exitTangentY: number } {
   if (density <= 0)
     return { pathSegment: "", exitTangentX: 0, exitTangentY: 0 };
 
   // Use default values if curve controls are not provided
-  const controls = curveControls || {
-    verticalCurveOffsetX: 0.5,
-    verticalCurveFirstPointY: 0.3,
-    verticalCurveSecondPointY: 0.7,
-    horizontalCurveOffsetX: 0.4,
-    horizontalCurveOffsetY: 0.15,
-    horizontalCurveFirstPointX: 0.35,
-    horizontalCurveSecondPointX: 0.35,
-    junctionFirstControlScale: 0.4,
-    junctionSecondControlScale: 0.3,
-    junctionTangentDirectionX: 0.0,
-    junctionTangentDirectionY: 0.0,
-    horizontalJunctionSmoothing: 0.5,
-    verticalJunctionSmoothing: 0.5,
-    junctionContinuityFactor: 0.7,
-    tileHeightScale: 1.0,
-  };
+  const tileHeightScale = curveControls?.tileHeightScale || 1.0;
 
   // Apply tile height scaling
-  const scaledHeight = height * controls.tileHeightScale;
+  const scaledHeight = height * tileHeightScale;
 
   let pathData = "";
   let exitTangentX = 0;
@@ -307,216 +304,70 @@ export function createTilePathDataWithTangent(
     pathData = `M ${x} ${y} `;
   }
 
+  // For both curved and straight paths, we'll now generate vertices and create paths
+  // This function is kept for backward compatibility
+  const vertices = createTileVertices(
+    x,
+    y,
+    width,
+    scaledHeight,
+    density,
+    direction
+  );
+
+  // Convert vertices to paths based on the curved mode
   if (useCurvedPaths) {
-    // Enhanced implementation with perfect tangential continuity between all segments
+    // For curved paths, we'll use the smoothness parameter if provided
+    const smoothness = curveControls?.junctionContinuityFactor || 0.1;
 
-    // Calculate the step width based on density
-    const step = width / density;
-
-    // Keep track of current position
-    let currentX = x;
-    let currentY = y;
-    let isDown = true;
-
-    // Normalize incoming tangent if provided
-    if (incomingTangentX !== 0 || incomingTangentY !== 0) {
-      const magnitude = Math.sqrt(
-        incomingTangentX * incomingTangentX +
-          incomingTangentY * incomingTangentY
-      );
-      if (magnitude > 0) {
-        incomingTangentX /= magnitude;
-        incomingTangentY /= magnitude;
-      }
+    // Create a curved path from the vertices
+    // First move to the starting position if it's the first point
+    if (!isFirst) {
+      // Skip the first vertex since we're already at that position
+      vertices.shift();
     }
 
-    // For each segment in the zigzag pattern
-    for (let i = 0; i < density; i++) {
-      // Next X position for this segment
-      const nextX = x + (i + 1) * step * direction;
+    // If there are vertices, create the curved path
+    if (vertices.length > 0) {
+      // Generate the curved path data
+      const curvedPath = convertToCurvePath(vertices, smoothness);
 
-      if (isDown) {
-        // VERTICAL SEGMENT (DOWN)
-        // Calculate optimal control points for smooth curve with perfect tangent continuity
+      // Remove the initial M command if this is not the first point
+      pathData += isFirst
+        ? curvedPath
+        : curvedPath.replace(/^M [0-9.]+ [0-9.]+ /, "");
 
-        // For the first segment in the tile, use the incoming tangent if available
-        let tangentStartX, tangentStartY;
-        if (i === 0 && (incomingTangentX !== 0 || incomingTangentY !== 0)) {
-          tangentStartX = incomingTangentX;
-          tangentStartY = incomingTangentY;
-        } else {
-          // Default tangent for start of downward segment is horizontal with desired direction
-          tangentStartX = direction;
-          tangentStartY = 0;
+      // Set exit tangent based on the last segment direction
+      if (vertices.length >= 2) {
+        const lastVertex = vertices[vertices.length - 1];
+        const secondLastVertex = vertices[vertices.length - 2];
+
+        // Calculate exit tangent direction as a unit vector
+        const dx = lastVertex.x - secondLastVertex.x;
+        const dy = lastVertex.y - secondLastVertex.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+
+        if (len > 0) {
+          exitTangentX = dx / len;
+          exitTangentY = dy / len;
         }
-
-        // End tangent for downward segment is pointing horizontally
-        const tangentEndX = direction;
-        const tangentEndY = 0;
-
-        // First control point - extend from current point along incoming tangent
-        const ctrl1X =
-          currentX +
-          tangentStartX * scaledHeight * controls.verticalCurveFirstPointY;
-        const ctrl1Y =
-          currentY +
-          tangentStartY * scaledHeight * controls.verticalCurveFirstPointY;
-
-        // Second control point - approach endpoint from the desired exit tangent direction
-        const endX = currentX;
-        const endY = currentY + scaledHeight;
-        const ctrl2X =
-          endX -
-          tangentEndX * scaledHeight * controls.verticalCurveSecondPointY;
-        const ctrl2Y =
-          endY -
-          tangentEndY * scaledHeight * controls.verticalCurveSecondPointY;
-
-        // Add the cubic Bézier curve
-        pathData += `C ${ctrl1X},${ctrl1Y} ${ctrl2X},${ctrl2Y} ${endX},${endY} `;
-
-        // Update position for next segment
-        currentY = endY;
-
-        // Set the exit tangent to pass to the next segment
-        exitTangentX = tangentEndX;
-        exitTangentY = tangentEndY;
-      } else {
-        // VERTICAL SEGMENT (UP)
-        // Calculate optimal control points for smooth curve with perfect tangent continuity
-
-        // Start tangent for upward segment is pointing horizontally
-        const tangentStartX = direction;
-        const tangentStartY = 0;
-
-        // End tangent for upward segment is also horizontal
-        const tangentEndX = direction;
-        const tangentEndY = 0;
-
-        // First control point - extend from current point along start tangent
-        const ctrl1X =
-          currentX +
-          tangentStartX * scaledHeight * controls.verticalCurveFirstPointY;
-        const ctrl1Y =
-          currentY +
-          tangentStartY * scaledHeight * controls.verticalCurveFirstPointY;
-
-        // Second control point - approach endpoint from the desired exit tangent direction
-        const endX = currentX;
-        const endY = currentY - scaledHeight;
-        const ctrl2X =
-          endX -
-          tangentEndX * scaledHeight * controls.verticalCurveSecondPointY;
-        const ctrl2Y =
-          endY -
-          tangentEndY * scaledHeight * controls.verticalCurveSecondPointY;
-
-        // Add the cubic Bézier curve
-        pathData += `C ${ctrl1X},${ctrl1Y} ${ctrl2X},${ctrl2Y} ${endX},${endY} `;
-
-        // Update position for next segment
-        currentY = endY;
-
-        // Set the exit tangent to pass to the next segment
-        exitTangentX = tangentEndX;
-        exitTangentY = tangentEndY;
       }
-
-      // If this is not the last segment, add a horizontal curve
-      if (i < density - 1) {
-        // HORIZONTAL SEGMENT
-        // Calculate optimal control points for a smooth horizontal curve
-
-        // Calculate horizontal distance to next segment point
-        const horizontalDist = nextX - currentX;
-
-        // Start tangent for horizontal segment
-        // Should match exit tangent of previous vertical segment for continuity
-        let tangentStartX = exitTangentX;
-        let tangentStartY = exitTangentY;
-
-        // End tangent for horizontal segment needs to prepare for next vertical segment
-        // For perfect tangential continuity, the end tangent should be vertical
-        const tangentEndX = 0;
-        const tangentEndY = isDown ? -1 : 1; // Points up if we're going down next, and vice versa
-
-        // First control point - extend from current point along start tangent
-        // Use one-third rule for cubic Bézier - but allow adjustment through control parameters
-        const hCtrl1X =
-          currentX + horizontalDist * controls.horizontalCurveFirstPointX;
-        const hCtrl1Y =
-          currentY +
-          ((isDown ? -1 : 1) *
-            scaledHeight *
-            controls.horizontalCurveOffsetY *
-            Math.abs(horizontalDist)) /
-            width;
-
-        // Second control point - approach endpoint from the desired exit tangent direction
-        const hCtrl2X =
-          nextX - horizontalDist * controls.horizontalCurveSecondPointX;
-        const hCtrl2Y =
-          currentY +
-          ((isDown ? -1 : 1) *
-            scaledHeight *
-            controls.horizontalCurveOffsetY *
-            Math.abs(horizontalDist)) /
-            width;
-
-        // Add the cubic Bézier curve
-        pathData += `C ${hCtrl1X},${hCtrl1Y} ${hCtrl2X},${hCtrl2Y} ${nextX},${currentY} `;
-
-        // Update position for next segment
-        currentX = nextX;
-
-        // Set the exit tangent to pass to the next segment
-        exitTangentX = tangentEndX;
-        exitTangentY = tangentEndY;
-      }
-
-      // Toggle direction for next segment
-      isDown = !isDown;
     }
   } else {
-    // Original straight line implementation - also apply height scaling
-    const step = width / density;
-
-    for (let i = 0; i < density; i++) {
-      const currentX = x + i * step * direction;
-      const nextX = x + (i + 1) * step * direction;
-
-      if (i % 2 === 0) {
-        // Vertikales Segment (abwärts)
-        pathData += `L ${currentX} ${y + scaledHeight} `;
-
-        // Wenn nicht das letzte Segment, füge horizontales Segment hinzu
-        if (i < density - 1) {
-          pathData += `L ${nextX} ${y + scaledHeight} `;
-        } else if (density % 2 === 1) {
-          // Falls dies das letzte Segment ist und die Dichte ungerade
-          pathData += `L ${nextX} ${y + scaledHeight} `;
-        }
-
-        // Set exit tangent for straight lines
-        exitTangentX = direction;
-        exitTangentY = 0;
+    // For straight paths, simply connect the vertices with lines
+    for (let i = 0; i < vertices.length; i++) {
+      if (i === 0 && isFirst) {
+        // First vertex, use a move command if this is the first point
+        pathData += `M ${vertices[i].x} ${vertices[i].y} `;
       } else {
-        // Vertikales Segment (aufwärts)
-        pathData += `L ${currentX} ${y} `;
-
-        // Wenn nicht das letzte Segment, füge horizontales Segment hinzu
-        if (i < density - 1) {
-          pathData += `L ${nextX} ${y} `;
-        } else if (density % 2 === 0) {
-          // Falls dies das letzte Segment ist und die Dichte gerade
-          pathData += `L ${nextX} ${y} `;
-        }
-
-        // Set exit tangent for straight lines
-        exitTangentX = direction;
-        exitTangentY = 0;
+        // All other vertices use line commands
+        pathData += `L ${vertices[i].x} ${vertices[i].y} `;
       }
     }
+
+    // Set exit tangent for straight lines
+    exitTangentX = direction;
+    exitTangentY = 0;
   }
 
   return { pathSegment: pathData, exitTangentX, exitTangentY };
@@ -562,16 +413,25 @@ export function generateIndividualPaths(
 
   // Add each path segment
   points.forEach((point) => {
-    svgContent += generateSerpentinePath(
+    // Skip zero-density points
+    if (point.density <= 0) return;
+
+    // Generate vertices for this tile
+    const vertices = createTileVertices(
       point.x,
       point.y,
       point.width,
-      point.height,
+      point.height * (curveControls?.tileHeightScale || 1.0),
       point.density,
-      point.direction,
+      point.direction
+    );
+
+    // Create path from vertices
+    svgContent += createPathFromVertices(
+      vertices,
       color,
       curvedPaths,
-      curveControls
+      curveControls?.junctionContinuityFactor || 0.7
     );
   });
 
@@ -592,169 +452,23 @@ export function generateSerpentinePath(
 ): string {
   if (density <= 0) return "";
 
-  // Use default values if curve controls are not provided
-  const controls = curveControls || {
-    verticalCurveOffsetX: 0.5,
-    verticalCurveFirstPointY: 0.3,
-    verticalCurveSecondPointY: 0.7,
-    horizontalCurveOffsetX: 0.4,
-    horizontalCurveOffsetY: 0.15,
-    horizontalCurveFirstPointX: 0.35,
-    horizontalCurveSecondPointX: 0.35,
-    junctionFirstControlScale: 0.4,
-    junctionSecondControlScale: 0.3,
-    junctionTangentDirectionX: 0.0,
-    junctionTangentDirectionY: 0.0,
-    horizontalJunctionSmoothing: 0.5,
-    verticalJunctionSmoothing: 0.5,
-    junctionContinuityFactor: 0.7,
-    tileHeightScale: 1.0,
-  };
+  // Generate vertices for this tile
+  const vertices = createTileVertices(
+    x,
+    y,
+    width,
+    height * (curveControls?.tileHeightScale || 1.0),
+    density,
+    direction
+  );
 
-  // Apply tile height scaling
-  const scaledHeight = height * controls.tileHeightScale;
-
-  // Begin the path
-  let pathData = `<path d="`;
-
-  if (useCurvedPaths) {
-    // Improved implementation using smooth bezier curves
-
-    // Start with a move to the top-left corner
-    pathData += `M ${x},${y} `;
-
-    // Calculate the step width based on density
-    const step = width / density;
-
-    // Keep track of current position
-    let currentX = x;
-    let currentY = y;
-    let isDown = true;
-
-    // For each segment in the zigzag pattern
-    for (let i = 0; i < density; i++) {
-      // Next X position for this segment
-      const nextX = x + (i + 1) * step * direction;
-
-      if (isDown) {
-        // Calculate control points for smooth S-curve going down
-        const ctrlOffsetX = step * controls.verticalCurveOffsetX * direction;
-
-        // First control point extends horizontally with slight curve
-        const ctrl1X = currentX + ctrlOffsetX * 0.2;
-        const ctrl1Y =
-          currentY + scaledHeight * controls.verticalCurveFirstPointY;
-
-        // Second control point approaches from below
-        const ctrl2X = currentX + ctrlOffsetX * 0.1;
-        const ctrl2Y =
-          currentY + scaledHeight * controls.verticalCurveSecondPointY;
-
-        // End point is directly below
-        const endX = currentX;
-        const endY = currentY + scaledHeight;
-
-        // Add the bezier curve
-        pathData += `C ${ctrl1X},${ctrl1Y} ${ctrl2X},${ctrl2Y} ${endX},${endY} `;
-
-        // Update current position
-        currentY = endY;
-      } else {
-        // Calculate control points for smooth S-curve going up
-        const ctrlOffsetX = step * controls.verticalCurveOffsetX * direction;
-
-        // First control point extends horizontally with slight curve
-        const ctrl1X = currentX - ctrlOffsetX * 0.2;
-        const ctrl1Y =
-          currentY - scaledHeight * controls.verticalCurveFirstPointY;
-
-        // Second control point approaches from above
-        const ctrl2X = currentX - ctrlOffsetX * 0.1;
-        const ctrl2Y =
-          currentY - scaledHeight * controls.verticalCurveSecondPointY;
-
-        // End point is directly above
-        const endX = currentX;
-        const endY = currentY - scaledHeight;
-
-        // Add the bezier curve
-        pathData += `C ${ctrl1X},${ctrl1Y} ${ctrl2X},${ctrl2Y} ${endX},${endY} `;
-
-        // Update current position
-        currentY = endY;
-      }
-
-      // If this is not the last segment, add a horizontal curve
-      if (i < density - 1) {
-        // Calculate horizontal distance to next segment point
-        const horizontalDist = nextX - currentX;
-
-        // Enhanced horizontal curve with better tangent continuity using specific control points
-        // First control point - use specific horizontal offset value
-        const hCtrl1X =
-          currentX + horizontalDist * controls.horizontalCurveFirstPointX;
-        const hCtrl1Y =
-          currentY +
-          (isDown ? -1 : 1) * scaledHeight * controls.horizontalCurveOffsetY;
-
-        // Second control point - use specific horizontal offset value
-        const hCtrl2X =
-          nextX - horizontalDist * controls.horizontalCurveSecondPointX;
-        const hCtrl2Y =
-          currentY +
-          (isDown ? -1 : 1) * scaledHeight * controls.horizontalCurveOffsetY;
-
-        // Add the horizontal bezier curve
-        pathData += `C ${hCtrl1X},${hCtrl1Y} ${hCtrl2X},${hCtrl2Y} ${nextX},${currentY} `;
-
-        // Update current position
-        currentX = nextX;
-      }
-
-      // Toggle direction for next segment
-      isDown = !isDown;
-    }
-  } else {
-    // Original implementation with straight lines
-    // Initialize with position in the top left corner
-    pathData += `M ${x} ${y}`;
-    const step = width / density;
-
-    // For each segment in the zigzag pattern
-    for (let i = 0; i < density; i++) {
-      const currentX = x + i * step * direction;
-      const nextX = x + (i + 1) * step * direction;
-
-      if (i % 2 === 0) {
-        // Vertikales Segment (abwärts)
-        pathData += ` L ${currentX} ${y + scaledHeight}`;
-
-        // Wenn nicht das letzte Segment, füge horizontales Segment hinzu
-        if (i < density - 1) {
-          pathData += ` L ${nextX} ${y + scaledHeight}`;
-        } else if (density % 2 === 1) {
-          // Falls dies das letzte Segment ist und die Dichte ungerade
-          pathData += ` L ${nextX} ${y + scaledHeight}`;
-        }
-      } else {
-        // Vertikales Segment (aufwärts)
-        pathData += ` L ${currentX} ${y}`;
-
-        // Wenn nicht das letzte Segment, füge horizontales Segment hinzu
-        if (i < density - 1) {
-          pathData += ` L ${nextX} ${y}`;
-        } else if (density % 2 === 0) {
-          // Falls dies das letzte Segment ist und die Dichte gerade
-          pathData += ` L ${nextX} ${y}`;
-        }
-      }
-    }
-  }
-
-  // Close the path and add style properties
-  pathData += `" stroke="${color}" fill="none" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" />\n`;
-
-  return pathData;
+  // Create path from vertices
+  return createPathFromVertices(
+    vertices,
+    color,
+    useCurvedPaths,
+    curveControls?.junctionContinuityFactor || 0.7
+  );
 }
 
 // Extract a single color group as its own SVG

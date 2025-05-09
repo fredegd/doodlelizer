@@ -93,7 +93,7 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="cmyk" id="cmyk" />
                 <Label htmlFor="cmyk" className="cursor-pointer">
-                  CMYK
+                  CMYK (Beta)
                 </Label>
                 <Tooltip>
                   <TooltipTrigger>
@@ -210,106 +210,6 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
           <Separator className="bg-gray-700" />
 
           <div>
-            <h3 className="text-sm font-medium mb-3 text-gray-300">Vector Generation</h3>
-            <div className="space-y-4">
-              {settings.processingMode !== "cmyk" && (
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <Label htmlFor="brightnessThreshold">Brightness Threshold: {settings.brightnessThreshold}</Label>
-                  </div>
-                  <Slider
-                    id="brightnessThreshold"
-                    min={0}
-                    max={255}
-                    step={1}
-                    value={[settings.brightnessThreshold]}
-                    onValueChange={(value) => onSettingsChange({ brightnessThreshold: value[0] })}
-                    disabled={disabled}
-                  />
-                  <p className="text-xs text-gray-400">Determines which pixels are included in the output</p>
-                </div>
-              )}
-
-              <div className="flex items-center justify-between">
-                <Label htmlFor="continuousPaths" className="flex items-center gap-2">
-                  Continuous Paths
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="h-4 w-4 text-gray-400" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="max-w-xs">
-                        When enabled, creates a single continuous path per color. When disabled, creates separate paths
-                        for each tile.
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </Label>
-                <Switch
-                  id="continuousPaths"
-                  checked={settings.continuousPaths}
-                  onCheckedChange={(checked) => onSettingsChange({ continuousPaths: checked })}
-                  disabled={disabled}
-                />
-              </div>
-
-              <div className="flex items-center justify-between mt-3">
-                <Label htmlFor="curvedPaths" className="flex items-center gap-2">
-                  Curved Paths
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="h-4 w-4 text-gray-400" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="max-w-xs">
-                        When enabled, creates smooth, curved paths. When disabled, uses straight lines with sharp corners.
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </Label>
-                <Switch
-                  id="curvedPaths"
-                  checked={settings.curvedPaths}
-                  onCheckedChange={(checked) => onSettingsChange({ curvedPaths: checked })}
-                  disabled={disabled}
-                />
-              </div>
-
-              {settings.continuousPaths && (
-                <div className="space-y-2 mt-3 ml-4">
-                  <div className="flex justify-between">
-                    <Label htmlFor="pathDistanceThreshold" className="flex items-center gap-2">
-                      Path Distance Threshold: {settings.pathDistanceThreshold}
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <Info className="h-4 w-4 text-gray-400" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="max-w-xs">
-                            When distance between two points exceeds this threshold, the path breaks and starts a new one with the same color.
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </Label>
-                  </div>
-                  <Slider
-                    id="pathDistanceThreshold"
-                    min={1}
-                    max={200}
-                    step={1}
-                    value={[settings.pathDistanceThreshold]}
-                    onValueChange={(value) => onSettingsChange({ pathDistanceThreshold: value[0] })}
-                    disabled={disabled}
-                  />
-                  <p className="text-xs text-gray-400">Higher values allow longer connections between points</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <Separator className="bg-gray-700" />
-
-          <div>
             <h3 className="flex items-center gap-2 text-sm font-medium mb-3 text-gray-300">
               Serpentine Path
               <Tooltip>
@@ -361,6 +261,107 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
               </div>
             </div>
           </div>
+          <Separator className="bg-gray-700" />
+
+          <div>
+            <h3 className="text-sm font-medium mb-3 text-gray-300">Vector Generation</h3>
+            <div className="space-y-4">
+              {settings.processingMode !== "cmyk" && (
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label htmlFor="brightnessThreshold">Brightness Threshold: {settings.brightnessThreshold}</Label>
+                  </div>
+                  <Slider
+                    id="brightnessThreshold"
+                    min={0}
+                    max={255}
+                    step={1}
+                    value={[settings.brightnessThreshold]}
+                    onValueChange={(value) => onSettingsChange({ brightnessThreshold: value[0] })}
+                    disabled={disabled}
+                  />
+                  <p className="text-xs text-gray-400">Determines which pixels are included in the output</p>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between">
+                <Label htmlFor="continuousPaths" className="flex items-center gap-2">
+                  Continuous Paths
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="h-4 w-4 text-gray-400" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs">
+                        When enabled, creates a single continuous path per color. When disabled, creates separate paths
+                        for each tile.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </Label>
+                <Switch
+                  id="continuousPaths"
+                  checked={settings.continuousPaths}
+                  onCheckedChange={(checked) => onSettingsChange({ continuousPaths: checked })}
+                  disabled={disabled}
+                />
+              </div>
+              {settings.continuousPaths && (
+                <div className="space-y-2 mt-3 ml-4">
+                  <div className="flex justify-between">
+                    <Label htmlFor="pathDistanceThreshold" className="flex items-center gap-2">
+                      Path Distance Threshold: {settings.pathDistanceThreshold}
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Info className="h-4 w-4 text-gray-400" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs">
+                            When distance between two points exceeds this threshold, the path breaks and starts a new one with the same color.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </Label>
+                  </div>
+                  <Slider
+                    id="pathDistanceThreshold"
+                    min={1}
+                    max={200}
+                    step={1}
+                    value={[settings.pathDistanceThreshold]}
+                    onValueChange={(value) => onSettingsChange({ pathDistanceThreshold: value[0] })}
+                    disabled={disabled}
+                  />
+                  <p className="text-xs text-gray-400">Higher values allow longer connections between points</p>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between mt-3">
+                <Label htmlFor="curvedPaths" className="flex items-center gap-2">
+                  Curved Paths
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="h-4 w-4 text-gray-400" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs">
+                        When enabled, creates smooth, curved paths. When disabled, uses straight lines with sharp corners.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </Label>
+                <Switch
+                  id="curvedPaths"
+                  checked={settings.curvedPaths}
+                  onCheckedChange={(checked) => onSettingsChange({ curvedPaths: checked })}
+                  disabled={disabled}
+                />
+              </div>
+
+
+            </div>
+          </div>
+
         </div>
       </div>
     </TooltipProvider>
