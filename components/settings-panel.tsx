@@ -168,10 +168,7 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
 
           <div>
             <h3 className="text-sm font-medium mb-3 text-gray-300">Image Tiling</h3>
-            <div className="space-y-2 mb-2 text-xs text-gray-400">
-              <p>The output vector will maintain a fixed width/height of 560px based on aspect ratio.</p>
-              <p>Grid sizes are automatically calculated to maintain proper scaling.</p>
-            </div>
+
             <div className="space-y-4 mt-4">
               <div className="space-y-2">
                 <div className="flex justify-between">
@@ -210,8 +207,8 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
           <Separator className="bg-gray-700" />
 
           <div>
-            <h3 className="flex items-center gap-2 text-sm font-medium mb-3 text-gray-300">
-              Serpentine Path
+            <h3 className="flex items-center gap-2 text-sm font-medium  text-gray-300">
+              Serpentine Path density
               <Tooltip>
                 <TooltipTrigger>
                   <Info className="h-4 w-4 text-gray-400" />
@@ -224,6 +221,9 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                 </TooltipContent>
               </Tooltip>
             </h3>
+            <p className="text-xs text-gray-400 mb-3">
+              (auto-adjusted to tile width: {calculatedDensity / 2}px)
+            </p>
             <div className="space-y-4">
               <div className="space-y-2">
                 <div className="flex justify-between">
@@ -238,8 +238,7 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                   onValueChange={(value) => onSettingsChange({ minDensity: value[0] })}
                   disabled={disabled}
                 />
-                <p className="text-xs text-gray-400">Minimum zigzag density for bright areas (auto-adjusted to tile width: {calculatedDensity / 2}px)
-                </p>
+
               </div>
 
               <div className="space-y-2">
@@ -255,9 +254,7 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                   onValueChange={(value) => onSettingsChange({ maxDensity: value[0] })}
                   disabled={disabled}
                 />
-                <p className="text-xs text-gray-400">
-                  Maximum zigzag density for dark areas (auto-adjusted to tile width: {calculatedDensity / 2}px)
-                </p>
+
               </div>
             </div>
           </div>
@@ -307,7 +304,7 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                 />
               </div>
               {settings.continuousPaths && (
-                <div className="space-y-2 mt-3 ml-4">
+                <div className="space-y-2 mt-3">
                   <div className="flex justify-between">
                     <Label htmlFor="pathDistanceThreshold" className="flex items-center gap-2">
                       Path Distance Threshold: {settings.pathDistanceThreshold}

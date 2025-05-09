@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, memo, useState } from "react"
-import { Loader, Upload, Maximize2, X } from "lucide-react"
+import { Loader, Upload, Maximize2, X, LayoutGrid, Layout } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { ImageData } from "@/lib/types"
 
@@ -24,6 +24,7 @@ const Preview = memo(function Preview({
   const svgContainerRef = useRef<HTMLDivElement>(null)
   const fullscreenSvgContainerRef = useRef<HTMLDivElement>(null)
   const [fullscreen, setFullscreen] = useState(false)
+  const [isRowLayout, setIsRowLayout] = useState(false)
 
   useEffect(() => {
     if (svgContent) {
@@ -67,33 +68,55 @@ const Preview = memo(function Preview({
   return (
     <>
       <div className="space-y-4 sticky top-0 max-h-screen py-4 flex flex-col">
-        <div className="flex flex-col gap-4 overflow-y-auto">
-          <div className="bg-gray-800 rounded-lg p-4">
-            <Button
-              onClick={onNewImageUpload}
-              className="absolute top-2 right-2 h-8 w-8 p-0 rounded-full"
-              variant="outline"
-              size="sm"
-              title="Upload new image"
-            >
-              <Upload className="h-4 w-4" />
-            </Button>
+
+        <div className={`flex ${isRowLayout ? 'flex-row' : 'flex-col'} gap-4 overflow-y-auto`}>
+          <div className="bg-gray-800 rounded-lg p-4 relative ">
+
             <h3 className="text-lg font-medium mb-2 text-center">Original Image</h3>
-            <div className="flex items-center justify-center">
+            <div className="flex flex-col items-center justify-center">
               <img
                 src={originalImage || "/placeholder.svg"}
                 alt="Original"
                 className="max-w-full max-h-[18vh] object-contain"
               />
+              {processedData && (
+                <div className="mt-2 text-center text-xs text-gray-400">
+                  Original: {processedData.originalWidth} × {processedData.originalHeight} px
+                </div>
+              )}
             </div>
-            {processedData && (
-              <div className="mt-2 text-center text-xs text-gray-400">
-                Original: {processedData.originalWidth} × {processedData.originalHeight} px
-              </div>
-            )}
+
+            <div className="flex justify-end gap-2 absolute bottom-2 right-2">
+              <Button
+                onClick={() => setIsRowLayout(!isRowLayout)}
+                variant="outline"
+                size="sm"
+                className="h-8 w-8 p-0 rounded flex items-center justify-center"
+                title={isRowLayout ? "Switch to column layout" : "Switch to row layout"}
+              >
+                {isRowLayout ? (
+                  <><LayoutGrid className="h-4 w-4" /> </>
+                ) : (
+                  <><Layout className="h-4 w-4" /></>
+                )}
+              </Button>
+              <Button
+                onClick={onNewImageUpload}
+                className="h-8 w-8 p-0 rounded flex items-center justify-center"
+                variant="outline"
+                size="sm"
+                title="Upload new image"
+              >
+                <Upload className="h-4 w-4" />
+              </Button>
+            </div>
+
+
+
+
           </div>
 
-          <div className="bg-gray-800 rounded-lg p-4">
+          <div className="bg-gray-800 rounded-lg p-4 flex-1">
             <h3 className="text-lg font-medium mb-2 text-center">Vector Output</h3>
             <div className="flex items-center justify-center">
               {isProcessing ? (
@@ -120,12 +143,13 @@ const Preview = memo(function Preview({
             </div>
             {processedData && (
               <div className="mt-2 text-center text-xs text-gray-400">
-                Resized: {processedData.width} ×{" "}
+                {processedData.width} ×{" "}
                 {processedData.height} tiles
               </div>
             )}
           </div>
         </div>
+
       </div>
 
       {fullscreen && svgContent && (

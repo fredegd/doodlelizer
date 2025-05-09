@@ -196,7 +196,7 @@ export default function Home() {
     <main className="min-h-screen bg-gray-900 text-gray-100 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         <header className="mb-8 text-center flex justify-between items-center">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Wave Paths Doddlelizer</h1> {/* Hamburger menu button for mobile - only visible when an image is present */}
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">Image Doodlelizer</h1> {/* Hamburger menu button for mobile - only visible when an image is present */}
           {originalImage && !isSettingsPanelVisible && (
             <div className="mb-4 flex lg:hidden justify-end">
               <Button
