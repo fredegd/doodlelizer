@@ -10,7 +10,7 @@ import CurveControlsPanel, { DEFAULT_CURVE_CONTROLS } from "@/components/curve-c
 import { Button } from "@/components/ui/button"
 import { processImage, generateSVG } from "@/lib/image-processor"
 import type { ImageData, Settings } from "@/lib/types"
-import PathConverter from "@/components/example/exapmle"
+
 export default function Home() {
   const [originalImage, setOriginalImage] = useState<string | null>(null)
   const [processedData, setProcessedData] = useState<ImageData | null>(null)
@@ -187,7 +187,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-900 text-gray-100 p-4 md:p-8">
-      <PathConverter />
       <div className="max-w-7xl mx-auto">
         <header className="mb-8 text-center">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">Image to SVG Vector Converter</h1>
