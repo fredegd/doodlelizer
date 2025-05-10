@@ -27,9 +27,9 @@ export function generateSVG(imageData: ImageData, settings: Settings): string {
       // Skip if this path is not visible
       if (visiblePaths[colorKey] === false) return;
       // Create a group with id and custom data attributes for easier post-processing
-      svgContent += `<g id="${index + 1}color-group-${colorKey}" data-color="${
+      svgContent += `<g id="color-group-${colorKey}" data-color="${
         group.color
-      }" data-name="${group.displayName}">\n`;
+      }" data-name="${group.displayName}" data-index="${index + 1}">\n`;
 
       if (continuousPaths) {
         // Generate continuous path for this color group
@@ -484,6 +484,7 @@ export function extractColorGroupSVG(
     // Find the specified color group
     const colorGroup = svgDoc.getElementById(`color-group-${colorKey}`);
     if (!colorGroup) {
+      console.error(`Color group with ID 'color-group-${colorKey}' not found`);
       return null;
     }
 
@@ -553,17 +554,35 @@ export function extractAllColorGroups(
     const colorGroups = svgDoc.querySelectorAll('[id^="color-group-"]');
     const result: Record<string, string> = {};
 
+    if (colorGroups.length === 0) {
+      console.error("No color groups found in SVG content");
+      return {};
+    }
+
+    console.log(`Found ${colorGroups.length} color groups`);
+
     // Process each color group
     colorGroups.forEach((group) => {
       const id = group.id;
+      if (!id.startsWith("color-group-")) {
+        console.warn(`Skipping group with invalid ID format: ${id}`);
+        return;
+      }
+
       const colorKey = id.replace("color-group-", "");
+      console.log(`Extracting color group: ${colorKey}`);
+
       const extractedSvg = extractColorGroupSVG(svgContent, colorKey);
 
       if (extractedSvg) {
         result[colorKey] = extractedSvg;
+        console.log(`Successfully extracted SVG for color key: ${colorKey}`);
+      } else {
+        console.error(`Failed to extract SVG for color key: ${colorKey}`);
       }
     });
 
+    console.log(`Extracted ${Object.keys(result).length} color groups`);
     return result;
   } catch (error) {
     console.error("Error extracting all color groups:", error);

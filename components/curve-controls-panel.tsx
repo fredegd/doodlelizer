@@ -5,11 +5,14 @@ import { Label } from "@/components/ui/label"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Button } from "@/components/ui/button"
 import { RotateCcw, Info } from "lucide-react"
-import type { CurveControlSettings } from "@/lib/types"
+import type { CurveControlSettings, Settings } from "@/lib/types"
+import { Switch } from "@/components/ui/switch"
 
 interface CurveControlsPanelProps {
+    settings: Settings
     curveControls: CurveControlSettings
     onCurveControlsChange: (newControls: Partial<CurveControlSettings>) => void
+    onSettingsChange: (newSettings: Partial<Settings>) => void
     disabled: boolean
 }
 
@@ -20,8 +23,10 @@ export const DEFAULT_CURVE_CONTROLS: CurveControlSettings = {
 }
 
 export default function CurveControlsPanel({
+    settings,
     curveControls,
     onCurveControlsChange,
+    onSettingsChange,
     disabled
 }: CurveControlsPanelProps) {
     const resetToDefaults = () => {
@@ -32,78 +37,113 @@ export default function CurveControlsPanel({
         <TooltipProvider>
             <div className="bg-gray-800/70 backdrop-blur rounded-lg p-6">
                 <details open>
+
                     <summary className="cursor-pointer text-xl font-bold mb-4 flex items-center justify-between">
-                        <span>Curve Controls</span>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                resetToDefaults();
-                            }}
+
+                        <h2 className="flex items-center gap-2">
+                            Curved Paths
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <Info className="h-4 w-4 text-gray-400" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p className="max-w-xs">
+                                        When enabled, creates smooth, curved paths. When disabled, uses straight lines with sharp corners.
+                                    </p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </h2>
+                        <Switch
+                            id="curvedPaths"
+                            checked={settings.curvedPaths}
+                            onCheckedChange={(checked) => onSettingsChange({ curvedPaths: checked })}
                             disabled={disabled}
-                            className="text-xs"
-                        >
-                            <RotateCcw className="h-3 w-3 mr-1" />
-                            Reset
-                        </Button>
+                        />
+
+
                     </summary>
 
-                    <div className="space-y-6 mt-4">
-                        <div>
-                            <h3 className="text-sm font-medium mb-3 text-gray-300 flex items-center gap-2">
-                                Curve Settings
-                                <Tooltip>
-                                    <TooltipTrigger>
-                                        <Info className="h-4 w-4 text-gray-400" />
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p className="max-w-xs">
-                                            Adjust the curve smoothness and tile height
-                                        </p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            </h3>
 
-                            <div className="space-y-4 mt-4">
-                                <div className="space-y-2">
-                                    <div className="flex justify-between">
-                                        <Label htmlFor="junctionContinuityFactor">
-                                            Curve Smoothness: {curveControls.junctionContinuityFactor.toFixed(2)}
-                                        </Label>
-                                    </div>
-                                    <Slider
-                                        id="junctionContinuityFactor"
-                                        min={0.01}
-                                        max={0.50}
-                                        step={0.01}
-                                        value={[curveControls.junctionContinuityFactor]}
-                                        onValueChange={(value) => onCurveControlsChange({ junctionContinuityFactor: value[0] })}
-                                        disabled={disabled}
-                                    />
-                                    <p className="text-xs text-gray-400">Controls how smooth the curves are between points (higher values create smoother curves)</p>
-                                </div>
+                    {settings.curvedPaths && (
+                        <div className="space-y-6 mt-4">
 
-                                <div className="space-y-2">
-                                    <div className="flex justify-between">
-                                        <Label htmlFor="tileHeightScale">
-                                            Tile Height: {(curveControls.tileHeightScale * 100).toFixed(0)}%
-                                        </Label>
+
+                            <div>
+
+
+                                <div className=" flex flex-col gap-4 space-y-4 mt-4">
+
+                                    <div className="space-y-2">
+                                        <div className="flex gap-2  ">
+                                            <Label htmlFor="junctionContinuityFactor">
+                                                Curve Smoothness: {curveControls.junctionContinuityFactor.toFixed(2)}
+                                            </Label>
+                                            <Tooltip>
+                                                <TooltipTrigger>
+                                                    <Info className="h-4 w-4 text-gray-400" />
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p className="max-w-xs">
+                                                        Controls how smooth the curves are between points (higher values create smoother curves)
+                                                    </p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </div>
+                                        <Slider
+                                            id="junctionContinuityFactor"
+                                            min={0.01}
+                                            max={0.50}
+                                            step={0.01}
+                                            value={[curveControls.junctionContinuityFactor]}
+                                            onValueChange={(value) => onCurveControlsChange({ junctionContinuityFactor: value[0] })}
+                                            disabled={disabled}
+                                        />
                                     </div>
-                                    <Slider
-                                        id="tileHeightScale"
-                                        min={0.1}
-                                        max={1.0}
-                                        step={0.01}
-                                        value={[curveControls.tileHeightScale]}
-                                        onValueChange={(value) => onCurveControlsChange({ tileHeightScale: value[0] })}
+
+                                    <div className="space-y-2">
+                                        <div className="flex gap-2">
+                                            <Label htmlFor="tileHeightScale">
+                                                Tile Height: {(curveControls.tileHeightScale * 100).toFixed(0)}%
+                                            </Label>
+                                            <Tooltip>
+                                                <TooltipTrigger>
+                                                    <Info className="h-4 w-4 text-gray-400" />
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p className="max-w-xs">
+                                                        Adjusts the vertical height of pattern tiles (lower values create flatter patterns)
+                                                    </p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </div>
+                                        <Slider
+                                            id="tileHeightScale"
+                                            min={0.1}
+                                            max={1.0}
+                                            step={0.01}
+                                            value={[curveControls.tileHeightScale]}
+                                            onValueChange={(value) => onCurveControlsChange({ tileHeightScale: value[0] })}
+                                            disabled={disabled}
+                                        />
+
+                                    </div>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            resetToDefaults();
+                                        }}
                                         disabled={disabled}
-                                    />
-                                    <p className="text-xs text-gray-400">Adjusts the vertical height of pattern tiles (lower values create flatter patterns)</p>
+                                        className="text-xs"
+                                    >
+                                        <RotateCcw className="h-3 w-3 mr-1" />
+                                        Reset
+                                    </Button>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                 </details>
             </div>
         </TooltipProvider>

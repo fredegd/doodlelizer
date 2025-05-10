@@ -5,7 +5,6 @@ import ImageUploader from "@/components/image-uploader"
 import Preview, { ImageThumbnail } from "@/components/preview"
 import SettingsPanel from "@/components/settings-panel"
 import PathVisibilityControls from "@/components/path-visibility-controls"
-import SvgDownloadOptions from "@/components/svg-download-options"
 import CurveControlsPanel, { DEFAULT_CURVE_CONTROLS } from "@/components/curve-controls-panel"
 import { Button } from "@/components/ui/button"
 import { processImage, generateSVG } from "@/lib/image-processor"
@@ -240,13 +239,15 @@ export default function Home() {
             {!originalImage ? (
               <ImageUploader onImageUpload={handleImageUpload} />
             ) : (
-              <Preview
-                originalImage={originalImage}
-                svgContent={svgContent}
-                isProcessing={isProcessing}
-                processedData={processedData}
-                onNewImageUpload={handleNewImageUpload}
-              />
+              <>
+                <Preview
+                  originalImage={originalImage}
+                  svgContent={svgContent}
+                  isProcessing={isProcessing}
+                  processedData={processedData}
+                  onNewImageUpload={handleNewImageUpload}
+                />
+              </>
             )}
           </div>
 
@@ -286,27 +287,20 @@ export default function Home() {
                     onNewImageUpload={handleNewImageUpload}
                   />
                 )}
-                {svgContent && (
-                  <SvgDownloadOptions
-                    svgContent={svgContent}
-                    colorGroups={processedData?.colorGroups}
-                    isProcessing={isProcessing}
-                  />
-                )}
+
                 <SettingsPanel
                   settings={settings}
                   onSettingsChange={handleSettingsChange}
                   disabled={!originalImage || isProcessing}
                 />
 
-                {/* Show curve controls only when curved paths are enabled */}
-                {settings.curvedPaths && (
-                  <CurveControlsPanel
-                    curveControls={settings.curveControls}
-                    onCurveControlsChange={handleCurveControlsChange}
-                    disabled={!originalImage || isProcessing}
-                  />
-                )}
+                <CurveControlsPanel
+                  settings={settings}
+                  curveControls={settings.curveControls}
+                  onCurveControlsChange={handleCurveControlsChange}
+                  onSettingsChange={handleSettingsChange}
+                  disabled={!originalImage || isProcessing}
+                />
 
                 {processedData?.colorGroups && Object.keys(processedData.colorGroups).length > 0 && (
                   <PathVisibilityControls

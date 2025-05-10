@@ -3,6 +3,7 @@
 import { useEffect, useRef, memo, useState } from "react"
 import { Loader, Upload, Maximize2, X, LayoutGrid, Layout } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import SvgDownloadOptions from "@/components/svg-download-options"
 import type { ImageData } from "@/lib/types"
 
 interface PreviewProps {
@@ -69,40 +70,47 @@ const Preview = memo(function Preview({
   return (
     <>
       <div className="space-y-4 sticky top-0 max-h-screen py-4 flex flex-col">
-        <div className={`flex ${isRowLayout ? 'flex-row' : 'flex-col'} gap-4 overflow-y-auto`}>
-          <div className="bg-gray-800 rounded-lg p-4 flex-1">
-            <h3 className="text-lg font-medium mb-2 text-center">Vector Output</h3>
-            <div className="flex items-center justify-center">
-              {isProcessing ? (
-                <div className="flex flex-col items-center justify-center">
-                  <Loader className="h-10 w-10 text-primary animate-spin mb-2" />
-                  <p className="text-gray-400">Processing image...</p>
-                </div>
-              ) : svgContent ? (
-                <div className="relative w-full">
-                  <div ref={svgContainerRef} className="w-full flex items-center justify-center bg-[#f1f1f1] max-h-[80vh]" >
-                  </div>
-                  <Button
-                    onClick={() => setFullscreen(true)}
-                    className="absolute bottom-2 right-2 h-8 w-8 p-0 rounded-full bg-gray-700 hover:bg-gray-600"
-                    size="sm"
-                    title="Fullscreen view"
-                  >
-                    <Maximize2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ) : (
-                <p className="text-gray-400">Vector preview will appear here</p>
-              )}
+
+        <div className="bg-gray-800 rounded-lg p-4 flex-1">
+          <h3 className="text-lg font-medium  text-center">Vector Output</h3>
+          {processedData && (
+            <div className="mb-2 text-center text-xs text-gray-400">
+              {processedData.width} ×{" "}
+              {processedData.height} tiles
             </div>
-            {processedData && (
-              <div className="mt-2 text-center text-xs text-gray-400">
-                {processedData.width} ×{" "}
-                {processedData.height} tiles
+          )}
+          <div className="flex items-center justify-center">
+            {isProcessing ? (
+              <div className="flex flex-col items-center justify-center">
+                <Loader className="h-10 w-10 text-primary animate-spin mb-2" />
+                <p className="text-gray-400">Processing image...</p>
               </div>
+            ) : svgContent ? (
+              <div className="relative w-full">
+                <div ref={svgContainerRef} className="w-full flex items-center justify-center bg-[#f1f1f1] max-h-[80vh]" >
+                </div>
+                <Button
+                  onClick={() => setFullscreen(true)}
+                  className="absolute bottom-2 right-2 h-8 w-8 p-0 rounded-full bg-gray-700 hover:bg-gray-600"
+                  size="sm"
+                  title="Fullscreen view"
+                >
+                  <Maximize2 className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <p className="text-gray-400">Vector preview will appear here</p>
             )}
           </div>
         </div>
+
+        {svgContent && (
+          <SvgDownloadOptions
+            svgContent={svgContent}
+            colorGroups={processedData?.colorGroups}
+            isProcessing={isProcessing}
+          />
+        )}
       </div>
 
       {fullscreen && svgContent && (

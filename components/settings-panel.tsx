@@ -115,7 +115,7 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                 <div className="mt-4 space-y-2">
                   <div className="flex justify-between">
                     <Label htmlFor="colorsAmt">
-                      {settings.processingMode === "grayscale" ? "Gray Levels" : "Colors"}: {settings.colorsAmt}
+                      {settings.processingMode === "grayscale" ? "Gray Levels" : "Color Levels"}: {settings.colorsAmt}
                     </Label>
                   </div>
                   <Slider
@@ -336,29 +336,6 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                     <p className="text-xs text-gray-400">Higher values allow longer connections between points</p>
                   </div>
                 )}
-
-                <div className="flex items-center justify-between mt-3">
-                  <Label htmlFor="curvedPaths" className="flex items-center gap-2">
-                    Curved Paths
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Info className="h-4 w-4 text-gray-400" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="max-w-xs">
-                          When enabled, creates smooth, curved paths. When disabled, uses straight lines with sharp corners.
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </Label>
-                  <Switch
-                    id="curvedPaths"
-                    checked={settings.curvedPaths}
-                    onCheckedChange={(checked) => onSettingsChange({ curvedPaths: checked })}
-                    disabled={disabled}
-                  />
-                </div>
-
 
               </div>
             </div>
