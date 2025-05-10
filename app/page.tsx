@@ -235,8 +235,8 @@ export default function Home() {
           />
         )}
 
-        <div className={`grid grid-cols-1 ${originalImage ? 'lg:grid-cols-4' : ''} gap-6 overflow-hidden`}>
-          <div className="lg:col-span-3 h-full relative">
+        <div className={`grid grid-cols-1 ${originalImage ? 'lg:grid-cols-4' : ''} gap-6  relative`}>
+          <div className="lg:col-span-3 h-full relative ">
             {!originalImage ? (
               <ImageUploader onImageUpload={handleImageUpload} />
             ) : (
@@ -252,9 +252,7 @@ export default function Home() {
             )}
           </div>
 
-
-
-
+          {/* Settings panel */}
           {originalImage && (
             <div className={`
               ${isSettingsPanelVisible ? 'block' : 'hidden lg:block'}

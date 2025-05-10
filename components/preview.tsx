@@ -66,54 +66,6 @@ const Preview = memo(function Preview({
 
   return (
     <>
-      <div className="space-y-4 sticky top-0 max-h-screen  flex flex-col ">
-
-        <div className="bg-gray-800 rounded-lg p-4 flex-1 relative">
-
-          <div className="absolute top-2 right-2 z-10">
-            {svgContent && (
-              <SvgDownloadOptions
-                svgContent={svgContent}
-                colorGroups={processedData?.colorGroups}
-                isProcessing={isProcessing}
-              />
-            )}
-          </div>
-
-          <h3 className="text-lg font-medium  text-center">Vector Output</h3>
-          {processedData && (
-            <div className="mb-2 text-center text-xs text-gray-400">
-              {processedData.width} ×{" "}
-              {processedData.height} tiles
-            </div>
-          )}
-          <div className="flex items-center justify-center">
-            {isProcessing ? (
-              <div className="flex flex-col items-center justify-center">
-                <Loader className="h-10 w-10 text-primary animate-spin mb-2" />
-                <p className="text-gray-400">Processing image...</p>
-              </div>
-            ) : svgContent ? (
-              <div className="relative w-full">
-                <div ref={svgContainerRef} className="w-full flex items-center justify-center bg-[#f1f1f1] max-h-[75vh]" >
-                </div>
-                <Button
-                  onClick={() => setFullscreen(true)}
-                  className="absolute bottom-2 right-2 h-8 w-8 p-0 rounded-full bg-gray-700 hover:bg-gray-600"
-                  size="sm"
-                  title="Fullscreen view"
-                >
-                  <Maximize2 className="h-4 w-4" />
-                </Button>
-              </div>
-            ) : (
-              <p className="text-gray-400">Vector preview will appear here</p>
-            )}
-          </div>
-        </div>
-
-
-      </div>
 
       {fullscreen && svgContent && (
         <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
@@ -133,6 +85,53 @@ const Preview = memo(function Preview({
           </div>
         </div>
       )}
+      <div className="relative h-full">
+        <div className="space-y-4 sticky top-0 max-h-screen  flex flex-col ">
+          <div className="bg-gray-800 rounded-lg p-4 flex-1 relative">
+            <div className="absolute top-2 right-2 z-10">
+              {svgContent && (
+                <SvgDownloadOptions
+                  svgContent={svgContent}
+                  colorGroups={processedData?.colorGroups}
+                  isProcessing={isProcessing}
+                />
+              )}
+            </div>
+            <h3 className="text-lg font-medium  text-center">Vector Output</h3>
+            {processedData && (
+              <div className="mb-2 text-center text-xs text-gray-400">
+                {processedData.width} ×{" "}
+                {processedData.height} tiles
+              </div>
+            )}
+            <div className="flex items-center justify-center">
+              {isProcessing ? (
+                <div className="flex flex-col items-center justify-center">
+                  <Loader className="h-10 w-10 text-primary animate-spin mb-2" />
+                  <p className="text-gray-400">Processing image...</p>
+                </div>
+              ) : svgContent ? (
+                <div className="relative w-full">
+                  <div ref={svgContainerRef} className="w-full flex items-center justify-center bg-[#f1f1f1] max-h-[75vh]" >
+                  </div>
+                  <Button
+                    onClick={() => setFullscreen(true)}
+                    className="absolute bottom-2 right-2 h-8 w-8 p-0 rounded-full bg-gray-700 hover:bg-gray-600"
+                    size="sm"
+                    title="Fullscreen view"
+                  >
+                    <Maximize2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <p className="text-gray-400">Vector preview will appear here</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+
     </>
   )
 })

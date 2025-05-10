@@ -39,7 +39,7 @@ export default function CurveControlsPanel({
             <div className="bg-gray-800/70 backdrop-blur rounded-lg p-6">
 
                 <div className="flex w-full justify-between">
-                    <h2 className="text-xl font-bold mb-4">Matrix: </h2>
+                    <h3 className="text-sm font-medium mb-3 text-gray-300">Matrix: </h3>
                     <div className="flex items-center gap-2 mb-4">
                         <Image
                             src="/squared-paths.svg"
@@ -66,7 +66,7 @@ export default function CurveControlsPanel({
 
                 <details open >
                     <summary className="cursor-pointer text-xl font-bold mb-4 flex items-center justify-between">
-                        <h2 className="flex items-center gap-2">
+                        <h3 className="flex items-center gap-2 text-sm font-medium  text-gray-300">
                             {settings.curvedPaths ? "Curved" : "Square"} Paths
                             <Tooltip>
                                 <TooltipTrigger>
@@ -78,7 +78,7 @@ export default function CurveControlsPanel({
                                     </p>
                                 </TooltipContent>
                             </Tooltip>
-                        </h2>
+                        </h3>
                     </summary>
 
                     <div className=" flex flex-col gap-4 ">
@@ -150,9 +150,7 @@ export default function CurveControlsPanel({
                                 className="text-xs justify-self-end"
                             >
                                 <RotateCcw className="h-3 w-3 mr-1" />
-                                <span className="hidden md:block">
-                                    Reset
-                                </span>
+
                             </Button>
                         </div>
                     </div>

@@ -46,7 +46,9 @@ const PathVisibilityControls = React.memo(function PathVisibilityControls({
       <details open>
         <summary className="cursor-pointer text-xl font-bold mb-4 flex items-center justify-between">
           <div className="flex justify-between items-center mb-4 w-full">
-            <h2 className="text-xl font-bold">Path Visibility</h2>
+            <h3 className="flex items-center gap-2 text-sm font-medium  text-gray-300"
+            >Path Visibility
+            </h3>
             <button className="text-sm text-gray-400 hover:text-white" onClick={handleToggleAll} disabled={disabled}>
               {allVisible ? "Hide All" : "Show All"}
             </button>

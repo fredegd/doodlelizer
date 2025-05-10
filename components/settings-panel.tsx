@@ -38,14 +38,16 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
     <TooltipProvider>
       <div className="bg-gray-800/70 backdrop-blur rounded-lg p-6">
 
-        <details open>
-          <summary className="cursor-pointer text-xl font-bold mb-4 flex items-center justify-between">
 
-            <h2 className="text-xl font-bold mb-4">Settings</h2>
-          </summary>
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-sm font-medium mb-3 text-gray-300">Processing Mode</h3>
+        <div className="space-y-6">
+
+
+
+          <div>
+            <details open>
+              <summary className="cursor-pointer text-xl font-bold mb-4 flex items-center justify-between">
+                <h3 className="flex items-center gap-2 text-sm font-medium  text-gray-300">Processing Mode</h3>
+              </summary>
               <RadioGroup
                 value={settings.processingMode}
                 onValueChange={(value) => handleProcessingModeChange(value as ProcessingMode)}
@@ -166,12 +168,21 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                   </p>
                 </div>
               )}
-            </div>
+            </details>
+          </div>
 
-            <Separator className="bg-gray-700" />
 
-            <div>
-              <h3 className="text-sm font-medium mb-3 text-gray-300">Image Tiling</h3>
+
+
+
+          <Separator className="bg-gray-700" />
+
+          <div>
+            <details>
+              <summary className="cursor-pointer text-xl font-bold mb-4 flex items-center justify-between">
+                <h3 className="flex items-center gap-2 text-sm font-medium  text-gray-300">Image Tiling</h3>
+              </summary>
+
 
               <div className="space-y-4 mt-4">
                 <div className="space-y-2">
@@ -206,28 +217,36 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                   <p className="text-xs text-gray-400">Number of vertical tiles</p>
                 </div>
               </div>
-            </div>
+            </details>
 
-            <Separator className="bg-gray-700" />
+          </div>
 
-            <div>
-              <h3 className="flex items-center gap-2 text-sm font-medium  text-gray-300">
-                Serpentine Path density
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Info className="h-4 w-4 text-gray-400" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="max-w-xs">
-                      Density controls how many zigzags appear in each tile. Darker pixels have more zigzags, creating a
-                      denser pattern.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </h3>
+          <Separator className="bg-gray-700" />
+
+          <div>
+            <details>
+              <summary className="cursor-pointer text-xl font-bold mb-4 flex items-center justify-between">
+
+
+                <h3 className="flex items-center gap-2 text-sm font-medium  text-gray-300">
+                  Path density
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="h-4 w-4 text-gray-400" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs">
+                        Density controls how many zigzags appear in each tile. Darker pixels have more zigzags, creating a
+                        denser pattern.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </h3>
+              </summary>
               <p className="text-xs text-gray-400 mb-3">
                 (auto-adjusted to tile width: {calculatedDensity / 2}px)
               </p>
+
               <div className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex justify-between">
@@ -261,11 +280,15 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
 
                 </div>
               </div>
-            </div>
-            <Separator className="bg-gray-700" />
+            </details>
+          </div>
+          <Separator className="bg-gray-700" />
 
-            <div>
-              <h3 className="text-sm font-medium mb-3 text-gray-300">Vector Generation</h3>
+          <div>
+            <details>
+              <summary className="cursor-pointer text-xl font-bold mb-4 flex items-center justify-between">
+                <h3 className="text-sm font-medium mb-3 text-gray-300">Vector Generation</h3>
+              </summary>
               <div className="space-y-4">
                 {settings.processingMode !== "cmyk" && (
                   <div className="space-y-2">
@@ -338,14 +361,15 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                 )}
 
               </div>
-            </div>
-
+            </details>
           </div>
 
-        </details>
+        </div>
+
+
 
 
       </div>
-    </TooltipProvider>
+    </TooltipProvider >
   )
 }
