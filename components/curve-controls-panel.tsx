@@ -2,7 +2,6 @@
 
 import { Slider } from "@/components/ui/slider"
 import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Button } from "@/components/ui/button"
 import { RotateCcw, Info } from "lucide-react"

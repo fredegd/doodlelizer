@@ -42,31 +42,38 @@ const PathVisibilityControls = React.memo(function PathVisibilityControls({
 
   return (
     <div className="bg-gray-800/70 backdrop-blur rounded-lg p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Path Visibility</h2>
-        <button className="text-sm text-gray-400 hover:text-white" onClick={handleToggleAll} disabled={disabled}>
-          {allVisible ? "Hide All" : "Show All"}
-        </button>
-      </div>
 
-      <div className="space-y-3">
-        {sortedColorGroups.map(([colorKey, group]) => (
-          <div key={colorKey} className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded" style={{ backgroundColor: group.color }} />
-              <Label htmlFor={`visibility-${colorKey}`} className="cursor-pointer">
-                {group.displayName}
-              </Label>
-            </div>
-            <Switch
-              id={`visibility-${colorKey}`}
-              checked={visiblePaths[colorKey] !== false}
-              onCheckedChange={(checked) => onVisibilityChange(colorKey, checked)}
-              disabled={disabled}
-            />
+      <details open>
+        <summary className="cursor-pointer text-xl font-bold mb-4 flex items-center justify-between">
+          <div className="flex justify-between items-center mb-4 w-full">
+            <h2 className="text-xl font-bold">Path Visibility</h2>
+            <button className="text-sm text-gray-400 hover:text-white" onClick={handleToggleAll} disabled={disabled}>
+              {allVisible ? "Hide All" : "Show All"}
+            </button>
           </div>
-        ))}
-      </div>
+        </summary>
+
+        <div className="space-y-3">
+          {sortedColorGroups.map(([colorKey, group]) => (
+            <div key={colorKey} className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded" style={{ backgroundColor: group.color }} />
+                <Label htmlFor={`visibility-${colorKey}`} className="cursor-pointer">
+                  {group.displayName}
+                </Label>
+              </div>
+              <Switch
+                id={`visibility-${colorKey}`}
+                checked={visiblePaths[colorKey] !== false}
+                onCheckedChange={(checked) => onVisibilityChange(colorKey, checked)}
+                disabled={disabled}
+              />
+            </div>
+          ))}
+        </div>
+      </details>
+
+
     </div>
   )
 })

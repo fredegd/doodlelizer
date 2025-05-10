@@ -35,7 +35,7 @@ const Preview = memo(function Preview({
       processedSvg = processedSvg.replace(/(width|height)="([^"]*?\s*mm)"/g, '');
 
       // Add styling to ensure SVGs are properly scaled and have rounded corners
-      const enhancedSvgContent = processedSvg.replace('<svg ', '<svg style="shape-rendering: geometricPrecision; stroke-linejoin: round; stroke-linecap: round; max-width: 100%; max-height: 45vh; width: auto; height: auto;" ');
+      const enhancedSvgContent = processedSvg.replace('<svg ', '<svg style="shape-rendering: geometricPrecision; stroke-linejoin: round; stroke-linecap: round; max-width: 100%; max-height: 80vh; width: auto; height: auto;" ');
 
       if (svgContainerRef.current) {
         svgContainerRef.current.innerHTML = enhancedSvgContent;
@@ -58,6 +58,7 @@ const Preview = memo(function Preview({
           // Clear container and append the new SVG
           fullscreenSvgContainerRef.current.innerHTML = '';
           fullscreenSvgContainerRef.current.appendChild(svgElement);
+          fullscreenSvgContainerRef.current.style.backgroundColor = '#f1f1f1     ';
         } catch (error) {
           console.error('Error rendering fullscreen SVG:', error);
         }
@@ -68,54 +69,7 @@ const Preview = memo(function Preview({
   return (
     <>
       <div className="space-y-4 sticky top-0 max-h-screen py-4 flex flex-col">
-
         <div className={`flex ${isRowLayout ? 'flex-row' : 'flex-col'} gap-4 overflow-y-auto`}>
-          <div className="bg-gray-800 rounded-lg p-4 relative ">
-
-            <h3 className="text-lg font-medium mb-2 text-center">Original Image</h3>
-            <div className="flex flex-col items-center justify-center">
-              <img
-                src={originalImage || "/placeholder.svg"}
-                alt="Original"
-                className="max-w-full max-h-[18vh] object-contain"
-              />
-              {processedData && (
-                <div className="mt-2 text-center text-xs text-gray-400">
-                  Original: {processedData.originalWidth} × {processedData.originalHeight} px
-                </div>
-              )}
-            </div>
-
-            <div className="flex justify-end gap-2 absolute bottom-2 right-2">
-              <Button
-                onClick={() => setIsRowLayout(!isRowLayout)}
-                variant="outline"
-                size="sm"
-                className="h-8 w-8 p-0 rounded flex items-center justify-center"
-                title={isRowLayout ? "Switch to column layout" : "Switch to row layout"}
-              >
-                {isRowLayout ? (
-                  <><LayoutGrid className="h-4 w-4" /> </>
-                ) : (
-                  <><Layout className="h-4 w-4" /></>
-                )}
-              </Button>
-              <Button
-                onClick={onNewImageUpload}
-                className="h-8 w-8 p-0 rounded flex items-center justify-center"
-                variant="outline"
-                size="sm"
-                title="Upload new image"
-              >
-                <Upload className="h-4 w-4" />
-              </Button>
-            </div>
-
-
-
-
-          </div>
-
           <div className="bg-gray-800 rounded-lg p-4 flex-1">
             <h3 className="text-lg font-medium mb-2 text-center">Vector Output</h3>
             <div className="flex items-center justify-center">
@@ -126,7 +80,7 @@ const Preview = memo(function Preview({
                 </div>
               ) : svgContent ? (
                 <div className="relative w-full">
-                  <div ref={svgContainerRef} className="w-full flex items-center justify-center bg-white" style={{ maxHeight: '45vh' }}>
+                  <div ref={svgContainerRef} className="w-full flex items-center justify-center bg-[#f1f1f1] max-h-[80vh]" >
                   </div>
                   <Button
                     onClick={() => setFullscreen(true)}
@@ -149,7 +103,6 @@ const Preview = memo(function Preview({
             )}
           </div>
         </div>
-
       </div>
 
       {fullscreen && svgContent && (
@@ -171,6 +124,47 @@ const Preview = memo(function Preview({
         </div>
       )}
     </>
+  )
+})
+
+// Export the thumbnail component for use in page.tsx
+export const ImageThumbnail = memo(function ImageThumbnail({
+  originalImage,
+  processedData,
+  onNewImageUpload
+}: {
+  originalImage: string
+  processedData: ImageData | null
+  onNewImageUpload: () => void
+}) {
+  return (
+    <div className="bg-gray-800 rounded-lg p-4 relative">
+      <h3 className="text-lg font-medium mb-2 text-center">Original Image</h3>
+      <div className="flex flex-col items-center justify-center">
+        <img
+          src={originalImage || "/placeholder.svg"}
+          alt="Original"
+          className="max-w-full max-h-[18vh] object-contain"
+        />
+        {processedData && (
+          <div className="mt-2 text-center text-xs text-gray-400">
+            Original: {processedData.originalWidth} × {processedData.originalHeight} px
+          </div>
+        )}
+      </div>
+
+      <div className="flex justify-end gap-2 absolute top-2 right-2">
+        <Button
+          onClick={onNewImageUpload}
+          className="h-8 w-8 p-0 rounded flex items-center justify-center "
+          variant="ghost"
+          size="sm"
+          title="Upload new image"
+        >
+          <Upload className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
   )
 })
 

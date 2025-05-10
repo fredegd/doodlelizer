@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import ImageUploader from "@/components/image-uploader"
-import Preview from "@/components/preview"
+import Preview, { ImageThumbnail } from "@/components/preview"
 import SettingsPanel from "@/components/settings-panel"
 import PathVisibilityControls from "@/components/path-visibility-controls"
 import SvgDownloadOptions from "@/components/svg-download-options"
@@ -235,8 +235,8 @@ export default function Home() {
           />
         )}
 
-        <div className={`grid grid-cols-1 ${originalImage ? 'lg:grid-cols-3' : ''} gap-6`}>
-          <div className="lg:col-span-2 relative h-full">
+        <div className={`grid grid-cols-1 ${originalImage ? 'lg:grid-cols-4' : ''} gap-6`}>
+          <div className="lg:col-span-3 relative h-full">
             {!originalImage ? (
               <ImageUploader onImageUpload={handleImageUpload} />
             ) : (
@@ -249,6 +249,9 @@ export default function Home() {
               />
             )}
           </div>
+
+
+
 
           {originalImage && (
             <div className={`
@@ -275,6 +278,21 @@ export default function Home() {
               )}
 
               <div className="space-y-6 pb-20 md:pb-0">
+                {/* Add image thumbnail preview above settings panel */}
+                {originalImage && (
+                  <ImageThumbnail
+                    originalImage={originalImage}
+                    processedData={processedData}
+                    onNewImageUpload={handleNewImageUpload}
+                  />
+                )}
+                {svgContent && (
+                  <SvgDownloadOptions
+                    svgContent={svgContent}
+                    colorGroups={processedData?.colorGroups}
+                    isProcessing={isProcessing}
+                  />
+                )}
                 <SettingsPanel
                   settings={settings}
                   onSettingsChange={handleSettingsChange}
@@ -299,13 +317,7 @@ export default function Home() {
                   />
                 )}
 
-                {svgContent && (
-                  <SvgDownloadOptions
-                    svgContent={svgContent}
-                    colorGroups={processedData?.colorGroups}
-                    isProcessing={isProcessing}
-                  />
-                )}
+
               </div>
             </div>
           )}
