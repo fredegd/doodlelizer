@@ -112,10 +112,10 @@ export default function SvgDownloadOptions({
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button className="w-full py-6 text-lg bg-black" disabled={isProcessing || isDownloading} variant="ghost">
+                <Button className=" text-lg h-8 w-8 p-0" disabled={isProcessing || isDownloading} variant="ghost">
                     <Download className="mr-2 h-5 w-5" />
-                    Download
-                    <ChevronDown className="ml-2 h-4 w-4" />
+                    {/* Download
+                    <ChevronDown className="ml-2 h-4 w-4" /> */}
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">

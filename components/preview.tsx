@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, memo, useState } from "react"
-import { Loader, Upload, Maximize2, X, LayoutGrid, Layout } from "lucide-react"
+import { Loader, Upload, Maximize2, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import SvgDownloadOptions from "@/components/svg-download-options"
 import type { ImageData } from "@/lib/types"
@@ -16,16 +16,13 @@ interface PreviewProps {
 
 // Use memo to prevent unnecessary re-renders
 const Preview = memo(function Preview({
-  originalImage,
   svgContent,
   isProcessing,
   processedData,
-  onNewImageUpload
 }: PreviewProps) {
   const svgContainerRef = useRef<HTMLDivElement>(null)
   const fullscreenSvgContainerRef = useRef<HTMLDivElement>(null)
   const [fullscreen, setFullscreen] = useState(false)
-  const [isRowLayout, setIsRowLayout] = useState(false)
 
   useEffect(() => {
     if (svgContent) {
@@ -36,7 +33,7 @@ const Preview = memo(function Preview({
       processedSvg = processedSvg.replace(/(width|height)="([^"]*?\s*mm)"/g, '');
 
       // Add styling to ensure SVGs are properly scaled and have rounded corners
-      const enhancedSvgContent = processedSvg.replace('<svg ', '<svg style="shape-rendering: geometricPrecision; stroke-linejoin: round; stroke-linecap: round; max-width: 100%; max-height: 80vh; width: auto; height: auto;" ');
+      const enhancedSvgContent = processedSvg.replace('<svg ', '<svg style="shape-rendering: geometricPrecision; stroke-linejoin: round; stroke-linecap: round; max-width: 100%; max-height: 75vh; width: auto; height: auto;" ');
 
       if (svgContainerRef.current) {
         svgContainerRef.current.innerHTML = enhancedSvgContent;
@@ -69,9 +66,20 @@ const Preview = memo(function Preview({
 
   return (
     <>
-      <div className="space-y-4 sticky top-0 max-h-screen py-4 flex flex-col">
+      <div className="space-y-4 sticky top-0 max-h-screen  flex flex-col ">
 
-        <div className="bg-gray-800 rounded-lg p-4 flex-1">
+        <div className="bg-gray-800 rounded-lg p-4 flex-1 relative">
+
+          <div className="absolute top-2 right-2 z-10">
+            {svgContent && (
+              <SvgDownloadOptions
+                svgContent={svgContent}
+                colorGroups={processedData?.colorGroups}
+                isProcessing={isProcessing}
+              />
+            )}
+          </div>
+
           <h3 className="text-lg font-medium  text-center">Vector Output</h3>
           {processedData && (
             <div className="mb-2 text-center text-xs text-gray-400">
@@ -87,7 +95,7 @@ const Preview = memo(function Preview({
               </div>
             ) : svgContent ? (
               <div className="relative w-full">
-                <div ref={svgContainerRef} className="w-full flex items-center justify-center bg-[#f1f1f1] max-h-[80vh]" >
+                <div ref={svgContainerRef} className="w-full flex items-center justify-center bg-[#f1f1f1] max-h-[75vh]" >
                 </div>
                 <Button
                   onClick={() => setFullscreen(true)}
@@ -104,13 +112,7 @@ const Preview = memo(function Preview({
           </div>
         </div>
 
-        {svgContent && (
-          <SvgDownloadOptions
-            svgContent={svgContent}
-            colorGroups={processedData?.colorGroups}
-            isProcessing={isProcessing}
-          />
-        )}
+
       </div>
 
       {fullscreen && svgContent && (
@@ -146,7 +148,7 @@ export const ImageThumbnail = memo(function ImageThumbnail({
   onNewImageUpload: () => void
 }) {
   return (
-    <div className="bg-gray-800 rounded-lg p-4 relative">
+    <div className="bg-gray-800/70 backdrop-blur rounded-lg p-4 relative">
       <h3 className="text-lg font-medium mb-2 text-center">Original Image</h3>
       <div className="flex flex-col items-center justify-center">
         <img
