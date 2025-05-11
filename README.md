@@ -99,6 +99,6 @@ MIT License - Feel free to use, modify, and distribute this tool for personal or
 
 ## Credits
 
-Created with ❤️ by Federico
+Created with ❤️ by [fedegd](https://github.com/fredegd/)
 
 Feedback, suggestions, and contributions welcome!

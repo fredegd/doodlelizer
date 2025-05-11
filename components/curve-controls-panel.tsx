@@ -21,6 +21,7 @@ interface CurveControlsPanelProps {
 export const DEFAULT_CURVE_CONTROLS: CurveControlSettings = {
     junctionContinuityFactor: 0.1,     // Default smoothness factor for curves
     tileHeightScale: 0.95,             // Default tile height scale (1.0 = 100% of original height)
+    handleRotationAngle: 0,            // Default handle rotation angle in degrees
 }
 
 export default function CurveControlsPanel({
@@ -136,6 +137,34 @@ export default function CurveControlsPanel({
                                         disabled={disabled}
                                     />
                                 </div>
+                                {settings.curvedPaths && (
+                                    <div className="space-y-2 mt-4">
+                                        <div className="flex gap-2">
+                                            <Label htmlFor="handleRotationAngle">
+                                                Handle Rotation: {curveControls.handleRotationAngle?.toFixed(0)}°
+                                            </Label>
+                                            <Tooltip>
+                                                <TooltipTrigger>
+                                                    <Info className="h-4 w-4 text-gray-400" />
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p className="max-w-xs">
+                                                        Adjusts the rotation of control point handles at each vertex (in degrees).
+                                                    </p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </div>
+                                        <Slider
+                                            id="handleRotationAngle"
+                                            min={-90}
+                                            max={90}
+                                            step={1}
+                                            value={[curveControls.handleRotationAngle || 0]}
+                                            onValueChange={(value) => onCurveControlsChange({ handleRotationAngle: value[0] })}
+                                            disabled={disabled}
+                                        />
+                                    </div>
+                                )}
                             </div>
                         )}
                         <div className="flex justify-end">

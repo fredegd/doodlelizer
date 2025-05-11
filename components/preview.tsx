@@ -86,7 +86,7 @@ const Preview = memo(function Preview({
         </div>
       )}
       <div className="relative h-full">
-        <div className="space-y-4 sticky top-0 max-h-screen  flex flex-col ">
+        <div className="space-y-4 sticky top-12 max-h-screen  flex flex-col ">
           <div className="bg-gray-800 rounded-lg p-4 flex-1 relative">
             <div className="absolute top-2 right-2 z-10">
               {svgContent && (

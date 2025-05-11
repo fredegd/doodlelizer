@@ -91,7 +91,7 @@ export function generateContinuousPath(
         pathVertices,
         color,
         curvedPaths,
-        curveControls?.junctionContinuityFactor || 0.7
+        curveControls
       );
       // Reset vertices array for next path
       pathVertices = [];
@@ -125,7 +125,7 @@ export function generateContinuousPath(
       pathVertices,
       color,
       curvedPaths,
-      curveControls?.junctionContinuityFactor || 0.7
+      curveControls
     );
   }
 
@@ -187,15 +187,17 @@ function createPathFromVertices(
   vertices: { x: number; y: number }[],
   color: string,
   useCurvedPaths: boolean,
-  smoothness: number = 0.1
+  curveControls?: CurveControlSettings
 ): string {
   if (vertices.length === 0) return "";
 
   let pathData = "";
+  const smoothness = curveControls?.junctionContinuityFactor || 0.1;
+  const handleRotationAngle = curveControls?.handleRotationAngle || 0; // Degrees
 
   if (useCurvedPaths) {
-    // Use the curve algorithm from example.tsx
-    pathData = convertToCurvePath(vertices, smoothness);
+    // Use the curve algorithm
+    pathData = convertToCurvePath(vertices, smoothness, handleRotationAngle);
   } else {
     // Use straight lines
     pathData = convertToLinePath(vertices);
@@ -214,9 +216,15 @@ function convertToLinePath(points: { x: number; y: number }[]): string {
 // Curved path conversion (from example.tsx)
 function convertToCurvePath(
   points: { x: number; y: number }[],
-  smoothness = 0.1
+  smoothness = 0.1,
+  handleRotationAngle = 0 // New parameter in degrees
 ): string {
   if (points.length < 2) return "";
+
+  // Convert angle to radians for Math functions
+  const rotationRad = (handleRotationAngle * Math.PI) / 180;
+  const cosA = Math.cos(rotationRad);
+  const sinA = Math.sin(rotationRad);
 
   // Start with the first point
   let path = `M ${points[0].x} ${points[0].y}`;
@@ -251,15 +259,35 @@ function convertToCurvePath(
     const distance1 = Math.min(len1 * smoothness, len1 / 2);
     const distance2 = Math.min(len2 * smoothness, len2 / 2);
 
-    // Calculate control points
+    // Calculate original handle vectors
+    let handleVec1_x = (v1.x / len1) * distance1;
+    let handleVec1_y = (v1.y / len1) * distance1;
+
+    let handleVec2_x = -(v2.x / len2) * distance2; // Points from next towards cp2
+    let handleVec2_y = -(v2.y / len2) * distance2;
+
+    // Rotate handle vectors if rotation angle is not zero
+    if (handleRotationAngle !== 0) {
+      const rotated_cp1_dx = handleVec1_x * cosA - handleVec1_y * sinA;
+      const rotated_cp1_dy = handleVec1_x * sinA + handleVec1_y * cosA;
+      handleVec1_x = rotated_cp1_dx;
+      handleVec1_y = rotated_cp1_dy;
+
+      const rotated_cp2_dx = handleVec2_x * cosA - handleVec2_y * sinA;
+      const rotated_cp2_dy = handleVec2_x * sinA + handleVec2_y * cosA;
+      handleVec2_x = rotated_cp2_dx;
+      handleVec2_y = rotated_cp2_dy;
+    }
+
+    // Calculate control points based on (possibly rotated) handle vectors
     const cp1 = {
-      x: current.x + (v1.x / len1) * distance1,
-      y: current.y + (v1.y / len1) * distance1,
+      x: current.x + handleVec1_x,
+      y: current.y + handleVec1_y,
     };
 
     const cp2 = {
-      x: next.x - (v2.x / len2) * distance2,
-      y: next.y - (v2.y / len2) * distance2,
+      x: next.x + handleVec2_x, // Add rotated vector to 'next'
+      y: next.y + handleVec2_y,
     };
 
     // Add the curve segment
@@ -330,7 +358,11 @@ export function createTilePathDataWithTangent(
     // If there are vertices, create the curved path
     if (vertices.length > 0) {
       // Generate the curved path data
-      const curvedPath = convertToCurvePath(vertices, smoothness);
+      const curvedPath = convertToCurvePath(
+        vertices,
+        smoothness,
+        curveControls?.handleRotationAngle || 0
+      );
 
       // Remove the initial M command if this is not the first point
       pathData += isFirst
@@ -431,7 +463,7 @@ export function generateIndividualPaths(
       vertices,
       color,
       curvedPaths,
-      curveControls?.junctionContinuityFactor || 0.7
+      curveControls
     );
   });
 
@@ -463,12 +495,7 @@ export function generateSerpentinePath(
   );
 
   // Create path from vertices
-  return createPathFromVertices(
-    vertices,
-    color,
-    useCurvedPaths,
-    curveControls?.junctionContinuityFactor || 0.7
-  );
+  return createPathFromVertices(vertices, color, useCurvedPaths, curveControls);
 }
 
 // Extract a single color group as its own SVG
