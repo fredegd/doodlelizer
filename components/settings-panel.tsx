@@ -36,7 +36,7 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
 
   return (
     <TooltipProvider>
-      <div className="bg-gray-800/70 backdrop-blur rounded-lg p-6">
+      <div className="bg-gray-800/40 rounded-lg p-6">
 
 
         <div className="space-y-6">
@@ -44,7 +44,7 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
 
 
           <div>
-            <details open>
+            <details>
               <summary className="cursor-pointer text-xl font-bold mb-4 flex items-center justify-between">
                 <h3 className="flex items-center gap-2 text-sm font-medium  text-gray-300">Processing Mode</h3>
               </summary>

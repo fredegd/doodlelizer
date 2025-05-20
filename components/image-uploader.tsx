@@ -82,7 +82,7 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
         <h3 className="text-xl font-medium mb-2">{isDragging ? "Drop your image here" : "Upload an image"}</h3>
         <p className="text-gray-400 mb-4">Upload an image and convert it into a vector wave paths</p>
 
-        <Button onClick={handleButtonClick} variant="outline">
+        <Button onClick={handleButtonClick} variant="outline" className="border-gray-500 text-black hover:bg-gray-500 hover:text-white">
           Select Image
         </Button>
       </div>

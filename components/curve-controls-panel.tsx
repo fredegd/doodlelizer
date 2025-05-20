@@ -37,35 +37,11 @@ export default function CurveControlsPanel({
 
     return (
         <TooltipProvider>
-            <div className="bg-gray-800/70 backdrop-blur rounded-lg p-6">
+            <div className="bg-gray-800/40 rounded-lg p-6">
 
-                <div className="flex w-full justify-between">
-                    <h3 className="text-sm font-medium mb-3 text-gray-300">Matrix: </h3>
-                    <div className="flex items-center gap-2 mb-4">
-                        <Image
-                            src="/squared-paths.svg"
-                            alt="Squared paths"
-                            width={24}
-                            height={24}
-                            className={`w-6 h-6 transition-all duration-200 ${settings.curvedPaths ? 'opacity-50' : 'opacity-100'} hover:opacity-100 [filter:invert(1)_brightness(0.8)] hover:[filter:invert(1)_brightness(1)_sepia(1)_saturate(5)_hue-rotate(170deg)]`}
-                        />
-                        <Switch
-                            id="curvedPaths"
-                            checked={settings.curvedPaths}
-                            onCheckedChange={(checked) => onSettingsChange({ curvedPaths: checked })}
-                            disabled={disabled}
-                        />
-                        <Image
-                            src="/curved-paths.svg"
-                            alt="Curved paths"
-                            width={24}
-                            height={24}
-                            className={`w-6 h-6 transition-all duration-200 ${!settings.curvedPaths ? 'opacity-50' : 'opacity-100'} hover:opacity-100 [filter:invert(1)_brightness(0.8)] hover:[filter:invert(1)_brightness(1)_sepia(1)_saturate(5)_hue-rotate(170deg)]`}
-                        />
-                    </div>
-                </div>
 
-                <details open >
+
+                <details  >
                     <summary className="cursor-pointer text-xl font-bold mb-4 flex items-center justify-between">
                         <h3 className="flex items-center gap-2 text-sm font-medium  text-gray-300">
                             {settings.curvedPaths ? "Curved" : "Square"} Paths
@@ -82,6 +58,31 @@ export default function CurveControlsPanel({
                         </h3>
                     </summary>
 
+                    <div className="flex w-full justify-between">
+                        <h3 className="text-sm font-medium mb-3 text-gray-300">Matrix: </h3>
+                        <div className="flex items-center gap-2 mb-4">
+                            <Image
+                                src="/squared-paths.svg"
+                                alt="Squared paths"
+                                width={24}
+                                height={24}
+                                className={`w-6 h-6 transition-all duration-200 ${settings.curvedPaths ? 'opacity-50' : 'opacity-100'} hover:opacity-100 [filter:invert(1)_brightness(0.8)] hover:[filter:invert(1)_brightness(1)_sepia(1)_saturate(5)_hue-rotate(170deg)]`}
+                            />
+                            <Switch
+                                id="curvedPaths"
+                                checked={settings.curvedPaths}
+                                onCheckedChange={(checked) => onSettingsChange({ curvedPaths: checked })}
+                                disabled={disabled}
+                            />
+                            <Image
+                                src="/curved-paths.svg"
+                                alt="Curved paths"
+                                width={24}
+                                height={24}
+                                className={`w-6 h-6 transition-all duration-200 ${!settings.curvedPaths ? 'opacity-50' : 'opacity-100'} hover:opacity-100 [filter:invert(1)_brightness(0.8)] hover:[filter:invert(1)_brightness(1)_sepia(1)_saturate(5)_hue-rotate(170deg)]`}
+                            />
+                        </div>
+                    </div>
                     <div className=" flex flex-col gap-4 ">
                         <div className="space-y-4">
                             <div className="flex gap-2">

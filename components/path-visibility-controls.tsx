@@ -41,7 +41,7 @@ const PathVisibilityControls = React.memo(function PathVisibilityControls({
   }, [colorGroups, onVisibilityChange, allVisible])
 
   return (
-    <div className="bg-gray-800/70 backdrop-blur rounded-lg p-6">
+    <div className="bg-gray-800/40 rounded-lg p-6">
 
       <details open>
         <summary className="cursor-pointer text-xl font-bold mb-4 flex items-center justify-between">

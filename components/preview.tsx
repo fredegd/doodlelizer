@@ -147,7 +147,7 @@ export const ImageThumbnail = memo(function ImageThumbnail({
   onNewImageUpload: () => void
 }) {
   return (
-    <div className="bg-gray-800/70 backdrop-blur rounded-lg p-4 relative">
+    <div className="bg-gray-800/40 rounded-lg p-4 relative">
       <h3 className="text-lg font-medium mb-2 text-center">Original Image</h3>
       <div className="flex flex-col items-center justify-center">
         <img

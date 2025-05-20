@@ -9,6 +9,7 @@ import CurveControlsPanel, { DEFAULT_CURVE_CONTROLS } from "@/components/curve-c
 import { Button } from "@/components/ui/button"
 import { processImage, generateSVG } from "@/lib/image-processor"
 import type { ImageData, Settings } from "@/lib/types"
+import RandomImageLoader from "@/components/random-image-loader"
 
 export default function Home() {
   const [originalImage, setOriginalImage] = useState<string | null>(null)
@@ -27,19 +28,19 @@ export default function Home() {
     rowsCount: 10,
     columnsCount: 10,
     continuousPaths: true,
-    curvedPaths: false, // Standardmäßig gerade Pfade verwenden
+    curvedPaths: false,
     pathDistanceThreshold: 10,
     processingMode: "posterize",
     colorsAmt: 5,
     monochromeColor: "#000000",
     visiblePaths: {},
-    curveControls: DEFAULT_CURVE_CONTROLS, // Initialize with default curve controls
+    curveControls: DEFAULT_CURVE_CONTROLS,
   })
+  const [showRandomImageLoader, setShowRandomImageLoader] = useState(true)
 
   // Process image when it's uploaded or settings change
   useEffect(() => {
     if (originalImage && settings) {
-      // Create a copy of settings without visiblePaths to prevent infinite loops
       const processingSettings = { ...settings }
       handleProcessImage(processingSettings)
     }
@@ -60,10 +61,9 @@ export default function Home() {
     settings.monochromeColor,
   ])
 
-  // Handle visibility changes separately to avoid unnecessary reprocessing
+  // Handle visibility changes separately
   useEffect(() => {
     if (processedData && originalImage && !isProcessing) {
-      // Only regenerate SVG when visibility changes, not reprocessing the whole image
       const svg = generateSVG(processedData, { ...settings })
       setSvgContent(svg)
     }
@@ -72,7 +72,6 @@ export default function Home() {
   // Handle curve control changes separately
   useEffect(() => {
     if (processedData && originalImage && !isProcessing) {
-      // Regenerate SVG when curve controls change or curved paths setting changes
       const svg = generateSVG(processedData, { ...settings })
       setSvgContent(svg)
     }
@@ -84,15 +83,27 @@ export default function Home() {
     isProcessing
   ])
 
-  const handleImageUpload = (imageDataUrl: string) => {
+  const handleManualImageUpload = (imageDataUrl: string) => {
     setOriginalImage(imageDataUrl)
-    setIsSettingsPanelVisible(true)
+    // setIsSettingsPanelVisible(true)
+    setShowRandomImageLoader(false)
+  }
+
+  const handleImageSelectedFromRandomLoader = (imageUrl: string) => {
+    setOriginalImage(imageUrl)
+    // setIsSettingsPanelVisible(true)
+    setShowRandomImageLoader(false)
+  }
+
+  const handleCancelRandomImageLoad = () => {
+    setShowRandomImageLoader(false)
   }
 
   const handleNewImageUpload = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click()
-    }
+    setIsSettingsPanelVisible(false)
+    setProcessedData(null)
+    setSvgContent(null)
+    setShowRandomImageLoader(true)
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,8 +119,7 @@ export default function Home() {
       const reader = new FileReader()
       reader.onload = (e) => {
         if (e.target && typeof e.target.result === "string") {
-          setOriginalImage(e.target.result)
-          setIsSettingsPanelVisible(true)
+          handleManualImageUpload(e.target.result)
           // Clear the input value so the same file can be selected again
           if (fileInputRef.current) {
             fileInputRef.current.value = ''
@@ -188,15 +198,15 @@ export default function Home() {
   }
 
   const toggleSettingsPanel = () => {
-    setIsSettingsPanelVisible(prev => !prev);
+    setIsSettingsPanelVisible(prev => !prev)
   }
 
   return (
     <main className="min-h-screen bg-gray-900 text-gray-100 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         <header className="mb-8 text-center flex justify-between items-center">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Image Doodlelizer</h1> {/* Hamburger menu button for mobile - only visible when an image is present */}
-          {originalImage && !isSettingsPanelVisible && (
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">Image Doodlelizer</h1>
+          {originalImage && !showRandomImageLoader && !isSettingsPanelVisible && (
             <div className="mb-4 flex lg:hidden justify-end">
               <Button
                 variant="ghost"
@@ -224,8 +234,6 @@ export default function Home() {
           className="hidden"
         />
 
-
-
         {/* Overlay for mobile when settings panel is open */}
         {originalImage && isSettingsPanelVisible && (
           <div
@@ -235,14 +243,29 @@ export default function Home() {
           />
         )}
 
-        <div className={`grid grid-cols-1 ${originalImage ? 'lg:grid-cols-4' : ''} gap-6  relative`}>
-          <div className="lg:col-span-3 h-full relative ">
-            {!originalImage ? (
-              <ImageUploader onImageUpload={handleImageUpload} />
-            ) : (
+        <div className={`grid grid-cols-1 ${(originalImage && !showRandomImageLoader) ? 'lg:grid-cols-4' : ''} gap-6 relative`}>
+          <div className={`${(originalImage && !showRandomImageLoader) ? 'lg:col-span-3' : 'col-span-1'} h-full relative`}>
+            {showRandomImageLoader && (
+              <div className="space-y-8">
+                <RandomImageLoader
+                  onImageSelected={handleImageSelectedFromRandomLoader}
+                  onCancel={handleCancelRandomImageLoad}
+                />
+                <div className="text-center my-4 pt-4 border-t border-gray-700">
+                  <p className="text-gray-400 text-sm mb-2">Alternatively, upload your own image:</p>
+                  <ImageUploader onImageUpload={handleManualImageUpload} />
+                </div>
+              </div>
+            )}
+
+            {!showRandomImageLoader && !originalImage && (
+              <ImageUploader onImageUpload={handleManualImageUpload} />
+            )}
+
+            {!showRandomImageLoader && originalImage && (
               <>
                 <Preview
-                  originalImage={originalImage}
+                  originalImage={originalImage!}
                   svgContent={svgContent}
                   isProcessing={isProcessing}
                   processedData={processedData}
@@ -253,21 +276,19 @@ export default function Home() {
           </div>
 
           {/* Settings panel */}
-          {originalImage && (
+          {!showRandomImageLoader && originalImage && (
             <div className={`
               ${isSettingsPanelVisible ? 'block' : 'hidden lg:block'}
-              ${isSettingsPanelVisible ? 'fixed right-0 top-0 bottom-0 w-[70%] z-50  overflow-y-auto p-4 lg:shadow-lg lg:shadow-black/50 transition-all duration-300 ease-in-out' : ''}
+              ${isSettingsPanelVisible ? 'fixed right-0 top-0 bottom-0 w-full  z-50  overflow-y-auto p-4 lg:shadow-lg lg:shadow-black/50 transition-all duration-300 ease-in-out     bg-gray-800/70 backdrop-blur rounded-lg' : ''}
               lg:static lg:z-auto lg:overflow-visible lg:p-0 lg:space-y-6 lg:w-auto lg:shadow-none
             `}
               style={{
                 WebkitOverflowScrolling: 'touch',
-              }
-              }
+              }}
             >
               {/* Close button - only visible on mobile */}
               {isSettingsPanelVisible && (
                 <div className="flex items-center justify-end mb-4 lg:hidden border-b border-gray-700 pb-3">
-
                   <Button
                     variant="ghost"
                     size="icon"
@@ -315,12 +336,9 @@ export default function Home() {
                     disabled={isProcessing}
                   />
                 )}
-
-
               </div>
             </div>
           )}
-
         </div>
       </div>
     </main>
