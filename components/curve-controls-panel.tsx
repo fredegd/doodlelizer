@@ -22,6 +22,8 @@ export const DEFAULT_CURVE_CONTROLS: CurveControlSettings = {
     junctionContinuityFactor: 0.1,     // Default smoothness factor for curves
     tileHeightScale: 0.95,             // Default tile height scale (1.0 = 100% of original height)
     handleRotationAngle: 0,            // Default handle rotation angle in degrees
+    lowerKnotXShift: 0,                // Default X shift for lower knot points
+    upperKnotShiftFactor: 0,           // Default factor for upper knot random shift
 }
 
 export default function CurveControlsPanel({
@@ -166,6 +168,58 @@ export default function CurveControlsPanel({
                                         />
                                     </div>
                                 )}
+                                <div className="space-y-2 mt-4">
+                                    <div className="flex gap-2">
+                                        <Label htmlFor="lowerKnotXShift">
+                                            Lower Knot X Shift: {curveControls.lowerKnotXShift?.toFixed(2)}
+                                        </Label>
+                                        <Tooltip>
+                                            <TooltipTrigger>
+                                                <Info className="h-4 w-4 text-gray-400" />
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p className="max-w-xs">
+                                                    Shifts the X-coordinate of the lower knot points in each tile. Min/Max is based on tile width.
+                                                </p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </div>
+                                    <Slider
+                                        id="lowerKnotXShift"
+                                        min={-settings.gridSizeX / 2} // Assuming tile width is gridSizeX
+                                        max={settings.gridSizeX / 2}  // Assuming tile width is gridSizeX
+                                        step={0.1}
+                                        value={[curveControls.lowerKnotXShift || 0]}
+                                        onValueChange={(value) => onCurveControlsChange({ lowerKnotXShift: value[0] })}
+                                        disabled={disabled}
+                                    />
+                                </div>
+                                <div className="space-y-2 mt-4">
+                                    <div className="flex gap-2">
+                                        <Label htmlFor="upperKnotShiftFactor">
+                                            Upper Knot Shift: {((curveControls.upperKnotShiftFactor || 0) * 100).toFixed(0)}%
+                                        </Label>
+                                        <Tooltip>
+                                            <TooltipTrigger>
+                                                <Info className="h-4 w-4 text-gray-400" />
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p className="max-w-xs">
+                                                    Adjusts the magnitude of random displacement for upper knot points. 0% means no shift, 100% applies the full pre-calculated random shift.
+                                                </p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </div>
+                                    <Slider
+                                        id="upperKnotShiftFactor"
+                                        min={0}
+                                        max={1}
+                                        step={0.01}
+                                        value={[curveControls.upperKnotShiftFactor || 0]}
+                                        onValueChange={(value) => onCurveControlsChange({ upperKnotShiftFactor: value[0] })}
+                                        disabled={disabled}
+                                    />
+                                </div>
                             </div>
                         )}
                         <div className="flex justify-end">

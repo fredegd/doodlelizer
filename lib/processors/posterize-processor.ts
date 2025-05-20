@@ -1,11 +1,17 @@
-import type { ColorGroup, ImageData, PixelData, Settings } from "../types";
+import type {
+  ColorGroup,
+  ImageData,
+  PixelData,
+  Settings,
+  PathPoint,
+} from "../types";
 import {
   findNearestCentroid,
   kMeansClustering,
   calculateContextAwareDensity,
 } from "../utils/math-utils";
 import {
-  calculateHueAndBrightness,
+  calculateHueAndBrightness as calculateHueAndBrightnessForGroup,
   rgbToHex,
 } from "../converters/color-converters";
 
@@ -14,8 +20,14 @@ export function processPosterize(
   imageData: ImageData,
   settings: Settings
 ): Record<string, ColorGroup> {
-  const { pixels, width, height } = imageData;
-  const { colorsAmt, gridSizeX, gridSizeY, minDensity, maxDensity } = settings;
+  const {
+    pixels,
+    width,
+    height,
+    tileWidth: gridSizeX,
+    tileHeight: gridSizeY,
+  } = imageData;
+  const { colorsAmt, minDensity, maxDensity } = settings;
 
   // Create a 2D grid to store pixel data for easier access
   const pixelGrid: (PixelData | null)[][] = Array(height)
@@ -27,85 +39,90 @@ export function processPosterize(
     pixelGrid[pixel.y][pixel.x] = pixel;
   });
 
-  // Collect all unique colors
-  const uniqueColors: [number, number, number][] = [];
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const pixel = pixelGrid[y][x];
-      if (pixel) {
-        const colorExists = uniqueColors.some(
-          (c) => c[0] === pixel.r && c[1] === pixel.g && c[2] === pixel.b
-        );
-        if (!colorExists) {
-          uniqueColors.push([pixel.r, pixel.g, pixel.b]);
-        }
-      }
+  // Collect all unique colors for k-means
+  const uniqueColorsForKMeans: [number, number, number][] = [];
+  pixels.forEach((pixel) => {
+    // Check if color already exists to avoid duplicates for k-means
+    if (
+      !uniqueColorsForKMeans.some(
+        (c) => c[0] === pixel.r && c[1] === pixel.g && c[2] === pixel.b
+      )
+    ) {
+      uniqueColorsForKMeans.push([pixel.r, pixel.g, pixel.b]);
     }
-  }
+  });
 
-  // If we have more colors than allowed, perform k-means clustering
-  const centroids = kMeansClustering(uniqueColors, colorsAmt);
-
-  // Group pixels by color
+  const centroids = kMeansClustering(uniqueColorsForKMeans, colorsAmt);
   const colorGroups: Record<string, ColorGroup> = {};
 
-  // Initialize color groups
   centroids.forEach((centroid, index) => {
     const [r, g, b] = centroid;
-    const colorKey = `color-${r}-${g}-${b}`;
     const hexColor = rgbToHex(r, g, b);
+    // Calculate hue and brightness for the centroid color
+    let hue = 0;
+    let brightness = 0;
+    // Temporarily create a dummy ColorGroup to use calculateHueAndBrightnessForGroup
+    // This is a bit of a workaround as calculateHueAndBrightnessForGroup expects a Record<string, ColorGroup>
+    const tempGroupForHueCalc: Record<string, ColorGroup> = {
+      [hexColor]: {
+        color: hexColor,
+        displayName: "",
+        points: [],
+        hue: 0,
+        brightness: 0,
+      },
+    };
+    const calculatedGroup =
+      calculateHueAndBrightnessForGroup(tempGroupForHueCalc);
+    if (calculatedGroup[hexColor]) {
+      hue = calculatedGroup[hexColor].hue;
+      brightness = calculatedGroup[hexColor].brightness;
+    }
 
-    colorGroups[colorKey] = {
+    colorGroups[hexColor] = {
       color: hexColor,
       displayName: `Color ${index + 1}`,
       points: [],
+      hue, // Initialize hue
+      brightness, // Initialize brightness
     };
   });
 
-  // Assign pixels to nearest centroid
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const pixel = pixelGrid[y][x];
-      if (!pixel) continue;
+  pixels.forEach((pixel) => {
+    const nearestCentroid = findNearestCentroid(
+      [pixel.r, pixel.g, pixel.b],
+      centroids
+    );
+    const [r, g, b] = nearestCentroid;
+    const hexColor = rgbToHex(r, g, b);
 
-      // Find nearest centroid
-      const nearestCentroid = findNearestCentroid(
-        [pixel.r, pixel.g, pixel.b],
-        centroids
-      );
-      const [r, g, b] = nearestCentroid;
-      const colorKey = `color-${r}-${g}-${b}`;
+    const normalizedBrightness = pixel.brightness / 255;
+    let density = Math.round(
+      minDensity + (1 - normalizedBrightness) * (maxDensity - minDensity)
+    );
+    density = Math.max(0, Math.min(maxDensity, density));
 
-      // Calculate brightness for density
-      const brightness = r * 0.299 + g * 0.587 + b * 0.114;
-      const normalizedBrightness = (255 - brightness) / 255;
+    if (density === 0) return;
 
-      // Use the new context-aware function
-      const density = calculateContextAwareDensity(
-        pixelGrid,
-        x,
-        y,
-        minDensity,
-        maxDensity,
-        normalizedBrightness
-      );
+    const pathPointX =
+      pixel.y % 2 === 0 ? pixel.x * gridSizeX : pixel.x * gridSizeX + gridSizeX; // Start from right edge for odd rows
 
-      // Determine direction based on row
-      const direction = y % 2 === 0 ? 1 : -1;
+    const pathPoint: PathPoint = {
+      x: pathPointX,
+      y: pixel.y * gridSizeY,
+      width: gridSizeX,
+      height: gridSizeY,
+      density,
+      row: pixel.y,
+      direction: pixel.y % 2 === 0 ? 1 : -1,
+      randomUpperKnotShiftX: (Math.random() - 0.5) * (gridSizeX + gridSizeY),
+      randomUpperKnotShiftY: (Math.random() - 0.5) * (gridSizeX + gridSizeY),
+    };
 
-      // Add point to color group
-      colorGroups[colorKey].points.push({
-        x: y % 2 === 0 ? x * gridSizeX : (x + 1) * gridSizeX,
-        y: y * gridSizeY,
-        width: gridSizeX,
-        height: gridSizeY,
-        density,
-        row: y,
-        direction,
-      });
+    if (colorGroups[hexColor]) {
+      colorGroups[hexColor].points.push(pathPoint);
     }
-  }
+  });
 
-  // Sort color groups by hue and brightness
-  return calculateHueAndBrightness(colorGroups);
+  return colorGroups;
 }

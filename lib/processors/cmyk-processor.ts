@@ -1,4 +1,10 @@
-import type { ColorGroup, ImageData, PixelData, Settings } from "../types";
+import type {
+  Settings,
+  ImageData,
+  ColorGroup,
+  PathPoint,
+  PixelData,
+} from "../types";
 import { calculateContextAwareDensity } from "../utils/math-utils";
 import { rgbToCMYK } from "../converters/color-converters";
 
@@ -7,8 +13,14 @@ export function processCMYK(
   imageData: ImageData,
   settings: Settings
 ): Record<string, ColorGroup> {
-  const { pixels, width, height } = imageData;
-  const { gridSizeX, gridSizeY, minDensity, maxDensity } = settings;
+  const {
+    pixels,
+    width,
+    height,
+    tileWidth: gridSizeX,
+    tileHeight: gridSizeY,
+  } = imageData;
+  const { minDensity, maxDensity } = settings;
 
   // Create a 2D grid to store pixel data for easier access
   const pixelGrid: (PixelData | null)[][] = Array(height)
@@ -26,21 +38,29 @@ export function processCMYK(
       color: "#00FFFF",
       displayName: "Cyan",
       points: [],
+      hue: 180,
+      brightness: 255,
     },
     magenta: {
       color: "#FF00FF",
       displayName: "Magenta",
       points: [],
+      hue: 300,
+      brightness: 255,
     },
     yellow: {
       color: "#FFFF00",
       displayName: "Yellow",
       points: [],
+      hue: 60,
+      brightness: 255,
     },
     black: {
       color: "#000000",
       displayName: "Black",
       points: [],
+      hue: 0,
+      brightness: 0,
     },
   };
 
@@ -56,32 +76,36 @@ export function processCMYK(
       // Process each CMYK channel
       Object.entries(cmyk).forEach(([channel, value]) => {
         if (value > 0) {
-          // Calculate density based on channel value with context awareness
           const normalizedValue = value / 255;
-
-          // Verwenden der neuen kontextbewussten Funktion
-          const density = calculateContextAwareDensity(
-            pixelGrid,
-            x,
-            y,
-            minDensity,
-            maxDensity,
-            normalizedValue
+          let density = Math.round(
+            minDensity + normalizedValue * (maxDensity - minDensity)
           );
+          density = Math.max(0, Math.min(maxDensity, density));
 
-          // Determine direction based on row
-          const direction = y % 2 === 0 ? 1 : -1;
+          if (density === 0) return;
 
-          // Add point to color group
-          colorGroups[channel].points.push({
-            x: y % 2 === 0 ? x * gridSizeX : (x + 1) * gridSizeX,
-            y: y * gridSizeY,
+          const pathPointX =
+            pixel.y % 2 === 0
+              ? pixel.x * gridSizeX
+              : pixel.x * gridSizeX + gridSizeX; // Start from right edge for odd rows
+
+          const pathPoint: PathPoint = {
+            x: pathPointX,
+            y: pixel.y * gridSizeY,
             width: gridSizeX,
             height: gridSizeY,
             density,
-            row: y,
-            direction,
-          });
+            row: pixel.y,
+            direction: pixel.y % 2 === 0 ? 1 : -1,
+            randomUpperKnotShiftX:
+              (Math.random() - 0.5) * (gridSizeX + gridSizeY),
+            randomUpperKnotShiftY:
+              (Math.random() - 0.5) * (gridSizeX + gridSizeY),
+          };
+
+          if (colorGroups[channel]) {
+            colorGroups[channel].points.push(pathPoint);
+          }
         }
       });
     }

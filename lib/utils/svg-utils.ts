@@ -4,6 +4,7 @@ import type {
   ImageData,
   Settings,
   CurveControlSettings,
+  PathPoint,
 } from "../types";
 
 // Generate SVG from processed image data
@@ -104,7 +105,9 @@ export function generateContinuousPath(
       point.width,
       point.height * (curveControls?.tileHeightScale || 1.0),
       point.density,
-      point.direction
+      point.direction,
+      curveControls,
+      point
     );
 
     // If this is not the first point in the current path and we have vertices,
@@ -139,15 +142,23 @@ function createTileVertices(
   width: number,
   height: number,
   density: number,
-  direction: number
+  direction: number,
+  curveControls?: CurveControlSettings,
+  pathPoint?: PathPoint
 ): { x: number; y: number }[] {
   if (density <= 0) return [];
 
   const vertices: { x: number; y: number }[] = [];
   const step = width / density;
+  const lowerXShift = curveControls?.lowerKnotXShift || 0;
+  const upperShiftFactor = curveControls?.upperKnotShiftFactor || 0;
+  const randomXShift =
+    (pathPoint?.randomUpperKnotShiftX || 0) * upperShiftFactor;
+  const randomYShift =
+    (pathPoint?.randomUpperKnotShiftY || 0) * upperShiftFactor;
 
-  // Start with the first point
-  vertices.push({ x, y });
+  // Start with the first point (upper point)
+  vertices.push({ x: x + randomXShift, y: y + randomYShift });
 
   // For each segment of the zigzag
   for (let i = 0; i < density; i++) {
@@ -155,26 +166,26 @@ function createTileVertices(
     const nextX = x + (i + 1) * step * direction;
 
     if (i % 2 === 0) {
-      // Vertical segment down
-      vertices.push({ x: currentX, y: y + height });
+      // Vertical segment down (to a lower point)
+      vertices.push({ x: currentX + lowerXShift, y: y + height });
 
-      // Horizontal segment if not the last one
+      // Horizontal segment if not the last one (lower point to lower point)
       if (i < density - 1) {
-        vertices.push({ x: nextX, y: y + height });
+        vertices.push({ x: nextX + lowerXShift, y: y + height });
       } else if (density % 2 === 1) {
-        // Last segment with odd density
-        vertices.push({ x: nextX, y: y + height });
+        // Last segment with odd density (lower point)
+        vertices.push({ x: nextX + lowerXShift, y: y + height });
       }
     } else {
-      // Vertical segment up
-      vertices.push({ x: currentX, y });
+      // Vertical segment up (to an upper point)
+      vertices.push({ x: currentX + randomXShift, y: y + randomYShift });
 
-      // Horizontal segment if not the last one
+      // Horizontal segment if not the last one (upper point to upper point)
       if (i < density - 1) {
-        vertices.push({ x: nextX, y });
+        vertices.push({ x: nextX + randomXShift, y: y + randomYShift });
       } else if (density % 2 === 0) {
-        // Last segment with even density
-        vertices.push({ x: nextX, y });
+        // Last segment with even density (upper point)
+        vertices.push({ x: nextX + randomXShift, y: y + randomYShift });
       }
     }
   }
@@ -340,7 +351,8 @@ export function createTilePathDataWithTangent(
     width,
     scaledHeight,
     density,
-    direction
+    direction,
+    curveControls
   );
 
   // Convert vertices to paths based on the curved mode
@@ -455,7 +467,9 @@ export function generateIndividualPaths(
       point.width,
       point.height * (curveControls?.tileHeightScale || 1.0),
       point.density,
-      point.direction
+      point.direction,
+      curveControls,
+      point
     );
 
     // Create path from vertices
@@ -491,7 +505,8 @@ export function generateSerpentinePath(
     width,
     height * (curveControls?.tileHeightScale || 1.0),
     density,
-    direction
+    direction,
+    curveControls
   );
 
   // Create path from vertices

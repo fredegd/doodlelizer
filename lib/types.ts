@@ -4,6 +4,9 @@ export interface CurveControlSettings {
   // Simplified curve control parameters for the new implementation
   junctionContinuityFactor: number; // Controls the smoothness of curves (used as smoothness param)
   tileHeightScale: number; // Scale factor for tile height (0-1)
+  handleRotationAngle?: number; // Optional: Default handle rotation angle in degrees
+  lowerKnotXShift?: number; // Optional: Shifts the X coordinate of lower knot points
+  upperKnotShiftFactor?: number; // Optional: Factor to apply random X/Y shift to upper knot points (0-1)
 }
 
 export interface Settings {
@@ -60,6 +63,8 @@ export interface PathPoint {
   density: number;
   row: number;
   direction: number;
+  randomUpperKnotShiftX?: number; // Pre-calculated random X shift for upper knots
+  randomUpperKnotShiftY?: number; // Pre-calculated random Y shift for upper knots
 }
 
 export interface ColorGroup {
