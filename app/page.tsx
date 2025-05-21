@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import ImageUploader from "@/components/image-uploader"
+import RandomImageLoader from "@/components/random-image-loader"
 import Preview, { ImageThumbnail } from "@/components/preview"
 import SettingsPanel from "@/components/settings-panel"
 import PathVisibilityControls from "@/components/path-visibility-controls"
@@ -9,10 +10,9 @@ import CurveControlsPanel, { DEFAULT_CURVE_CONTROLS } from "@/components/curve-c
 import { Button } from "@/components/ui/button"
 import { processImage, generateSVG } from "@/lib/image-processor"
 import type { ImageData, Settings } from "@/lib/types"
-import RandomImageLoader from "@/components/random-image-loader"
 
 export default function Home() {
-  const [originalImage, setOriginalImage] = useState<string | null>(null)
+  const [originalImage, setOriginalImage] = useState<string | null>("https://upload.wikimedia.org/wikipedia/commons/b/bd/La_Gioconda%2C_Leonardo_Da_Vinci.jpg")
   const [processedData, setProcessedData] = useState<ImageData | null>(null)
   const [svgContent, setSvgContent] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -36,7 +36,7 @@ export default function Home() {
     visiblePaths: {},
     curveControls: DEFAULT_CURVE_CONTROLS,
   })
-  const [showRandomImageLoader, setShowRandomImageLoader] = useState(true)
+  const [showRandomImageLoader, setShowRandomImageLoader] = useState(false)
 
   // Process image when it's uploaded or settings change
   useEffect(() => {
@@ -205,7 +205,7 @@ export default function Home() {
     <main className="min-h-screen bg-gray-900 text-gray-100 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         <header className="mb-8 text-center flex justify-between items-center">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Image Doodlelizer</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">Squigglify</h1>
           {originalImage && !showRandomImageLoader && !isSettingsPanelVisible && (
             <div className="mb-4 flex lg:hidden justify-end">
               <Button

@@ -4,6 +4,7 @@ import React from "react"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import type { ColorGroup, ProcessingMode } from "@/lib/types"
+import { ChevronDown } from "lucide-react"
 
 interface PathVisibilityControlsProps {
   colorGroups: Record<string, ColorGroup>
@@ -43,19 +44,23 @@ const PathVisibilityControls = React.memo(function PathVisibilityControls({
   return (
     <div className="bg-gray-800/40 rounded-lg p-6">
 
-      <details open>
+      <details className="group">
         <summary className="cursor-pointer text-xl font-bold mb-4 flex items-center justify-between">
           <div className="flex justify-between items-center mb-4 w-full">
             <h3 className="flex items-center gap-2 text-sm font-medium  text-gray-300"
             >Path Visibility
             </h3>
+
+          </div>
+          <ChevronDown className="h-5 w-5 text-gray-300 transition-transform duration-200 group-open:rotate-180 ml-auto" />
+        </summary>
+
+        <div className="space-y-3">
+          <div className="w-full flex justify-end">
             <button className="text-sm text-gray-400 hover:text-white" onClick={handleToggleAll} disabled={disabled}>
               {allVisible ? "Hide All" : "Show All"}
             </button>
           </div>
-        </summary>
-
-        <div className="space-y-3">
           {sortedColorGroups.map(([colorKey, group]) => (
             <div key={colorKey} className="flex items-center justify-between">
               <div className="flex items-center gap-2">

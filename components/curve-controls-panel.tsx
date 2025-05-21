@@ -4,7 +4,7 @@ import { Slider } from "@/components/ui/slider"
 import { Label } from "@/components/ui/label"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Button } from "@/components/ui/button"
-import { RotateCcw, Info } from "lucide-react"
+import { RotateCcw, Info, ChevronDown } from "lucide-react"
 import type { CurveControlSettings, Settings } from "@/lib/types"
 import { Switch } from "@/components/ui/switch"
 import Image from "next/image"
@@ -43,7 +43,7 @@ export default function CurveControlsPanel({
 
 
 
-                <details  >
+                <details className="group">
                     <summary className="cursor-pointer text-xl font-bold mb-4 flex items-center justify-between">
                         <h3 className="flex items-center gap-2 text-sm font-medium  text-gray-300">
                             {settings.curvedPaths ? "Curved" : "Square"} Paths
@@ -58,6 +58,7 @@ export default function CurveControlsPanel({
                                 </TooltipContent>
                             </Tooltip>
                         </h3>
+                        <ChevronDown className="h-5 w-5 text-gray-300 transition-transform duration-200 group-open:rotate-180" />
                     </summary>
 
                     <div className="flex w-full justify-between">

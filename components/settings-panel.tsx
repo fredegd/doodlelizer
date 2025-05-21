@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Info } from "lucide-react"
+import { Info, ChevronDown } from "lucide-react"
 import type { Settings, ProcessingMode } from "@/lib/types"
 import { useMemo } from "react"
 
@@ -44,9 +44,10 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
 
 
           <div>
-            <details>
+            <details className="group">
               <summary className="cursor-pointer text-xl font-bold mb-4 flex items-center justify-between">
                 <h3 className="flex items-center gap-2 text-sm font-medium  text-gray-300">Processing Mode</h3>
+                <ChevronDown className="h-5 w-5 text-gray-300 transition-transform duration-200 group-open:rotate-180" />
               </summary>
               <RadioGroup
                 value={settings.processingMode}
@@ -178,9 +179,10 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
           <Separator className="bg-gray-700" />
 
           <div>
-            <details>
+            <details className="group">
               <summary className="cursor-pointer text-xl font-bold mb-4 flex items-center justify-between">
                 <h3 className="flex items-center gap-2 text-sm font-medium  text-gray-300">Image Tiling</h3>
+                <ChevronDown className="h-5 w-5 text-gray-300 transition-transform duration-200 group-open:rotate-180" />
               </summary>
 
 
@@ -224,7 +226,7 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
           <Separator className="bg-gray-700" />
 
           <div>
-            <details>
+            <details className="group">
               <summary className="cursor-pointer text-xl font-bold mb-4 flex items-center justify-between">
 
 
@@ -242,6 +244,7 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
                     </TooltipContent>
                   </Tooltip>
                 </h3>
+                <ChevronDown className="h-5 w-5 text-gray-300 transition-transform duration-200 group-open:rotate-180" />
               </summary>
               <p className="text-xs text-gray-400 mb-3">
                 (auto-adjusted to tile width: {calculatedDensity / 2}px)
@@ -285,9 +288,10 @@ export default function SettingsPanel({ settings, onSettingsChange, disabled }: 
           <Separator className="bg-gray-700" />
 
           <div>
-            <details>
+            <details className="group">
               <summary className="cursor-pointer text-xl font-bold mb-4 flex items-center justify-between">
                 <h3 className="text-sm font-medium mb-3 text-gray-300">Vector Generation</h3>
+                <ChevronDown className="h-5 w-5 text-gray-300 transition-transform duration-200 group-open:rotate-180" />
               </summary>
               <div className="space-y-4">
                 {settings.processingMode !== "cmyk" && (
