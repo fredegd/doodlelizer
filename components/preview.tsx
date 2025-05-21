@@ -80,7 +80,7 @@ const Preview = memo(function Preview({
 
           <div
             ref={fullscreenSvgContainerRef}
-            className="w-full h-full flex items-center justify-center overflow-auto p-8"
+            className="w-full h-full flex items-center justify-center  p-8 overflow-y-scroll"
           >
           </div>
         </div>

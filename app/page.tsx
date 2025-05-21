@@ -275,8 +275,8 @@ export default function Home() {
             )}
           </div>
 
-          {/* Settings panel */}
-          {!showRandomImageLoader && originalImage && (
+          {/* Settings panel and its associated close button */}
+          {!showRandomImageLoader && originalImage && (<>
             <div className={`
               ${isSettingsPanelVisible ? 'block' : 'hidden lg:block'}
               ${isSettingsPanelVisible ? 'fixed right-0 top-0 bottom-0 w-full  z-50  overflow-y-auto p-4 lg:shadow-lg lg:shadow-black/50 transition-all duration-300 ease-in-out     bg-gray-800/70 backdrop-blur rounded-lg' : ''}
@@ -286,24 +286,7 @@ export default function Home() {
                 WebkitOverflowScrolling: 'touch',
               }}
             >
-              {/* Close button - only visible on mobile */}
-              {isSettingsPanelVisible && (
-                <div className="flex items-center justify-end mb-4 lg:hidden border-b border-gray-700 pb-3">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={toggleSettingsPanel}
-                    aria-label="Close settings panel"
-                    className="w-8 h-8"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-x">
-                      <line x1="18" y1="6" x2="6" y2="18"></line>
-                      <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                  </Button>
-                </div>
-              )}
-
+              {/* The mobile close button was previously here. It has been moved outside this div to ensure correct fixed positioning. */}
               <div className="space-y-6 pb-20 md:pb-0 !mt-0">
                 {/* Add image thumbnail preview above settings panel */}
                 {originalImage && (
@@ -338,7 +321,24 @@ export default function Home() {
                 )}
               </div>
             </div>
-          )}
+            {/* Close button - only visible on mobile, moved outside panel scroll for correct fixed behavior */}
+            {isSettingsPanelVisible && (
+              <div className="fixed top-4 right-4 z-[51] lg:hidden">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggleSettingsPanel}
+                  aria-label="Close settings panel"
+                  className="w-8 h-8"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-x">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </Button>
+              </div>
+            )}
+          </>)}
         </div>
       </div>
     </main>

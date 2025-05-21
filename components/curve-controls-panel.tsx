@@ -24,6 +24,7 @@ export const DEFAULT_CURVE_CONTROLS: CurveControlSettings = {
     handleRotationAngle: 0,            // Default handle rotation angle in degrees
     lowerKnotXShift: 0,                // Default X shift for lower knot points
     upperKnotShiftFactor: 0,           // Default factor for upper knot random shift
+    disorganizeFactor: 0,              // Default factor for the new disorganize effect
 }
 
 export default function CurveControlsPanel({
@@ -218,6 +219,32 @@ export default function CurveControlsPanel({
                                         step={0.01}
                                         value={[curveControls.upperKnotShiftFactor || 0]}
                                         onValueChange={(value) => onCurveControlsChange({ upperKnotShiftFactor: value[0] })}
+                                        disabled={disabled}
+                                    />
+                                </div>
+                                <div className="space-y-2 mt-4">
+                                    <div className="flex gap-2">
+                                        <Label htmlFor="disorganizeFactor">
+                                            Disorganize: {((curveControls.disorganizeFactor || 0) * 100).toFixed(0)}%
+                                        </Label>
+                                        <Tooltip>
+                                            <TooltipTrigger>
+                                                <Info className="h-4 w-4 text-gray-400" />
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p className="max-w-xs">
+                                                    Adjusts the magnitude of random displacement for each point in a path. 0% means no shift, 100% applies a full random shift.
+                                                </p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </div>
+                                    <Slider
+                                        id="disorganizeFactor"
+                                        min={0}
+                                        max={1}
+                                        step={0.01}
+                                        value={[curveControls.disorganizeFactor || 0]}
+                                        onValueChange={(value) => onCurveControlsChange({ disorganizeFactor: value[0] })}
                                         disabled={disabled}
                                     />
                                 </div>

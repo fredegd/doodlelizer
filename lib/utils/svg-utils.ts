@@ -152,40 +152,69 @@ function createTileVertices(
   const step = width / density;
   const lowerXShift = curveControls?.lowerKnotXShift || 0;
   const upperShiftFactor = curveControls?.upperKnotShiftFactor || 0;
-  const randomXShift =
-    (pathPoint?.randomUpperKnotShiftX || 0) * upperShiftFactor;
-  const randomYShift =
-    (pathPoint?.randomUpperKnotShiftY || 0) * upperShiftFactor;
+  const disorganizeFactor = curveControls?.disorganizeFactor || 0;
+
+  const applyDisorganization = (coordX: number, coordY: number) => {
+    if (disorganizeFactor > 0) {
+      // Determine a reasonable max shift amount, e.g., a fraction of tile width/height
+      const maxShift = Math.min(width, height) * 0.25; // Example: 25% of smaller dimension
+      const shiftX = (Math.random() - 0.5) * 2 * maxShift * disorganizeFactor;
+      const shiftY = (Math.random() - 0.5) * 2 * maxShift * disorganizeFactor;
+      return { x: coordX + shiftX, y: coordY + shiftY };
+    }
+    return { x: coordX, y: coordY };
+  };
 
   // Start with the first point (upper point)
-  vertices.push({ x: x + randomXShift, y: y + randomYShift });
+  const randomUpperXShift =
+    (pathPoint?.randomUpperKnotShiftX || 0) * upperShiftFactor;
+  const randomUpperYShift =
+    (pathPoint?.randomUpperKnotShiftY || 0) * upperShiftFactor;
+
+  let currentPoint = { x: x + randomUpperXShift, y: y + randomUpperYShift };
+  vertices.push(applyDisorganization(currentPoint.x, currentPoint.y));
 
   // For each segment of the zigzag
   for (let i = 0; i < density; i++) {
-    const currentX = x + i * step * direction;
-    const nextX = x + (i + 1) * step * direction;
+    const currentLoopX = x + i * step * direction;
+    const nextLoopX = x + (i + 1) * step * direction;
 
     if (i % 2 === 0) {
       // Vertical segment down (to a lower point)
-      vertices.push({ x: currentX + lowerXShift, y: y + height });
+      currentPoint = { x: currentLoopX + lowerXShift, y: y + height };
+      vertices.push(applyDisorganization(currentPoint.x, currentPoint.y));
 
       // Horizontal segment if not the last one (lower point to lower point)
       if (i < density - 1) {
-        vertices.push({ x: nextX + lowerXShift, y: y + height });
+        currentPoint = { x: nextLoopX + lowerXShift, y: y + height };
+        vertices.push(applyDisorganization(currentPoint.x, currentPoint.y));
       } else if (density % 2 === 1) {
         // Last segment with odd density (lower point)
-        vertices.push({ x: nextX + lowerXShift, y: y + height });
+        currentPoint = { x: nextLoopX + lowerXShift, y: y + height };
+        vertices.push(applyDisorganization(currentPoint.x, currentPoint.y));
       }
     } else {
       // Vertical segment up (to an upper point)
-      vertices.push({ x: currentX + randomXShift, y: y + randomYShift });
+      currentPoint = {
+        x: currentLoopX + randomUpperXShift,
+        y: y + randomUpperYShift,
+      };
+      vertices.push(applyDisorganization(currentPoint.x, currentPoint.y));
 
       // Horizontal segment if not the last one (upper point to upper point)
       if (i < density - 1) {
-        vertices.push({ x: nextX + randomXShift, y: y + randomYShift });
+        currentPoint = {
+          x: nextLoopX + randomUpperXShift,
+          y: y + randomUpperYShift,
+        };
+        vertices.push(applyDisorganization(currentPoint.x, currentPoint.y));
       } else if (density % 2 === 0) {
         // Last segment with even density (upper point)
-        vertices.push({ x: nextX + randomXShift, y: y + randomYShift });
+        currentPoint = {
+          x: nextLoopX + randomUpperXShift,
+          y: y + randomUpperYShift,
+        };
+        vertices.push(applyDisorganization(currentPoint.x, currentPoint.y));
       }
     }
   }

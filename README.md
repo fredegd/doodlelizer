@@ -1,6 +1,6 @@
-# Wave Paths Doodlelizer
+# Squigglify
 
-![Wave Paths Doodlelizer](./public/favicon-32x32.png)
+![Squigglify](./public/favicon-32x32.png)
 
 A powerful web-based tool to convert images into SVG vector graphics with customizable wave paths, perfect for pen plotters and digital art.
 
@@ -10,12 +10,13 @@ Visit the live application at: [https://image2svg.vercel.app/](https://image2svg
 
 ## Overview
 
-Wave Paths Doodlelizer transforms regular bitmap images into path-based SVG graphics using wave-like patterns. The application creates visually distinctive vector drawings that are optimized for pen plotters, CNC machines, and laser cutters, while also providing beautiful artistic renderings for digital and print media.
+Squigglify transforms regular bitmap images into path-based SVG graphics using wave-like patterns. The application creates visually distinctive vector drawings that are optimized for pen plotters, CNC machines, and laser cutters, while also providing beautiful artistic renderings for digital and print media.
 
 ### Key Features
 
 - **Image to SVG Conversion**: Transform any image into a vector SVG using wave-like paths
-- **Curved Path Optimization**: Generate smooth, curved paths that optimize pen plotter efficiency and speed
+- **Curved Path Optimization**: Generate smooth, curved paths that optimize pen plotter efficiency and speed. Customize curvature for a more organic, hand-drawn appeal.
+- **Random Image Starter**: Quickly begin with a random image sourced from Wikimedia Commons to spark your creativity.
 - **Multiple Processing Modes**:
   - **Monochrome**: Single-color paths with density based on brightness
   - **Grayscale**: Multiple levels of gray for more detailed gradation
@@ -26,26 +27,27 @@ Wave Paths Doodlelizer transforms regular bitmap images into path-based SVG grap
 
 ### Pen Plotting
 
-The primary use case for Wave Paths Doodlelizer is generating SVG files for pen plotters. The curved path technology significantly improves plotting efficiency by:
+The primary use case for Squigglify is generating SVG files for pen plotters. The curved path technology significantly improves plotting efficiency by:
 
 - Reducing the number of pen lifts required
 - Creating smoother, more continuous motion
 - Optimizing travel paths between sections
+- Supporting multi-color plotting through Posterization
 - Supporting multi-color plotting through CMYK separation
 
 ### Other Applications
 
-- **Digital Art**: Create unique artistic interpretations of photographs
-- **Laser Cutting/Engraving**: Generate patterns for material etching
 - **CNC Routing**: Produce toolpaths for custom machining
+- **Digital Art**: Create unique artistic interpretations of photographs
 - **Print Media**: Design distinctive line art illustrations
+- **Laser Cutting/Engraving**: Generate patterns for material etching
 
 ## How to Use
 
-1. **Upload an Image**: Select any image file from your device
+1. **Upload an Image or Use a Random Starter**: Select any image file from your device, or use the random image loader to pick an inspiring image from Wikimedia Commons.
 2. **Configure Settings**:
    - Choose a processing mode (Monochrome, Grayscale, Posterize, or CMYK)
-   - Adjust grid density, curve parameters, and other settings
+   - Adjust grid density, curve parameters (for organic appeal), and other settings
    - Toggle continuous paths and curved paths options
 3. **Preview & Refine**: See a real-time preview of your vector output
 4. **Download**: Export the final SVG for use in plotting software or graphic design applications
@@ -70,7 +72,7 @@ Separates your image into Cyan, Magenta, Yellow, and Black channels. Each channe
 
 ## Advanced Options
 
-- **Curved Paths**: Toggle between angular zigzags and smooth curved paths
+- **Curved Paths & Organic Styling**: Toggle between angular zigzags and smooth curved paths. Fine-tune curve parameters to achieve a more organic, hand-drawn look, potentially including shifted path effects.
 - **Path Density**: Control the density of wave paths for each brightness level
 - **Grid Size**: Adjust the number of rows and columns in the grid
 - **Continuous Paths**: Generate unbroken, connected paths for more efficient plotting

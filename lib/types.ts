@@ -7,6 +7,7 @@ export interface CurveControlSettings {
   handleRotationAngle?: number; // Optional: Default handle rotation angle in degrees
   lowerKnotXShift?: number; // Optional: Shifts the X coordinate of lower knot points
   upperKnotShiftFactor?: number; // Optional: Factor to apply random X/Y shift to upper knot points (0-1)
+  disorganizeFactor?: number; // Optional: Factor to apply random X/Y shift to each point in a path (0-1)
 }
 
 export interface Settings {
