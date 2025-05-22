@@ -147,7 +147,7 @@ export const ImageThumbnail = memo(function ImageThumbnail({
   onNewImageUpload: () => void
 }) {
   return (
-    <div className="bg-gray-800/40 rounded-lg p-4 relative">
+    <div className="bg-gray-800/40 rounded-lg md:p-4 relative">
       <h3 className="text-lg font-medium mb-2 text-center">Original Image</h3>
       <div className="flex flex-col items-center justify-center">
         <img
@@ -162,7 +162,7 @@ export const ImageThumbnail = memo(function ImageThumbnail({
         )}
       </div>
 
-      <div className="flex justify-end gap-2 absolute top-2 right-2">
+      <div className="flex justify-end gap-2 absolute bottom-4 right-4">
         <Button
           onClick={onNewImageUpload}
           className="h-8 w-8 p-0 rounded flex items-center justify-center "

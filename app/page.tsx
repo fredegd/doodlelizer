@@ -279,14 +279,11 @@ export default function Home() {
           {!showRandomImageLoader && originalImage && (<>
             <div className={`
               ${isSettingsPanelVisible ? 'block' : 'hidden lg:block'}
-              ${isSettingsPanelVisible ? 'fixed right-0 top-0 bottom-0 w-full  z-50  overflow-y-auto p-4 lg:shadow-lg lg:shadow-black/50 transition-all duration-300 ease-in-out     bg-gray-800/70 backdrop-blur rounded-lg' : ''}
-              lg:static lg:z-auto lg:overflow-visible lg:p-0 lg:space-y-6 lg:w-auto lg:shadow-none
+              ${isSettingsPanelVisible ? 'fixed right-0 top-0 bottom-0 w-full  z-50  overflow-y-auto md:p-4 p-8 lg:shadow-lg lg:shadow-black/50 transition-all duration-300 ease-in-out     bg-gray-800/70 backdrop-blur rounded-lg' : ''}
+              lg:static lg:z-auto lg:overflow-visible lg:p-0 lg:space-y-6 lg:w-auto lg:shadow-none no-scrollbar
             `}
-              style={{
-                WebkitOverflowScrolling: 'touch',
-              }}
             >
-              {/* The mobile close button was previously here. It has been moved outside this div to ensure correct fixed positioning. */}
+
               <div className="space-y-6 pb-20 md:pb-0 !mt-0">
                 {/* Add image thumbnail preview above settings panel */}
                 {originalImage && (

@@ -40,7 +40,7 @@ export default function CurveControlsPanel({
 
     return (
         <TooltipProvider>
-            <div className="bg-gray-800/40 rounded-lg p-6">
+            <div className="bg-gray-800/40 rounded-lg md:p-6">
 
 
 
