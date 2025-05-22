@@ -89,30 +89,6 @@ export default function ProcessingModeSettings({ settings, onSettingsChange, dis
                     </div>
                 </RadioGroup>
 
-                {(settings.processingMode === "grayscale" || settings.processingMode === "posterize") && (
-                    <div className="mt-4 space-y-2">
-                        <div className="flex justify-between">
-                            <Label htmlFor="colorsAmt-setting">
-                                {settings.processingMode === "grayscale" ? "Gray Levels" : "Color Levels"}: {settings.colorsAmt}
-                            </Label>
-                        </div>
-                        <Slider
-                            id="colorsAmt-setting"
-                            min={2}
-                            max={10}
-                            step={1}
-                            value={[settings.colorsAmt]}
-                            onValueChange={(value) => onSettingsChange({ colorsAmt: value[0] })}
-                            disabled={disabled}
-                        />
-                        <p className="text-xs text-gray-400">
-                            {settings.processingMode === "grayscale"
-                                ? "Number of grayscale levels"
-                                : "Number of colors in the palette"}
-                        </p>
-                    </div>
-                )}
-
                 {settings.processingMode === "monochrome" && (
                     <div className="mt-4 space-y-2">
                         <div className="flex justify-between items-center">

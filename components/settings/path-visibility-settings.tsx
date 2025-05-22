@@ -3,6 +3,7 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef } from "react"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
+import { Slider } from "@/components/ui/slider"
 import type { ColorGroup, ProcessingMode, Settings } from "@/lib/types"
 import { ChevronDown } from "lucide-react"
 
@@ -12,6 +13,7 @@ interface PathVisibilitySettingsProps {
     onSettingsChange: (newSettings: Partial<Settings>) => void
     disabled: boolean
     processingMode: ProcessingMode
+    settings: Settings
 }
 
 const PathVisibilitySettings = React.memo(function PathVisibilitySettings({
@@ -20,6 +22,7 @@ const PathVisibilitySettings = React.memo(function PathVisibilitySettings({
     onSettingsChange,
     disabled,
     processingMode,
+    settings,
 }: PathVisibilitySettingsProps) {
     const [activeColorPickerKey, setActiveColorPickerKey] = useState<string | null>(null);
     const colorInputRef = useRef<HTMLInputElement | null>(null);
@@ -100,12 +103,9 @@ const PathVisibilitySettings = React.memo(function PathVisibilitySettings({
                 <ChevronDown className="h-5 w-5 text-gray-300 transition-transform duration-200 group-open:rotate-180" />
             </summary>
 
-            <div className="space-y-3 mt-4">
-                <div className="w-full flex justify-end">
-                    <button className="text-sm text-gray-400 hover:text-white disabled:opacity-50" onClick={handleToggleAll} disabled={disabled || Object.keys(colorGroups).length === 0}>
-                        {allVisible ? "Hide All" : "Show All"}
-                    </button>
-                </div>
+            <div className="space-y-4 mt-4">
+
+
                 {sortedColorGroups.map(([colorKey, group]: [string, ColorGroup]) => (
                     <div key={colorKey} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -143,6 +143,35 @@ const PathVisibilitySettings = React.memo(function PathVisibilitySettings({
                         />
                     </div>
                 ))}
+                <div className="w-full flex justify-end">
+                    <button className="text-sm text-gray-400 hover:text-white disabled:opacity-50" onClick={handleToggleAll} disabled={disabled || Object.keys(colorGroups).length === 0}>
+                        {allVisible ? "Hide All" : "Show All"}
+                    </button>
+                </div>
+                {(processingMode === "grayscale" || processingMode === "posterize") && (
+                    <div className="mb-4 space-y-2 ">
+
+                        <div className="flex justify-between mt-8">
+                            <Label htmlFor="colorsAmt-visibility-setting">
+                                {processingMode === "grayscale" ? "Gray Levels" : "Color Levels"}: {settings.colorsAmt}
+                            </Label>
+                        </div>
+                        <Slider
+                            id="colorsAmt-visibility-setting"
+                            min={2}
+                            max={10}
+                            step={1}
+                            value={[settings.colorsAmt]}
+                            onValueChange={(value) => onSettingsChange({ colorsAmt: value[0] })}
+                            disabled={disabled}
+                        />
+                        <p className="text-xs text-gray-400">
+                            {processingMode === "grayscale"
+                                ? "Number of grayscale levels"
+                                : "Number of colors in the palette"}
+                        </p>
+                    </div>
+                )}
             </div>
         </details>
     )

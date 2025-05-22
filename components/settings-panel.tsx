@@ -255,6 +255,7 @@ export default function SettingsPanel({
           onSettingsChange={onSettingsChange}
           disabled={disabled}
           processingMode={settings.processingMode}
+          settings={settings}
         />
       )}
 
