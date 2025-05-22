@@ -29,6 +29,16 @@ export interface Settings {
   curveControls: CurveControlSettings; // Added curve control settings
 }
 
+// Default values for the curve controls - MOVED HERE
+export const DEFAULT_CURVE_CONTROLS: CurveControlSettings = {
+  junctionContinuityFactor: 0.1, // Default smoothness factor for curves
+  tileHeightScale: 0.95, // Default tile height scale (1.0 = 100% of original height)
+  handleRotationAngle: 0, // Default handle rotation angle in degrees
+  lowerKnotXShift: 0, // Default X shift for lower knot points
+  upperKnotShiftFactor: 0, // Default factor for upper knot random shift
+  disorganizeFactor: 0, // Default factor for the new disorganize effect
+};
+
 export interface PixelData {
   x: number;
   y: number;

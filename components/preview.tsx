@@ -162,11 +162,11 @@ export const ImageThumbnail = memo(function ImageThumbnail({
         )}
       </div>
 
-      <div className="flex justify-end gap-2 absolute bottom-4 right-4">
+      <div className="flex justify-end gap-2 absolute bottom-4 ">
         <Button
           onClick={onNewImageUpload}
-          className="h-8 w-8 p-0 rounded flex items-center justify-center "
-          variant="ghost"
+          className="h-8 w-8 p-0 rounded-full bg-gray-700 hover:bg-gray-600"
+          // variant="ghost"
           size="sm"
           title="Upload new image"
         >

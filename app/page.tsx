@@ -5,11 +5,11 @@ import ImageUploader from "@/components/image-uploader"
 import RandomImageLoader from "@/components/random-image-loader"
 import Preview, { ImageThumbnail } from "@/components/preview"
 import SettingsPanel from "@/components/settings-panel"
-import PathVisibilityControls from "@/components/path-visibility-controls"
-import CurveControlsPanel, { DEFAULT_CURVE_CONTROLS } from "@/components/curve-controls-panel"
+import { DEFAULT_CURVE_CONTROLS } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { processImage, generateSVG } from "@/lib/image-processor"
 import type { ImageData, Settings } from "@/lib/types"
+import { TooltipProvider } from "@/components/ui/tooltip"
 
 export default function Home() {
   const [originalImage, setOriginalImage] = useState<string | null>("https://upload.wikimedia.org/wikipedia/commons/b/bd/La_Gioconda%2C_Leonardo_Da_Vinci.jpg")
@@ -38,11 +38,12 @@ export default function Home() {
   })
   const [showRandomImageLoader, setShowRandomImageLoader] = useState(false)
 
-  // Process image when it's uploaded or settings change
+  // Process image when it's uploaded or settings change (excluding curveControls and visiblePaths)
   useEffect(() => {
     if (originalImage && settings) {
-      const processingSettings = { ...settings }
-      handleProcessImage(processingSettings)
+      const { curveControls, visiblePaths, ...processingSettingsForEffect } = settings;
+      // console.log("Processing image due to settings change (excluding curves/visibility):");
+      handleProcessImage(processingSettingsForEffect as Settings) // Cast as Settings, though it's partial
     }
   }, [
     originalImage,
@@ -59,19 +60,23 @@ export default function Home() {
     settings.processingMode,
     settings.colorsAmt,
     settings.monochromeColor,
+    // curveControls and visiblePaths are intentionally excluded here to prevent re-processing
+    // Their changes are handled by the other useEffect hooks that only regenerate SVG
   ])
 
-  // Handle visibility changes separately
+  // Handle visibility changes separately (SVG regeneration only)
   useEffect(() => {
     if (processedData && originalImage && !isProcessing) {
+      // console.log("Regenerating SVG due to visiblePaths change");
       const svg = generateSVG(processedData, { ...settings })
       setSvgContent(svg)
     }
   }, [settings.visiblePaths, processedData, originalImage, isProcessing])
 
-  // Handle curve control changes separately
+  // Handle curve control changes and curvedPaths toggle separately (SVG regeneration only)
   useEffect(() => {
     if (processedData && originalImage && !isProcessing) {
+      // console.log("Regenerating SVG due to curveControls or curvedPaths change");
       const svg = generateSVG(processedData, { ...settings })
       setSvgContent(svg)
     }
@@ -173,18 +178,13 @@ export default function Home() {
     if (newSettings.processingMode && newSettings.processingMode !== settings.processingMode) {
       newSettings.visiblePaths = {}
     }
+    // if (newSettings.curvedPaths !== undefined && newSettings.curvedPaths !== settings.curvedPaths) {
+    //   // If curvedPaths is toggled, reset advanced curve controls to their defaults
+    //   // to provide a sensible starting point for the new path style.
+    //   newSettings.curveControls = DEFAULT_CURVE_CONTROLS;
+    // }
 
     setSettings({ ...settings, ...newSettings })
-  }
-
-  const handlePathVisibilityChange = (colorKey: string, visible: boolean) => {
-    setSettings((prev) => ({
-      ...prev,
-      visiblePaths: {
-        ...prev.visiblePaths,
-        [colorKey]: visible,
-      },
-    }))
   }
 
   const handleCurveControlsChange = (newCurveControls: Partial<typeof settings.curveControls>) => {
@@ -209,11 +209,11 @@ export default function Home() {
           {originalImage && !showRandomImageLoader && !isSettingsPanelVisible && (
             <div className="mb-4 flex lg:hidden justify-end">
               <Button
-                variant="ghost"
+                // variant="ghost"
                 size="icon"
                 onClick={toggleSettingsPanel}
                 aria-label="Toggle settings panel"
-                className="w-8 h-8"
+                className="h-8 w-8 p-0 rounded-full bg-gray-700 hover:bg-gray-600"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-menu">
                   <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -293,40 +293,28 @@ export default function Home() {
                     onNewImageUpload={handleNewImageUpload}
                   />
                 )}
-
-                <SettingsPanel
-                  settings={settings}
-                  onSettingsChange={handleSettingsChange}
-                  disabled={!originalImage || isProcessing}
-                />
-
-                <CurveControlsPanel
-                  settings={settings}
-                  curveControls={settings.curveControls}
-                  onCurveControlsChange={handleCurveControlsChange}
-                  onSettingsChange={handleSettingsChange}
-                  disabled={!originalImage || isProcessing}
-                />
-
-                {processedData?.colorGroups && Object.keys(processedData.colorGroups).length > 0 && (
-                  <PathVisibilityControls
-                    colorGroups={processedData.colorGroups}
-                    visiblePaths={settings.visiblePaths}
-                    onVisibilityChange={handlePathVisibilityChange}
-                    disabled={isProcessing}
+                <TooltipProvider>
+                  <SettingsPanel
+                    settings={settings}
+                    onSettingsChange={handleSettingsChange}
+                    disabled={!originalImage || isProcessing}
+                    curveControls={settings.curveControls}
+                    onCurveControlsChange={handleCurveControlsChange}
+                    processedData={processedData}
                   />
-                )}
+                </TooltipProvider>
               </div>
             </div>
             {/* Close button - only visible on mobile, moved outside panel scroll for correct fixed behavior */}
             {isSettingsPanelVisible && (
               <div className="fixed top-4 right-4 z-[51] lg:hidden">
                 <Button
-                  variant="ghost"
+                  // variant="ghost"
                   size="icon"
                   onClick={toggleSettingsPanel}
                   aria-label="Close settings panel"
-                  className="w-8 h-8"
+                  className="h-8 w-8 p-0 rounded-full bg-gray-700 hover:bg-gray-600"
+
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-x">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
