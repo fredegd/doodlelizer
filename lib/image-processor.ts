@@ -93,11 +93,18 @@ export async function processImage(
             const r = imageData.data[i];
             const g = imageData.data[i + 1];
             const b = imageData.data[i + 2];
-            const a = imageData.data[i + 3] / 255;
+            const aVal = imageData.data[i + 3]; // Original alpha value (0-255)
 
-            // Calculate brightness (weighted RGB for human perception)
+            // If the pixel is fully transparent, skip it entirely
+            if (aVal === 0) {
+              continue; // Move to the next pixel
+            }
+
+            const alphaNormalized = aVal / 255.0;
+
+            // Calculate brightness (weighted RGB for human perception, multiplied by alpha)
             let brightness = Math.round(
-              (r * 0.299 + g * 0.587 + b * 0.114) * a
+              (r * 0.299 + g * 0.587 + b * 0.114) * alphaNormalized
             );
 
             // Only include pixels that meet the threshold for non-CMYK modes
@@ -112,14 +119,14 @@ export async function processImage(
                 r,
                 g,
                 b,
-                a: Math.round(a * 255),
+                a: aVal, // Store original alpha (0-255)
               });
             }
           }
         }
 
         // Create the base image data
-        const processedImageData = {
+        const processedImageData: ImageData = {
           width: gridWidth,
           height: gridHeight,
           pixels,
@@ -133,6 +140,7 @@ export async function processImage(
           rowsCount,
           tileWidth: outputWidth / columnsCount,
           tileHeight: outputHeight / rowsCount,
+          colorGroups: {}, // Initialize colorGroups, will be populated by processors
         };
 
         // Process the image according to the selected mode

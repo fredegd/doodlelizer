@@ -27,6 +27,7 @@ export interface Settings {
   monochromeColor: string;
   visiblePaths: Record<string, boolean>;
   curveControls: CurveControlSettings; // Added curve control settings
+  colorGroups?: Record<string, ColorGroup>; // Added colorGroups
 }
 
 // Default values for the curve controls - MOVED HERE

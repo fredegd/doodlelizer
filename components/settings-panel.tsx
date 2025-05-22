@@ -47,14 +47,8 @@ export default function SettingsPanel({
   };
 
   return (
-    <div className="space-y-6">
-      <ProcessingModeSettings
-        settings={settings}
-        onSettingsChange={onSettingsChange}
-        disabled={disabled}
-      />
+    <div className="space-y-6 p-4">
 
-      <Separator className="bg-gray-700" />
 
       <ImageTilingSettings
         settings={settings}
@@ -238,14 +232,14 @@ export default function SettingsPanel({
             </div>
             <div className="flex justify-end">
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={resetAdvancedCurveControlsToDefaults}
                 disabled={disabled}
                 className="text-xs h-7"
               >
                 <RotateCcw className="h-3 w-3 mr-1" />
-                Reset Advanced
+                Reset
               </Button>
             </div>
           </div>
@@ -263,6 +257,15 @@ export default function SettingsPanel({
           processingMode={settings.processingMode}
         />
       )}
+
+      <Separator className="bg-gray-700" />
+
+      <ProcessingModeSettings
+        settings={settings}
+        onSettingsChange={onSettingsChange}
+        disabled={disabled}
+      />
+
     </div>
   )
 }

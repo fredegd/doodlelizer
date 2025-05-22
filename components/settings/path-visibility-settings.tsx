@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { useState, useCallback, useMemo, useEffect, useRef } from "react"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import type { ColorGroup, ProcessingMode, Settings } from "@/lib/types"
@@ -21,6 +21,21 @@ const PathVisibilitySettings = React.memo(function PathVisibilitySettings({
     disabled,
     processingMode,
 }: PathVisibilitySettingsProps) {
+    const [activeColorPickerKey, setActiveColorPickerKey] = useState<string | null>(null);
+    const colorInputRef = useRef<HTMLInputElement | null>(null);
+
+    useEffect(() => {
+        // Diagnostic log to observe changes in the colorGroups prop
+        console.log("PathVisibilitySettings: colorGroups prop updated or component re-rendered. Current colorGroups:", colorGroups);
+    }, [colorGroups]);
+
+    // Effect to programmatically click the color input when it becomes active
+    useEffect(() => {
+        if (activeColorPickerKey && colorInputRef.current) {
+            // autoFocus should handle focusing, this ensures the picker dialog opens.
+            colorInputRef.current.click();
+        }
+    }, [activeColorPickerKey]); // Re-run when the active picker key changes
 
     const handleVisibilityChange = (colorKey: string, visible: boolean) => {
         const newVisiblePaths = {
@@ -56,6 +71,22 @@ const PathVisibilitySettings = React.memo(function PathVisibilitySettings({
         onSettingsChange({ visiblePaths: newVisiblePaths });
     }, [colorGroups, onSettingsChange, allVisible, visiblePaths]);
 
+    const handleColorChange = (colorKey: string, newColor: string) => {
+        if (!colorGroups) return;
+        const updatedColorGroups = {
+            ...colorGroups,
+            [colorKey]: {
+                ...colorGroups[colorKey],
+                color: newColor,
+            },
+        };
+        onSettingsChange({ colorGroups: updatedColorGroups });
+        // We might want to keep the picker open if the user is still adjusting,
+        // but for now, let's close it on change for simplicity with onChange.
+        // If using onInput + a separate confirm button, this would be different.
+        // setActiveColorPickerKey(null); // Optionally close picker on every change
+    };
+
     if (!colorGroups || Object.keys(colorGroups).length === 0) {
         return null;
     }
@@ -64,7 +95,7 @@ const PathVisibilitySettings = React.memo(function PathVisibilitySettings({
         <details className="group" >
             <summary className="cursor-pointer text-xl font-bold  my-6 flex items-center justify-between">
                 <h3 className="flex items-center gap-2 text-sm font-medium text-gray-300">
-                    Path Visibility
+                    Colors and Visibility
                 </h3>
                 <ChevronDown className="h-5 w-5 text-gray-300 transition-transform duration-200 group-open:rotate-180" />
             </summary>
@@ -78,8 +109,29 @@ const PathVisibilitySettings = React.memo(function PathVisibilitySettings({
                 {sortedColorGroups.map(([colorKey, group]: [string, ColorGroup]) => (
                     <div key={colorKey} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded" style={{ backgroundColor: group.color }} />
-                            <Label htmlFor={`visibility-${colorKey}-setting`} className="cursor-pointer">
+                            {activeColorPickerKey === colorKey ? (
+                                <input
+                                    ref={colorInputRef}
+                                    id={`color-picker-${colorKey}`}
+                                    type="color"
+                                    value={group.color}
+                                    onChange={(e) => handleColorChange(colorKey, e.target.value)}
+                                    onBlur={() => setActiveColorPickerKey(null)}
+                                    className="w-8 h-8 p-0 border rounded cursor-pointer" // Adjusted styling
+                                    autoFocus
+                                    disabled={disabled}
+                                />
+                            ) : (
+                                <button
+                                    id={`color-picker-${colorKey}-setting`}
+                                    className="w-6 h-6 rounded border-none p-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    style={{ backgroundColor: group.color }}
+                                    onClick={() => !disabled && setActiveColorPickerKey(colorKey)}
+                                    disabled={disabled}
+                                    aria-label={`Change color for ${group.displayName || 'group'}`}
+                                />
+                            )}
+                            <Label htmlFor={`color-picker-${colorKey}-setting`} className="cursor-pointer">
                                 {group.displayName}
                             </Label>
                         </div>

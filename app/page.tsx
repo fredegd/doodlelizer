@@ -173,18 +173,30 @@ export default function Home() {
     }
   }
 
-  const handleSettingsChange = (newSettings: Partial<Settings>) => {
+  const handleSettingsChange = (newSettingsPatch: Partial<Settings>) => {
     // If processing mode changes, reset visiblePaths
-    if (newSettings.processingMode && newSettings.processingMode !== settings.processingMode) {
-      newSettings.visiblePaths = {}
+    if (newSettingsPatch.processingMode && newSettingsPatch.processingMode !== settings.processingMode) {
+      newSettingsPatch.visiblePaths = {}
     }
-    // if (newSettings.curvedPaths !== undefined && newSettings.curvedPaths !== settings.curvedPaths) {
-    //   // If curvedPaths is toggled, reset advanced curve controls to their defaults
-    //   // to provide a sensible starting point for the new path style.
-    //   newSettings.curveControls = DEFAULT_CURVE_CONTROLS;
-    // }
 
-    setSettings({ ...settings, ...newSettings })
+    setSettings(prevSettings => ({ ...prevSettings, ...newSettingsPatch }));
+
+    // If colorGroups were part of the update patch, update processedData directly
+    // This ensures that changes from PathVisibilitySettings' color picker are reflected.
+    if (newSettingsPatch.colorGroups) {
+      setProcessedData(prevProcessedData => {
+        if (!prevProcessedData) {
+          // This shouldn't ideally occur if colorGroups are being changed,
+          // as processedData should exist. Log a warning if it does.
+          console.warn("Attempted to update colorGroups on null processedData in handleSettingsChange.");
+          return prevProcessedData; // or null
+        }
+        return {
+          ...prevProcessedData,
+          colorGroups: newSettingsPatch.colorGroups, // Apply the updated color groups
+        };
+      });
+    }
   }
 
   const handleCurveControlsChange = (newCurveControls: Partial<typeof settings.curveControls>) => {
@@ -202,7 +214,7 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-900 text-gray-100 p-4 md:p-8">
+    <main className="min-h-screen bg-gray-900 text-gray-100 md:p-4 p-8">
       <div className="max-w-7xl mx-auto">
         <header className="mb-8 text-center flex justify-between items-center">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">Squigglify</h1>
@@ -284,7 +296,7 @@ export default function Home() {
             `}
             >
 
-              <div className="space-y-6 pb-20 md:pb-0 !mt-0">
+              <div className="space-y-6 pb-20 md:pb-0 md:mt-0 mt-8">
                 {/* Add image thumbnail preview above settings panel */}
                 {originalImage && (
                   <ImageThumbnail
