@@ -214,9 +214,9 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-900 text-gray-100 md:p-4 p-8">
-      <div className="max-w-7xl mx-auto">
-        <header className="mb-8 h-12 text-center flex justify-between items-center fixed top-0 left-0 right-0 z-50 bg-gray-900/70 backdrop-blur rounded-lg md:p-4 p-8">
+    <main className="h-screen bg-gray-900 text-gray-100  p-0  no-scrollbar">
+      <div className="max-w-7xl mx-auto h-full overflow-y-auto pt-16 lg:pt-20 no-scrollbar">
+        <header className="h-16 text-center flex justify-between items-center fixed top-0 left-0 right-0 z-50 bg-gray-900/70 backdrop-blur rounded-lg p-4">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">Squigglify</h1>
           {originalImage && !showRandomImageLoader && !isSettingsPanelVisible && (
 
@@ -264,7 +264,7 @@ export default function Home() {
                   onCancel={handleCancelRandomImageLoad}
                 />
                 <div className="text-center my-4 pt-4 border-t border-gray-700">
-                  <p className="text-gray-400 text-sm mb-2">Alternatively, upload your own image:</p>
+                  <p className="text-gray-300 text-sm mb-2">Alternatively, upload your own image:</p>
                   <ImageUploader onImageUpload={handleManualImageUpload} />
                 </div>
               </div>
@@ -291,18 +291,19 @@ export default function Home() {
           {!showRandomImageLoader && originalImage && (<>
             <div className={`
               ${isSettingsPanelVisible ? 'block' : 'hidden lg:block'}
-              ${isSettingsPanelVisible ? 'fixed right-0 top-0 bottom-0 w-full  z-50  overflow-y-auto md:p-4 p-8 lg:shadow-lg lg:shadow-black/50 transition-all duration-300 ease-in-out     bg-gray-800/70 backdrop-blur rounded-lg' : ''}
+              ${isSettingsPanelVisible ? 'fixed right-0 top-0 bottom-0 w-full  z-50  overflow-y-auto md:p-4 p-0 lg:shadow-lg lg:shadow-black/50 transition-all duration-300 ease-in-out     bg-gray-700/30 backdrop-blur rounded-lg' : ''}
               lg:static lg:z-auto lg:overflow-visible lg:p-0 lg:space-y-6 lg:w-auto lg:shadow-none no-scrollbar
             `}
             >
 
-              <div className="space-y-6 pb-20 md:pb-0 md:mt-0 mt-8">
+              <div className="space-y-6 mb-20  lg:mt-0 ">
                 {/* Add image thumbnail preview above settings panel */}
                 {originalImage && (
                   <ImageThumbnail
                     originalImage={originalImage}
                     processedData={processedData}
                     onNewImageUpload={handleNewImageUpload}
+                    svgContentPreview={svgContent}
                   />
                 )}
                 <TooltipProvider>

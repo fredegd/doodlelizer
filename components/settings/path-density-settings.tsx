@@ -17,12 +17,12 @@ export default function PathDensitySettings({ settings, onSettingsChange, disabl
     return (
         <TooltipProvider>
             <details className="group" >
-                <summary className="cursor-pointer text-xl font-bold  my-6 flex items-center justify-between">
-                    <h3 className="flex items-center gap-2 text-sm font-medium text-gray-300">
+                <summary className="cursor-pointer my-6 text-sm font-bold flex items-center justify-between">
+                    <h3 className="flex items-center gap-2">
                         Path Density
                         <Tooltip>
                             <TooltipTrigger>
-                                <Info className="h-4 w-4 text-gray-400" />
+                                <Info className="h-4 w-4 text-gray-300" />
                             </TooltipTrigger>
                             <TooltipContent>
                                 <p className="max-w-xs">
@@ -33,10 +33,10 @@ export default function PathDensitySettings({ settings, onSettingsChange, disabl
                     </h3>
                     <ChevronDown className="h-5 w-5 text-gray-300 transition-transform duration-200 group-open:rotate-180" />
                 </summary>
-                <p className="text-xs text-gray-400 mb-3">
+                <p className="text-xs text-gray-300 mb-3">
                     (auto-adjusted to tile width: {calculatedDensity / 2}px)
                 </p>
-                <div className="space-y-4 mt-4">
+                <div className="space-y-4 mt-4 text-gray-300 px-4">
                     <div className="space-y-2">
                         <div className="flex justify-between">
                             <Label htmlFor="minDensity-setting">Min Density: {settings.minDensity}</Label>

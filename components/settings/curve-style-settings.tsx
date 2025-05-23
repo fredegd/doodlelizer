@@ -26,12 +26,15 @@ export default function CurveStyleSettings({
     return (
         <TooltipProvider>
             <details className="group" >
-                <summary className="cursor-pointer text-xl font-bold  my-6 flex items-center justify-between">
-                    <h3 className="flex items-center gap-2 text-sm font-medium text-gray-300">
+
+
+
+                <summary className="cursor-pointer text-sm font-bold mb-4 flex items-center justify-between">
+                    <h3 className="flex items-center gap-2">
                         {settings.curvedPaths ? "Curved" : "Square"} Paths
                         <Tooltip>
                             <TooltipTrigger>
-                                <Info className="h-4 w-4 text-gray-400" />
+                                <Info className="h-4 w-4 text-gray-300" />
                             </TooltipTrigger>
                             <TooltipContent>
                                 <p className="max-w-xs">
@@ -43,8 +46,8 @@ export default function CurveStyleSettings({
                     <ChevronDown className="h-5 w-5 text-gray-300 transition-transform duration-200 group-open:rotate-180" />
                 </summary>
 
-                <div className="flex w-full justify-between">
-                    <h3 className="text-sm font-medium mb-3 text-gray-300">Matrix: </h3>
+                <div className="flex w-full justify-between text-gray-300 px-4">
+                    <h3 className="text-sm font-medium mb-3">Matrix: </h3>
                     <div className="flex items-center gap-2 mb-4">
                         <Image
                             src="/squared-paths.svg"
@@ -68,14 +71,14 @@ export default function CurveStyleSettings({
                         />
                     </div>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-4 text-gray-300">
                     <div className="flex gap-2">
                         <Label htmlFor="tileHeightScale-setting">
                             Tile Height: {(curveControls.tileHeightScale * 100).toFixed(0)}%
                         </Label>
                         <Tooltip>
                             <TooltipTrigger>
-                                <Info className="h-4 w-4 text-gray-400" />
+                                <Info className="h-4 w-4 text-gray-300" />
                             </TooltipTrigger>
                             <TooltipContent>
                                 <p className="max-w-xs">

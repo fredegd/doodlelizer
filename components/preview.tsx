@@ -30,7 +30,7 @@ const Preview = memo(function Preview({
       let processedSvg = svgContent;
 
       // Remove or fix problematic width/height with mm units
-      processedSvg = processedSvg.replace(/(width|height)="([^"]*?\s*mm)"/g, '');
+      processedSvg = processedSvg.replace(/(width|height)=\"([^\"]*?\s*mm)\"/g, '');
 
       // Add styling to ensure SVGs are properly scaled and have rounded corners
       const enhancedSvgContent = processedSvg.replace('<svg ', '<svg style="shape-rendering: geometricPrecision; stroke-linejoin: round; stroke-linecap: round; max-width: 100%; max-height: 75vh; width: auto; height: auto;" ');
@@ -66,12 +66,11 @@ const Preview = memo(function Preview({
 
   return (
     <>
-
       {fullscreen && svgContent && (
         <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
           <Button
             onClick={() => setFullscreen(false)}
-            className="absolute top-4 right-4 h-10 w-10 p-0 rounded-full bg-gray-800 hover:bg-gray-700"
+            className="absolute top-4 right-4 h-8 w-8 p-0 rounded-full bg-gray-800 hover:bg-gray-700"
             size="sm"
             title="Close fullscreen"
           >
@@ -86,9 +85,9 @@ const Preview = memo(function Preview({
         </div>
       )}
       <div className="relative h-full">
-        <div className="space-y-4 sticky top-12 max-h-screen  flex flex-col ">
+        <div className="space-y-4 sticky top-0 max-h-screen  flex flex-col ">
           <div className="bg-gray-800 rounded-lg p-4 flex-1 relative">
-            <div className="absolute top-2 right-2 z-10">
+            <div className="absolute top-4 right-4 z-10">
               {svgContent && (
                 <SvgDownloadOptions
                   svgContent={svgContent}
@@ -99,7 +98,7 @@ const Preview = memo(function Preview({
             </div>
             <h3 className="text-lg font-medium  text-center">Vector Output</h3>
             {processedData && (
-              <div className="mb-2 text-center text-xs text-gray-400">
+              <div className="mb-2 text-center text-xs text-gray-300">
                 {processedData.width} ×{" "}
                 {processedData.height} tiles
               </div>
@@ -108,7 +107,7 @@ const Preview = memo(function Preview({
               {isProcessing ? (
                 <div className="flex flex-col items-center justify-center">
                   <Loader className="h-10 w-10 text-primary animate-spin mb-2" />
-                  <p className="text-gray-400">Processing image...</p>
+                  <p className="text-gray-300">Processing image...</p>
                 </div>
               ) : svgContent ? (
                 <div className="relative w-full">
@@ -124,14 +123,12 @@ const Preview = memo(function Preview({
                   </Button>
                 </div>
               ) : (
-                <p className="text-gray-400">Vector preview will appear here</p>
+                <p className="text-gray-300">Vector preview will appear here</p>
               )}
             </div>
           </div>
         </div>
       </div>
-
-
     </>
   )
 })
@@ -140,39 +137,76 @@ const Preview = memo(function Preview({
 export const ImageThumbnail = memo(function ImageThumbnail({
   originalImage,
   processedData,
-  onNewImageUpload
+  onNewImageUpload,
+  svgContentPreview
 }: {
   originalImage: string
   processedData: ImageData | null
   onNewImageUpload: () => void
+  svgContentPreview?: string | null
 }) {
+  const svgPreviewContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (svgContentPreview && svgPreviewContainerRef.current) {
+      // Basic styling for the mini SVG preview
+      let processedMiniSvg = svgContentPreview.replace(/(width|height)=\"([^\"]*?\s*mm)\"/g, '');
+      processedMiniSvg = processedMiniSvg.replace(
+        '<svg ',
+        '<svg style="max-width: 100%; max-height: 100%; width: auto; height: auto; shape-rendering: geometricPrecision;" '
+      );
+      svgPreviewContainerRef.current.innerHTML = processedMiniSvg;
+    }
+  }, [svgContentPreview]);
+
   return (
-    <div className="bg-gray-800/40 rounded-lg md:p-4 relative">
-      <h3 className="text-lg font-medium mb-2 text-center">Original Image</h3>
-      <div className="flex flex-col items-center justify-center">
-        <img
-          src={originalImage || "/placeholder.svg"}
-          alt="Original"
-          className="max-w-full max-h-[18vh] object-contain"
-        />
-        {processedData && (
-          <div className="mt-2 text-center text-xs text-gray-400">
-            Original: {processedData.originalWidth} × {processedData.originalHeight} px
+    <div className="bg-gray-800 rounded-lg  md:p-4 sticky top-0 z-50  p-4 pt-12 lg:pt-0">
+      <div className="flex flex-row gap-2 items-start">
+        {/* Original Image Section */}
+        <div className="flex-1 lg:w-full w-1/2 relative">
+          <h3 className="text-base md:text-lg font-medium mb-1 md:mb-2 text-center">Original</h3>
+          <div className="flex flex-col w-full  max-h-40 items-center justify-center aspect-square bg-[#f1f1f1] rounded overflow-hidden">
+            <img
+              src={originalImage || "/placeholder.svg"}
+              alt="Original"
+              className="max-w-full max-h-full object-contain p-1"
+            />
+          </div>
+          {processedData && (
+            <div className="mt-1 text-center text-xs text-gray-300">
+              {processedData.originalWidth} × {processedData.originalHeight} px
+            </div>
+          )}
+          <div className="flex justify-end gap-2 absolute bottom-2 right-2 md:bottom-4 md:right-4">
+            <Button
+              onClick={onNewImageUpload}
+              className="h-7 w-7 md:h-8 md:w-8 p-0 rounded-full bg-gray-700 hover:bg-gray-600"
+              size="sm"
+              title="Upload new image"
+            >
+              <Upload className="h-3.5 md:h-4 w-3.5 md:w-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Mini SVG Preview Section (only on mobile/when svgContentPreview is present) */}
+        {svgContentPreview && (
+          <div className="flex-1 w-1/2 lg:hidden">
+            <h3 className="text-base md:text-lg font-medium mb-1 md:mb-2 text-center">Preview</h3>
+            <div ref={svgPreviewContainerRef} className="aspect-square bg-[#f1f1f1] rounded overflow-hidden flex items-center justify-center max-h-40 w-full">
+              {/* Mini SVG will be injected here */}
+            </div>
+            {/* Optional: Add tile info for preview if needed */}
+            {processedData && (
+              <div className="mt-1 text-center text-xs text-gray-300">
+                {processedData.width} × {processedData.height} tiles
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      <div className="flex justify-end gap-2 absolute bottom-4 ">
-        <Button
-          onClick={onNewImageUpload}
-          className="h-8 w-8 p-0 rounded-full bg-gray-700 hover:bg-gray-600"
-          // variant="ghost"
-          size="sm"
-          title="Upload new image"
-        >
-          <Upload className="h-4 w-4" />
-        </Button>
-      </div>
+
     </div>
   )
 })

@@ -128,7 +128,7 @@ const RandomImageLoader: React.FC<RandomImageLoaderProps> = ({ onImageSelected, 
             <div className="flex flex-col items-center justify-center h-96 min-h-[300px] border border-dashed border-gray-600 rounded-lg p-8 bg-gray-800 text-gray-300">
                 <p className="text-xl mb-3">Fetching a random image from Wikimedia Commons...</p>
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-100 mb-3"></div>
-                {retries > 0 && <p className="text-sm text-gray-400">Attempt {retries + 1} of {MAX_RETRIES}. Please wait...</p>}
+                {retries > 0 && <p className="text-sm text-gray-300">Attempt {retries + 1} of {MAX_RETRIES}. Please wait...</p>}
                 <p className="text-xs text-gray-500 mt-4">You can also upload an image manually below or cancel.</p>
                 <Button onClick={onCancel} variant="outline" className="mt-4">Cancel</Button>
             </div>
@@ -164,7 +164,7 @@ const RandomImageLoader: React.FC<RandomImageLoaderProps> = ({ onImageSelected, 
                         }}
                     />
                 </div>
-                <p className="text-sm text-gray-400 mb-1 max-w-full truncate" title={currentImage.title}>
+                <p className="text-sm text-gray-300 mb-1 max-w-full truncate" title={currentImage.title}>
                     Title: <span className="font-medium text-gray-300">{currentImage.title}</span>
                 </p>
                 <a href={currentImage.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-400 hover:text-blue-300 hover:underline mb-6">
@@ -188,7 +188,7 @@ const RandomImageLoader: React.FC<RandomImageLoaderProps> = ({ onImageSelected, 
 
     // Fallback UI for unexpected state, offer cancel
     return (
-        <div className="flex flex-col items-center justify-center h-96 border border-dashed border-gray-600 rounded-lg p-8 bg-gray-800 text-gray-400">
+        <div className="flex flex-col items-center justify-center h-96 border border-dashed border-gray-600 rounded-lg p-8 bg-gray-800 text-gray-300">
             <p className="mb-2">An unexpected issue occurred with the random image loader.</p>
             <Button onClick={onCancel} variant="link">Cancel and return</Button>
         </div>

@@ -96,15 +96,14 @@ const PathVisibilitySettings = React.memo(function PathVisibilitySettings({
 
     return (
         <details className="group" >
-            <summary className="cursor-pointer text-xl font-bold  my-6 flex items-center justify-between">
-                <h3 className="flex items-center gap-2 text-sm font-medium text-gray-300">
+            <summary className="cursor-pointer text-sm font-bold  my-6 flex items-center justify-between">
+                <h3 className="flex items-center gap-2">
                     Colors and Visibility
                 </h3>
                 <ChevronDown className="h-5 w-5 text-gray-300 transition-transform duration-200 group-open:rotate-180" />
             </summary>
 
-            <div className="space-y-4 mt-4">
-
+            <div className="space-y-4 mt-4  text-gray-300 px-4">
 
                 {sortedColorGroups.map(([colorKey, group]: [string, ColorGroup]) => (
                     <div key={colorKey} className="flex items-center justify-between">
@@ -144,7 +143,7 @@ const PathVisibilitySettings = React.memo(function PathVisibilitySettings({
                     </div>
                 ))}
                 <div className="w-full flex justify-end">
-                    <button className="text-sm text-gray-400 hover:text-white disabled:opacity-50" onClick={handleToggleAll} disabled={disabled || Object.keys(colorGroups).length === 0}>
+                    <button className="text-sm text-gray-300 hover:text-white disabled:opacity-50" onClick={handleToggleAll} disabled={disabled || Object.keys(colorGroups).length === 0}>
                         {allVisible ? "Hide All" : "Show All"}
                     </button>
                 </div>
@@ -165,7 +164,7 @@ const PathVisibilitySettings = React.memo(function PathVisibilitySettings({
                             onValueChange={(value) => onSettingsChange({ colorsAmt: value[0] })}
                             disabled={disabled}
                         />
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-gray-300">
                             {processingMode === "grayscale"
                                 ? "Number of grayscale levels"
                                 : "Number of colors in the palette"}

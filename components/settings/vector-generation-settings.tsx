@@ -17,18 +17,18 @@ export default function VectorGenerationSettings({ settings, onSettingsChange, d
     return (
         <TooltipProvider>
             <details className="group" >
-                <summary className="cursor-pointer text-xl font-bold  my-6 flex items-center justify-between">
-                    <h3 className="flex items-center gap-2 text-sm font-medium text-gray-300">Vector Generation</h3>
+                <summary className="cursor-pointer text-sm font-bold  my-6 flex items-center justify-between">
+                    <h3 className="flex items-center gap-2">Vector Generation</h3>
                     <ChevronDown className="h-5 w-5 text-gray-300 transition-transform duration-200 group-open:rotate-180" />
                 </summary>
-                <div className="space-y-4 mt-4">
+                <div className="space-y-4 mt-4 text-gray-300">
                     {settings.processingMode !== "cmyk" && settings.processingMode !== "monochrome" && (
                         <div className="space-y-2">
                             <div className="flex justify-between">
                                 <Label htmlFor="brightnessThreshold-vec-setting">Brightness Threshold: {settings.brightnessThreshold}</Label>
                                 <Tooltip>
                                     <TooltipTrigger>
-                                        <Info className="h-4 w-4 text-gray-400" />
+                                        <Info className="h-4 w-4 text-gray-300" />
                                     </TooltipTrigger>
                                     <TooltipContent>
                                         <p className="max-w-xs">
@@ -46,7 +46,6 @@ export default function VectorGenerationSettings({ settings, onSettingsChange, d
                                 onValueChange={(value) => onSettingsChange({ brightnessThreshold: value[0] })}
                                 disabled={disabled}
                             />
-                            <p className="text-xs text-gray-400">Controls density influence for grayscale/posterize paths.</p>
                         </div>
                     )}
 
@@ -55,7 +54,7 @@ export default function VectorGenerationSettings({ settings, onSettingsChange, d
                             Continuous Paths
                             <Tooltip>
                                 <TooltipTrigger>
-                                    <Info className="h-4 w-4 text-gray-400" />
+                                    <Info className="h-4 w-4 text-gray-300" />
                                 </TooltipTrigger>
                                 <TooltipContent>
                                     <p className="max-w-xs">
@@ -80,7 +79,7 @@ export default function VectorGenerationSettings({ settings, onSettingsChange, d
                                 </Label>
                                 <Tooltip>
                                     <TooltipTrigger>
-                                        <Info className="h-4 w-4 text-gray-400" />
+                                        <Info className="h-4 w-4 text-gray-300" />
                                     </TooltipTrigger>
                                     <TooltipContent>
                                         <p className="max-w-xs">
