@@ -5,6 +5,7 @@ import { Loader, Upload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import SvgDownloadOptions from "@/components/svg-download-options"
 import type { ImageData } from "@/lib/types"
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 interface PreviewProps {
   originalImage: string
@@ -31,7 +32,7 @@ const Preview = memo(function Preview({
       processedSvg = processedSvg.replace(/(width|height)=\"([^\"]*?\\s*mm)\"/g, '');
 
       // Add styling to ensure SVGs are properly scaled and have rounded corners
-      const enhancedSvgContent = processedSvg.replace('<svg ', '<svg style="shape-rendering: geometricPrecision; stroke-linejoin: round; stroke-linecap: round; max-width: 100%; max-height: 75vh; width: auto; height: auto;" ');
+      const enhancedSvgContent = processedSvg.replace('<svg ', '<svg style="shape-rendering: geometricPrecision; stroke-linejoin: round; stroke-linecap: round;" ');
 
       if (svgContainerRef.current) {
         svgContainerRef.current.innerHTML = enhancedSvgContent;
@@ -62,11 +63,19 @@ const Preview = memo(function Preview({
                   <p className="text-gray-300">Processing image...</p>
                 </div>
               ) : svgContent ? (
-                <div className="relative w-full">
-                  <div ref={svgContainerRef} className="w-full flex items-center justify-center bg-[#f1f1f1] max-h-[75vh] overflow-auto rounded-lg" >
-                  </div>
-                  {/* TODO add a slider to zoom in and out */}
-                </div>
+                <TransformWrapper
+                  initialScale={1}
+                  minScale={0.5}
+                  maxScale={3}
+                >
+                  <TransformComponent
+                    wrapperStyle={{ width: "100%", maxHeight: "75vh" }}
+                    contentStyle={{ width: "100%", height: "100%" }}
+                  >
+                    <div ref={svgContainerRef} className="w-full flex items-center justify-center bg-[#f1f1f1] max-h-[75vh] overflow-auto rounded-xl" >
+                    </div>
+                  </TransformComponent>
+                </TransformWrapper>
               ) : (
                 <p className="text-gray-300">Vector preview will appear here</p>
               )}
@@ -89,12 +98,14 @@ export const ImageThumbnail = memo(function ImageThumbnail({
   originalImage,
   processedData,
   onNewImageUpload,
-  svgContentPreview
+  svgContentPreview,
+  toggleSettingsPanel
 }: {
   originalImage: string
   processedData: ImageData | null
   onNewImageUpload: () => void
   svgContentPreview?: string | null
+  toggleSettingsPanel: () => void
 }) {
   const svgPreviewContainerRef = useRef<HTMLDivElement>(null);
 
@@ -104,7 +115,7 @@ export const ImageThumbnail = memo(function ImageThumbnail({
       let processedMiniSvg = svgContentPreview.replace(/(width|height)=\"([^\"]*?\\s*mm)\"/g, '');
       processedMiniSvg = processedMiniSvg.replace(
         '<svg ',
-        '<svg style="max-width: 100%; max-height: 100%; width: auto; height: auto; shape-rendering: geometricPrecision;" '
+        '<svg style="max-width: 100%; max-height: 100%; width: auto; height: auto; shape-rendering: geometricPrecision; stroke-linejoin: round; stroke-linecap: round; stroke-width: 0.1px; zoom: 0.5;" '
       );
       svgPreviewContainerRef.current.innerHTML = processedMiniSvg;
     }
@@ -119,7 +130,7 @@ export const ImageThumbnail = memo(function ImageThumbnail({
           <div className="  absolute top-2 right-2  ">
             <Button
               onClick={onNewImageUpload}
-              className="h-7 w-7 md:h-8 md:w-8 p-0 rounded-full bg-gray-700/30 hover:bg-gray-600"
+              className="h-7 w-7 md:h-8 md:w-8 p-0 !bg-transparent hover:text-red-500"
               size="sm"
               title="Upload new image"
             >
@@ -144,9 +155,9 @@ export const ImageThumbnail = memo(function ImageThumbnail({
 
         {/* Mini SVG Preview Section (only on mobile/when svgContentPreview is present) */}
         {svgContentPreview && (
-          <div className="flex-1  lg:hidden border border-gray-700 rounded-2xl overflow-hidden p-2 relative ">
+          <div className="flex-1  lg:hidden border border-gray-700 rounded-2xl overflow-hidden p-2 relative " onClick={toggleSettingsPanel}>
             <h3 className="text-base md:text-lg font-medium mb-1 md:mb-2 text-center">Preview</h3>
-            <div ref={svgPreviewContainerRef} className="aspect-square bg-[#f1f1f1] rounded-lg overflow-hidden flex items-center justify-center max-h-40  mx-auto">
+            <div ref={svgPreviewContainerRef} className="aspect-square bg-[#f1f1f1] rounded-lg overflow-hidden flex items-center justify-center max-h-40  mx-auto p-1">
               {/* Mini SVG will be injected here */}
             </div>
             {/* Optional: Add tile info for preview if needed */}

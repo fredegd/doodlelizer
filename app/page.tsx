@@ -91,13 +91,13 @@ export default function Home() {
 
   const handleManualImageUpload = (imageDataUrl: string) => {
     setOriginalImage(imageDataUrl)
-    // setIsSettingsPanelVisible(true)
+
     setShowRandomImageLoader(false)
   }
 
   const handleImageSelectedFromRandomLoader = (imageUrl: string) => {
     setOriginalImage(imageUrl)
-    // setIsSettingsPanelVisible(true)
+
     setShowRandomImageLoader(false)
   }
 
@@ -290,7 +290,7 @@ export default function Home() {
           {!showRandomImageLoader && originalImage && (<>
             <div className={`
               ${isSettingsPanelVisible ? 'block' : 'hidden lg:block'}
-              ${isSettingsPanelVisible ? 'fixed right-0 top-0 bottom-0 w-full  z-50  overflow-y-auto md:p-4 p-0 lg:shadow-lg lg:shadow-black/50 transition-all duration-300 ease-in-out     bg-gray-700/30 backdrop-blur rounded-lg' : ''}
+              ${isSettingsPanelVisible ? 'fixed right-0 top-0 bottom-0 w-full  z-50  overflow-y-auto md:p-4 p-0 transition-all duration-300 ease-in-out     bg-gray-700/30 backdrop-blur rounded-lg' : ''}
               lg:static lg:z-auto lg:overflow-visible lg:p-0 lg:space-y-6 lg:w-auto lg:shadow-none no-scrollbar
             `}
             >
@@ -303,6 +303,7 @@ export default function Home() {
                     processedData={processedData}
                     onNewImageUpload={handleNewImageUpload}
                     svgContentPreview={svgContent}
+                    toggleSettingsPanel={toggleSettingsPanel}
                   />
                 )}
                 <TooltipProvider>
