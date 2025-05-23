@@ -19,6 +19,7 @@ export const metadata: Metadata = {
         url: 'https://Squigglify.vercel.app/og-image.png',
         width: 1200,
         height: 630,
+        alt: 'Squigglify - Image to SVG Converter',
       },
     ],
     locale: 'en-US',
@@ -29,7 +30,8 @@ export const metadata: Metadata = {
     title: 'Squigglify',
     description: 'an image to SVG converter',
     images: ['https://Squigglify.vercel.app/og-image.png'],
-    creator: '@Squigglify',
+    creator: '@tapiwohb',
+    site: 'https://quigglify.vercel.app',
   },
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#ffffff' },
