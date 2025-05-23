@@ -66,13 +66,13 @@ const Preview = memo(function Preview({
                 <TransformWrapper
                   initialScale={1}
                   minScale={0.5}
-                  maxScale={3}
+                  maxScale={8}
                 >
                   <TransformComponent
                     wrapperStyle={{ width: "100%", maxHeight: "75vh" }}
                     contentStyle={{ width: "100%", height: "100%" }}
                   >
-                    <div ref={svgContainerRef} className="w-full flex items-center justify-center bg-[#f1f1f1] max-h-[75vh] overflow-auto rounded-xl" >
+                    <div ref={svgContainerRef} className="w-full flex items-center justify-center bg-[#f1f1f1] max-h-[75vh] overflow-auto rounded-xl p-1" >
                     </div>
                   </TransformComponent>
                 </TransformWrapper>
