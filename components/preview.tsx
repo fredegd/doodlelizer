@@ -21,69 +21,41 @@ const Preview = memo(function Preview({
   processedData,
 }: PreviewProps) {
   const svgContainerRef = useRef<HTMLDivElement>(null)
-  const fullscreenSvgContainerRef = useRef<HTMLDivElement>(null)
-  const [fullscreen, setFullscreen] = useState(false)
+  const [zoomLevel, setZoomLevel] = useState(0.55);
 
   useEffect(() => {
     if (svgContent) {
-      // Process SVG content to fix unit issues and ensure proper scaling
-      let processedSvg = svgContent;
+      let processedSvgString = svgContent;
+      processedSvgString = processedSvgString.replace(/(width|height)=\"([^\"]*?\\s*mm)\"/g, '');
 
-      // Remove or fix problematic width/height with mm units
-      processedSvg = processedSvg.replace(/(width|height)=\"([^\"]*?\s*mm)\"/g, '');
+      const parser = new DOMParser();
 
-      // Add styling to ensure SVGs are properly scaled and have rounded corners
-      const enhancedSvgContent = processedSvg.replace('<svg ', '<svg style="shape-rendering: geometricPrecision; stroke-linejoin: round; stroke-linecap: round; max-width: 100%; max-height: 75vh; width: auto; height: auto;" ');
-
+      // Main preview SVG
       if (svgContainerRef.current) {
-        svgContainerRef.current.innerHTML = enhancedSvgContent;
-      }
-
-      if (fullscreenSvgContainerRef.current && fullscreen) {
         try {
-          // Create a safer version of the SVG for fullscreen mode
-          const parser = new DOMParser();
-          const svgDoc = parser.parseFromString(processedSvg, 'image/svg+xml');
+          const svgDoc = parser.parseFromString(processedSvgString, 'image/svg+xml');
           const svgElement = svgDoc.documentElement;
 
-          // Remove problematic attributes if they still exist
           svgElement.removeAttribute('width');
           svgElement.removeAttribute('height');
+          svgElement.style.cssText = `shape-rendering: geometricPrecision; stroke-linejoin: round; stroke-linecap: round; display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; transform: scale(${zoomLevel}); transform-origin: center center;`;
 
-          // Apply styles directly to the SVG element
-          svgElement.setAttribute('style', 'shape-rendering: geometricPrecision; stroke-linejoin: round; stroke-linecap: round; max-width: 90%; max-height: 90%;');
-
-          // Clear container and append the new SVG
-          fullscreenSvgContainerRef.current.innerHTML = '';
-          fullscreenSvgContainerRef.current.appendChild(svgElement);
-          fullscreenSvgContainerRef.current.style.backgroundColor = '#f1f1f1     ';
+          svgContainerRef.current.innerHTML = ''; // Clear previous content
+          svgContainerRef.current.appendChild(svgElement);
         } catch (error) {
-          console.error('Error rendering fullscreen SVG:', error);
+          console.error('Error rendering main preview SVG:', error);
+          svgContainerRef.current.innerHTML = '<p class="text-red-500">Error rendering SVG</p>';
         }
       }
+    } else {
+      if (svgContainerRef.current) {
+        svgContainerRef.current.innerHTML = '';
+      }
     }
-  }, [svgContent, fullscreen])
+  }, [svgContent, zoomLevel]);
 
   return (
     <>
-      {fullscreen && svgContent && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
-          <Button
-            onClick={() => setFullscreen(false)}
-            className="absolute top-4 right-4 h-8 w-8 p-0 rounded-full bg-gray-800 hover:bg-gray-700"
-            size="sm"
-            title="Close fullscreen"
-          >
-            <X className="h-5 w-5" />
-          </Button>
-
-          <div
-            ref={fullscreenSvgContainerRef}
-            className="w-full h-full flex items-center justify-center  p-8 overflow-y-scroll"
-          >
-          </div>
-        </div>
-      )}
       <div className="relative h-full">
         <div className="space-y-4 sticky top-0 max-h-screen  flex flex-col ">
           <div className="bg-gray-800 rounded-lg p-4 flex-1 relative">
@@ -111,17 +83,22 @@ const Preview = memo(function Preview({
                 </div>
               ) : svgContent ? (
                 <div className="relative w-full">
-                  <div ref={svgContainerRef} className="w-full flex items-center justify-center bg-[#f1f1f1] max-h-[75vh] overflow-auto rounded-lg" >
+                  <div ref={svgContainerRef} className="w-full flex items-center justify-center bg-[#f1f1f1] max-h-[75vh] object-cover overflow-auto touch-auto rounded-lg no-scrollbar" >
                   </div>
-                  {/* TODO add a slider to zoom in and out */}
-                  <Button
-                    onClick={() => setFullscreen(true)}
-                    className="absolute bottom-2 right-2 h-8 w-8 p-0 rounded-full bg-gray-700 hover:bg-gray-600"
-                    size="sm"
-                    title="Fullscreen view"
-                  >
-                    <Maximize2 className="h-4 w-4" />
-                  </Button>
+                  {/* Zoom Slider */}
+                  <div className="mt-3 px-1">
+                    <input
+                      type="range"
+                      min="0.5"
+                      max="5"
+                      step="0.05"
+                      value={zoomLevel}
+                      onChange={(e) => setZoomLevel(parseFloat(e.target.value))}
+                      className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-sky-500"
+                      title={`Zoom: ${zoomLevel.toFixed(2)}x`}
+                    />
+                    <div className="text-center text-xs text-gray-400 mt-1">{zoomLevel.toFixed(2)}x Zoom</div>
+                  </div>
                 </div>
               ) : (
                 <p className="text-gray-300">Vector preview will appear here</p>
@@ -151,7 +128,7 @@ export const ImageThumbnail = memo(function ImageThumbnail({
   useEffect(() => {
     if (svgContentPreview && svgPreviewContainerRef.current) {
       // Basic styling for the mini SVG preview
-      let processedMiniSvg = svgContentPreview.replace(/(width|height)=\"([^\"]*?\s*mm)\"/g, '');
+      let processedMiniSvg = svgContentPreview.replace(/(width|height)=\"([^\"]*?\\s*mm)\"/g, '');
       processedMiniSvg = processedMiniSvg.replace(
         '<svg ',
         '<svg style="max-width: 100%; max-height: 100%; width: auto; height: auto; shape-rendering: geometricPrecision;" '
