@@ -6,11 +6,11 @@ A powerful web-based tool to convert images into SVG vector graphics with custom
 
 ## Live Demo
 
-Visit the live application at: [https://image2svg.vercel.app/](https://image2svg.vercel.app/)
+Visit the live application at: [https://squigglify.vercel.app/](https://squigglify.vercel.app/)
 
 ## Overview
 
-Squigglify transforms regular bitmap images into path-based SVG graphics using wave-like patterns. The application creates visually distinctive vector drawings that are optimized for pen plotters, CNC machines, and laser cutters, while also providing beautiful artistic renderings for digital and print media.
+this App transforms regular images into path-based SVG graphics using wave-like patterns. The application creates visually distinctive vector drawings that are optimized for pen plotters, CNC machines, and laser cutters, while also providing beautiful artistic renderings for digital and print media.
 
 ### Key Features
 

@@ -216,24 +216,24 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gray-900 text-gray-100 md:p-4 p-8">
       <div className="max-w-7xl mx-auto">
-        <header className="mb-8 text-center flex justify-between items-center">
+        <header className="mb-8 h-12 text-center flex justify-between items-center fixed top-0 left-0 right-0 z-50 bg-gray-900/70 backdrop-blur rounded-lg md:p-4 p-8">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">Squigglify</h1>
           {originalImage && !showRandomImageLoader && !isSettingsPanelVisible && (
-            <div className="mb-4 flex lg:hidden justify-end">
-              <Button
-                // variant="ghost"
-                size="icon"
-                onClick={toggleSettingsPanel}
-                aria-label="Toggle settings panel"
-                className="h-8 w-8 p-0 rounded-full bg-gray-700 hover:bg-gray-600"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-menu">
-                  <line x1="3" y1="12" x2="21" y2="12"></line>
-                  <line x1="3" y1="6" x2="21" y2="6"></line>
-                  <line x1="3" y1="18" x2="21" y2="18"></line>
-                </svg>
-              </Button>
-            </div>
+
+            <Button
+              // variant="ghost"
+              size="icon"
+              onClick={toggleSettingsPanel}
+              aria-label="Toggle settings panel"
+              className="h-8 w-8 p-0 rounded-full bg-gray-700 hover:bg-gray-600 lg:hidden"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-menu">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            </Button>
+
           )}
         </header>
 

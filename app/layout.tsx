@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'image2svg',
+  title: 'Squigglify',
   description: 'an image to SVG converter',
   icons: {
     icon: '/favicon.ico',
@@ -10,13 +10,13 @@ export const metadata: Metadata = {
     apple: '/apple-touch-icon.png',
   },
   openGraph: {
-    title: 'image2svg',
+    title: 'Squigglify',
     description: 'an image to SVG converter',
-    url: 'https://image2svg.vercel.app',
-    siteName: 'image2svg',
+    url: 'https://Squigglify.vercel.app',
+    siteName: 'Squigglify',
     images: [
       {
-        url: 'https://image2svg.vercel.app/og-image.png',
+        url: 'https://Squigglify.vercel.app/og-image.png',
         width: 1200,
         height: 630,
       },
@@ -26,10 +26,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'image2svg',
+    title: 'Squigglify',
     description: 'an image to SVG converter',
-    images: ['https://image2svg.vercel.app/og-image.png'],
-    creator: '@image2svg',
+    images: ['https://Squigglify.vercel.app/og-image.png'],
+    creator: '@Squigglify',
   },
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#ffffff' },
