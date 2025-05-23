@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { processImage, generateSVG } from "@/lib/image-processor"
 import type { ImageData, Settings } from "@/lib/types"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { Menu } from "lucide-react"
 
 export default function Home() {
   const [originalImage, setOriginalImage] = useState<string | null>("https://upload.wikimedia.org/wikipedia/commons/b/bd/La_Gioconda%2C_Leonardo_Da_Vinci.jpg")
@@ -220,19 +221,17 @@ export default function Home() {
           <h1 className="text-3xl md:text-4xl font-bold mb-2">Squigglify</h1>
           {originalImage && !showRandomImageLoader && !isSettingsPanelVisible && (
 
-            <Button
-              // variant="ghost"
-              size="icon"
-              onClick={toggleSettingsPanel}
-              aria-label="Toggle settings panel"
-              className="h-8 w-8 p-0 rounded-full bg-gray-700 hover:bg-gray-600 lg:hidden"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-menu">
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-              </svg>
-            </Button>
+            <div className="fixed top-2 right-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleSettingsPanel}
+                aria-label="Toggle settings panel"
+                className=" p-0  !bg-transparent   hover:text-red-500  lg:hidden"
+              >
+                <Menu className="h-8 w-8" />
+              </Button>
+            </div>
 
           )}
         </header>
@@ -320,13 +319,13 @@ export default function Home() {
             </div>
             {/* Close button - only visible on mobile, moved outside panel scroll for correct fixed behavior */}
             {isSettingsPanelVisible && (
-              <div className="fixed top-4 right-4 z-[51] lg:hidden">
+              <div className="fixed top-3 right-4 z-[51] lg:hidden">
                 <Button
                   // variant="ghost"
                   size="icon"
                   onClick={toggleSettingsPanel}
                   aria-label="Close settings panel"
-                  className="h-8 w-8 p-0 rounded-full bg-gray-700 hover:bg-gray-600"
+                  className="h-8 w-8 p-0 hover:text-red-500 !bg-transparent"
 
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-x">

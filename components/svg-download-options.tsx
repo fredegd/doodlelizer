@@ -112,7 +112,7 @@ export default function SvgDownloadOptions({
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button className=" text-lg h-8 w-8 p-0 rounded-full bg-gray-700 hover:bg-gray-600" disabled={isProcessing || isDownloading} variant="ghost">
+                <Button className=" text-lg h-8 w-8 p-0 rounded-full !bg-transparent hover:text-red-400" disabled={isProcessing || isDownloading} >
                     <Download className="h-6 w-6" />
                 </Button>
             </DropdownMenuTrigger>

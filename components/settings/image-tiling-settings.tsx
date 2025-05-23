@@ -26,7 +26,7 @@ export default function ImageTilingSettings({ settings, onSettingsChange, disabl
                     <Slider
                         id="columnsCount-setting"
                         min={1}
-                        max={180}
+                        max={128}
                         step={1}
                         value={[settings.columnsCount]}
                         onValueChange={(value) => onSettingsChange({ columnsCount: value[0] })}
@@ -42,7 +42,7 @@ export default function ImageTilingSettings({ settings, onSettingsChange, disabl
                     <Slider
                         id="rowsCount-setting"
                         min={1}
-                        max={200}
+                        max={128}
                         step={1}
                         value={[settings.rowsCount]}
                         onValueChange={(value) => onSettingsChange({ rowsCount: value[0] })}
