@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { RotateCcw, Info, ChevronDown } from "lucide-react"
 import type { Settings, CurveControlSettings, ImageData as ProcessedDataType } from "@/lib/types"
 import { DEFAULT_CURVE_CONTROLS } from "@/lib/types"
-import { useMemo } from "react"
+import { useMemo, useEffect } from "react"
 
 import ProcessingModeSettings from "./settings/processing-mode-settings"
 import ImageTilingSettings from "./settings/image-tiling-settings"
@@ -41,6 +41,15 @@ export default function SettingsPanel({
     tileWidth = tileWidth % 2 === 0 ? tileWidth : tileWidth - 1;
     return tileWidth * 2;
   }, [settings.columnsCount]);
+
+  useEffect(() => {
+    if (settings.maxDensity > calculatedDensity) {
+      onSettingsChange({ maxDensity: calculatedDensity });
+    }
+    if (settings.minDensity > calculatedDensity) {
+      onSettingsChange({ minDensity: calculatedDensity });
+    }
+  }, [calculatedDensity, settings.maxDensity, settings.minDensity, onSettingsChange]);
 
   const resetAdvancedCurveControlsToDefaults = () => {
     onCurveControlsChange(DEFAULT_CURVE_CONTROLS);
