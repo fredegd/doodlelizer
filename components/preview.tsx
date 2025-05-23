@@ -111,8 +111,9 @@ const Preview = memo(function Preview({
                 </div>
               ) : svgContent ? (
                 <div className="relative w-full">
-                  <div ref={svgContainerRef} className="w-full flex items-center justify-center bg-[#f1f1f1] max-h-[75vh] overflow-hidden" >
+                  <div ref={svgContainerRef} className="w-full flex items-center justify-center bg-[#f1f1f1] max-h-[75vh] overflow-auto rounded-lg" >
                   </div>
+                  {/* TODO add a slider to zoom in and out */}
                   <Button
                     onClick={() => setFullscreen(true)}
                     className="absolute bottom-2 right-2 h-8 w-8 p-0 rounded-full bg-gray-700 hover:bg-gray-600"

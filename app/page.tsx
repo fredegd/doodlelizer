@@ -214,9 +214,9 @@ export default function Home() {
   }
 
   return (
-    <main className="h-screen bg-gray-900 text-gray-100  p-0  no-scrollbar">
-      <div className="max-w-7xl mx-auto h-full overflow-y-auto pt-16 lg:pt-20 no-scrollbar">
-        <header className="h-16 text-center flex justify-between items-center fixed top-0 left-0 right-0 z-50 bg-gray-900/70 backdrop-blur rounded-lg p-4">
+    <main className="h-screen bg-gray-800 text-gray-100  p-0  no-scrollbar">
+      <div className="max-w-7xl mx-auto h-full overflow-y-auto pt-20 no-scrollbar">
+        <header className="h-20 text-center flex justify-between items-center fixed top-0 left-0 right-0 z-50  rounded-lg p-4">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">Squigglify</h1>
           {originalImage && !showRandomImageLoader && !isSettingsPanelVisible && (
 
