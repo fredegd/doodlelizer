@@ -118,7 +118,7 @@ export const ImageThumbnail = memo(function ImageThumbnail({
       let processedMiniSvg = svgContentPreview.replace(/(width|height)=\"([^\"]*?\\s*mm)\"/g, '');
       processedMiniSvg = processedMiniSvg.replace(
         '<svg ',
-        '<svg style="max-width: 100%; max-height: 100%; width: auto; height: auto; shape-rendering: geometricPrecision; stroke-linejoin: round; stroke-linecap: round; stroke-width: 0.1px; zoom: 0.25;" '
+        '<svg style="max-width: 100%; max-height: 100%; width: auto; height: auto; shape-rendering: geometricPrecision; stroke-linejoin: round; stroke-linecap: round;  zoom: 0.2;" '
       );
       svgPreviewContainerRef.current.innerHTML = processedMiniSvg;
     }
