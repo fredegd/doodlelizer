@@ -91,7 +91,7 @@ export default function VectorGenerationSettings({ settings, onSettingsChange, d
                             <Slider
                                 id="pathDistanceThreshold-setting"
                                 min={1}
-                                max={50} // Adjust max as needed
+                                max={140}
                                 step={1}
                                 value={[settings.pathDistanceThreshold]}
                                 onValueChange={(value) => onSettingsChange({ pathDistanceThreshold: value[0] })}
