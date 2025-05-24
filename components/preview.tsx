@@ -46,7 +46,7 @@ const Preview = memo(function Preview({
         <div className="space-y-4 sticky top-0 max-h-screen  flex flex-col ">
           <div className="flex-1 lg:w-full  border border-gray-700 rounded-2xl overflow-hidden p-2 relative">
             <h3 className="text-lg font-medium  text-center mb-2">Vector Output</h3>
-            <div className=" absolute top-2 lg:right-2 right-4  ">
+            <div className=" absolute lg:top-auto bottom-2 lg:right-2 right-4  ">
               {svgContent && (
                 <SvgDownloadOptions
                   svgContent={svgContent}
@@ -80,8 +80,11 @@ const Preview = memo(function Preview({
                 <p className="text-gray-300">Vector preview will appear here</p>
               )}
             </div>
+            {/* here we need to add information about the processing mode */}
+            {/* here we need to add information about the pattern density (min and max) */}
+            {/* here we need to add information about the output size */}
             {processedData && (
-              <div className="mb-2 text-center text-xs text-gray-300">
+              <div className="my-2 text-center text-xs text-gray-300">
                 {processedData.width} ×{" "}
                 {processedData.height} tiles
               </div>
@@ -115,7 +118,7 @@ export const ImageThumbnail = memo(function ImageThumbnail({
       let processedMiniSvg = svgContentPreview.replace(/(width|height)=\"([^\"]*?\\s*mm)\"/g, '');
       processedMiniSvg = processedMiniSvg.replace(
         '<svg ',
-        '<svg style="max-width: 100%; max-height: 100%; width: auto; height: auto; shape-rendering: geometricPrecision; stroke-linejoin: round; stroke-linecap: round; stroke-width: 0.1px; zoom: 0.5;" '
+        '<svg style="max-width: 100%; max-height: 100%; width: auto; height: auto; shape-rendering: geometricPrecision; stroke-linejoin: round; stroke-linecap: round; stroke-width: 0.1px; zoom: 0.25;" '
       );
       svgPreviewContainerRef.current.innerHTML = processedMiniSvg;
     }
