@@ -257,15 +257,18 @@ export default function Home() {
         <div className={`grid grid-cols-1 ${(originalImage && !showRandomImageLoader) ? 'lg:grid-cols-4' : ''} gap-6 relative`}>
           <div className={`${(originalImage && !showRandomImageLoader) ? 'lg:col-span-3' : 'col-span-1'} h-full relative`}>
             {showRandomImageLoader && (
-              <div className="space-y-8">
+              <div className={`flex flex-col w-full  gap-8 ${originalImage ? 'lg:flex-col' : 'lg:flex-row'} justify-center items-center mb-12`}>
+
+
+                <ImageUploader onImageUpload={handleManualImageUpload} />
+                <div className="w-full text-center lg:hidden">
+                  <p className="text-gray-300 text-sm mb-2">Otherwhise</p>
+                </div>
                 <RandomImageLoader
                   onImageSelected={handleImageSelectedFromRandomLoader}
                   onCancel={handleCancelRandomImageLoad}
                 />
-                <div className="text-center my-4 pt-4 border-t border-gray-700">
-                  <p className="text-gray-300 text-sm mb-2">Alternatively, upload your own image:</p>
-                  <ImageUploader onImageUpload={handleManualImageUpload} />
-                </div>
+
               </div>
             )}
 

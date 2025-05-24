@@ -68,46 +68,61 @@ async function fetchAndValidateImage(): Promise<{ imageUrl: string, sourceUrl: s
 }
 
 const RandomImageLoader: React.FC<RandomImageLoaderProps> = ({ onImageSelected, onCancel }) => {
+    const [isActive, setIsActive] = useState(false);
     const [currentImage, setCurrentImage] = useState<{ imageUrl: string, sourceUrl: string, title: string } | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [retries, setRetries] = useState(0);
 
-    const attemptLoadImage = useCallback(async (isInitialAttempt: boolean) => {
+    const attemptLoadImage = useCallback(async (isInitialAttempt: boolean, currentRetryCount: number) => {
         setIsLoading(true);
-        if (isInitialAttempt) { // Clear previous errors only on a fresh user-initiated attempt or very first load
+        if (isInitialAttempt) {
             setError(null);
         }
 
         try {
             const imageData = await fetchAndValidateImage();
             setCurrentImage(imageData);
-            setError(null); // Clear any previous error on success
-            setRetries(0); // Reset retries on successful load
+            setError(null);
+            setRetries(0);
         } catch (err) {
             console.error("Error loading image:", err);
-            if (retries < MAX_RETRIES - 1) { // Check retries before incrementing for the next attempt
-                setRetries(prev => prev + 1); // Increment retries, useEffect will trigger next attempt
-                // Error is not set yet, to allow retries. It will be set if all retries fail.
+            if (currentRetryCount < MAX_RETRIES - 1) {
+                setRetries(prev => prev + 1);
             } else {
-                // All retries exhausted
                 setError(err instanceof Error ? err.message : 'An unknown error occurred after multiple retries.');
             }
         } finally {
             setIsLoading(false);
         }
-    }, [retries]); // Depends on retries to manage the retry count and re-create the function if retries changes.
+    }, [setCurrentImage, setError, setRetries, setIsLoading]);
 
-    // Effect for initial load and automatic retries
     useEffect(() => {
-        if (!currentImage && retries < MAX_RETRIES && !error) { // If no image, within retry limit, and no persistent error
-            const delay = retries === 0 ? 0 : 1000 * retries; // No delay for first attempt, increasing delay for retries
-            const timer = setTimeout(() => {
-                attemptLoadImage(retries === 0); // isInitialAttempt is true only if retries is 0
-            }, delay);
-            return () => clearTimeout(timer);
+        if (isActive) {
+            if (!currentImage && retries < MAX_RETRIES && !error) {
+                setIsLoading(true);
+                const isInitialForThisActivation = (retries === 0);
+                const delay = retries === 0 ? 0 : 1000 * retries;
+                const timer = setTimeout(() => {
+                    attemptLoadImage(isInitialForThisActivation, retries);
+                }, delay);
+                return () => clearTimeout(timer);
+            }
+        } else {
+            setCurrentImage(null);
+            setError(null);
+            setRetries(0);
+            setIsLoading(false);
         }
-    }, [retries, currentImage, error, attemptLoadImage]);
+    }, [isActive, currentImage, retries, error, attemptLoadImage]);
+
+    const handleActivateAndLoad = () => {
+        setCurrentImage(null);
+        setError(null);
+        setRetries(0);
+        setIsActive(true);
+        setIsLoading(true);
+    };
 
     const handleUseThisImage = () => {
         if (currentImage) {
@@ -115,13 +130,30 @@ const RandomImageLoader: React.FC<RandomImageLoaderProps> = ({ onImageSelected, 
         }
     };
 
-    const handleLoadAnotherImage = () => {
-        setCurrentImage(null); // Clear current image
-        setRetries(0);       // Reset retries to start fresh
-        setError(null);      // Clear any existing error
-        setIsLoading(true);  // Set loading state immediately
-        // The useEffect will pick up the reset 'retries' and 'currentImage' and call attemptLoadImage(true)
+    const handleReloadImage = () => {
+        setCurrentImage(null);
+        setRetries(0);
+        setError(null);
+        setIsLoading(true);
     };
+
+    if (!isActive) {
+        return (
+            <div className="flex flex-col items-center justify-center h-96 min-h-[300px] border border-dashed border-gray-600 rounded-lg p-8 bg-gray-800 text-gray-300">
+                <Info size={48} className="mb-4 text-blue-400" />
+                <p className="text-xl mb-4 text-center">Load a random image from Wikimedia Commons?</p>
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 mb-4">
+                    <Button onClick={handleActivateAndLoad} variant="default">
+                        Load Random Image
+                    </Button>
+                    <Button onClick={onCancel} variant="secondary">
+                        Cancel
+                    </Button>
+                </div>
+                <p className="text-xs text-gray-500">Alternatively, upload an image manually or use other options.</p>
+            </div>
+        );
+    }
 
     if (isLoading && !currentImage) {
         return (
@@ -141,7 +173,7 @@ const RandomImageLoader: React.FC<RandomImageLoaderProps> = ({ onImageSelected, 
                 <p className="text-xl font-semibold mb-2">Oops! Failed to load an image.</p>
                 <p className="text-sm mb-4 text-center max-w-md">{error}</p>
                 <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-                    <Button onClick={handleLoadAnotherImage} variant="default">Try Again</Button>
+                    <Button onClick={handleReloadImage} variant="default">Try Again</Button>
                     <Button onClick={onCancel} variant="secondary">Cancel</Button>
                 </div>
             </div>
@@ -150,35 +182,39 @@ const RandomImageLoader: React.FC<RandomImageLoaderProps> = ({ onImageSelected, 
 
     if (currentImage) {
         return (
-            <div className="flex flex-col items-center p-4 sm:p-6 border border-gray-700 rounded-lg bg-gray-800 shadow-lg">
-                <div className="mb-4 w-full max-w-lg  bg-gray-700 rounded overflow-hidden flex items-center justify-center shadow-md">
+            <div className="flex flex-col  items-center max-w-md  p-4 sm:p-6 border border-gray-700 rounded-lg bg-gray-800 shadow-lg ">
+                <div className="mb-4 w-full max-w-md  bg-gray-700 rounded overflow-hidden flex items-center justify-center shadow-md">
                     <img
                         src={currentImage.imageUrl}
                         alt={currentImage.title || 'Random Wikimedia Image'}
                         className="max-w-full max-h-[40vh] sm:max-h-[50vh] object-contain"
                         onError={() => {
-                            // This is a fallback if the image URL itself is broken after all checks
                             setError("The image could not be loaded from the source. It might be invalid or removed.");
                             setCurrentImage(null);
-                            setRetries(MAX_RETRIES); // Prevent further retries for this image
+                            setRetries(MAX_RETRIES);
                         }}
                     />
                 </div>
-                <p className="text-sm text-gray-300 mb-1 max-w-full truncate" title={currentImage.title}>
+                <p className="text-sm text-gray-300 mb-1 max-w-full truncate text-center text-wrap" title={currentImage.title}>
                     Title: <span className="font-medium text-gray-300">{currentImage.title}</span>
                 </p>
                 <a href={currentImage.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-400 hover:text-blue-300 hover:underline mb-6">
                     View source on Wikimedia Commons
                 </a>
-                <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3">
-                    <Button onClick={handleUseThisImage} variant="outline" className="border-gray-500 text-black hover:bg-gray-500 hover:text-white">
+                <div className="flex justify-between gap-3">
+                    <Button onClick={handleUseThisImage}
+
+                        className="border-gray-500 bg-transparent hover:bg-gray-500 w-1/3">
                         Use this Image
                     </Button>
-                    <Button onClick={handleLoadAnotherImage} variant="outline" className="border-gray-500 text-black hover:bg-gray-500 hover:text-white">
+                    <Button onClick={handleReloadImage}
+
+                        className="border-gray-500 bg-transparent hover:bg-gray-500 w-1/3">
                         Reload
                         <RotateCcw className="h-4 w-4" />
                     </Button>
-                    <Button onClick={onCancel} variant="ghost" className="text-black border border-red-500 bg-red-400 hover:bg-red-500 hover:text-white">
+                    <Button onClick={onCancel}
+                        className="border-gray-500 bg-transparent hover:bg-gray-500 w-1/3">
                         Cancel
                     </Button>
                 </div>
@@ -186,7 +222,6 @@ const RandomImageLoader: React.FC<RandomImageLoaderProps> = ({ onImageSelected, 
         );
     }
 
-    // Fallback UI for unexpected state, offer cancel
     return (
         <div className="flex flex-col items-center justify-center h-96 border border-dashed border-gray-600 rounded-lg p-8 bg-gray-800 text-gray-300">
             <p className="mb-2">An unexpected issue occurred with the random image loader.</p>

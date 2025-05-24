@@ -8,11 +8,10 @@ import type { ImageData } from "@/lib/types"
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 interface PreviewProps {
-  originalImage: string
   svgContent: string | null
   isProcessing: boolean
   processedData: ImageData | null
-  onNewImageUpload: () => void
+
 }
 
 // Use memo to prevent unnecessary re-renders
@@ -69,7 +68,7 @@ const Preview = memo(function Preview({
                   maxScale={8}
                 >
                   <TransformComponent
-                    wrapperStyle={{ width: "100%", maxHeight: "75vh" }}
+                    wrapperStyle={{ width: "100%", maxHeight: "75vh", backgroundColor: '#f1f1f1', borderRadius: '12px' }}
                     contentStyle={{ width: "100%", height: "100%" }}
                   >
                     <div ref={svgContainerRef} className="w-full flex items-center justify-center bg-[#f1f1f1] max-h-[75vh] overflow-auto rounded-xl p-1" >

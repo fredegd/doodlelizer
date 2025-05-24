@@ -63,7 +63,7 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
 
   return (
     <div
-      className={`border-2 border-dashed rounded-lg p-12 flex flex-col items-center justify-center h-96 transition-colors ${isDragging ? "border-primary bg-primary/10" : "border-gray-700 hover:border-gray-500"
+      className={`border-2 border-dashed rounded-lg p-12 flex flex-col items-center justify-center h-96 transition-colors ${isDragging ? "border-primary bg-primary/40" : "border-gray-700 hover:border-gray-500 max-h-64 w-full max-w-lg"
         }`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
