@@ -234,6 +234,7 @@ function createPathFromVertices(
   let pathData = "";
   const smoothness = curveControls?.junctionContinuityFactor || 0.1;
   const handleRotationAngle = curveControls?.handleRotationAngle || 0; // Degrees
+  const strokeWidth = curveControls?.strokeWidth || 1; // Get strokeWidth
 
   if (useCurvedPaths) {
     // Use the curve algorithm
@@ -243,7 +244,7 @@ function createPathFromVertices(
     pathData = convertToLinePath(vertices);
   }
 
-  return `<path d="${pathData}" stroke="${color}" fill="none" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" />\n`;
+  return `<path d="${pathData}" stroke="${color}" fill="none" stroke-width="${strokeWidth}" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" />\n`;
 }
 
 // Straight line path conversion (from example.tsx)

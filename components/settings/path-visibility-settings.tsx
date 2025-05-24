@@ -106,7 +106,7 @@ const PathVisibilitySettings = React.memo(function PathVisibilitySettings({
                 <div className="flex flex-col gap-4">
                     {sortedColorGroups.map(([colorKey, group]: [string, ColorGroup]) => (
                         <div key={colorKey} className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 text-md">
                                 {activeColorPickerKey === colorKey ? (
                                     <input
                                         ref={colorInputRef}
@@ -129,9 +129,19 @@ const PathVisibilitySettings = React.memo(function PathVisibilitySettings({
                                         aria-label={`Change color for ${group.displayName || 'group'}`}
                                     />
                                 )}
-                                <Label htmlFor={`color-picker-${colorKey}-setting`} className="cursor-pointer">
-                                    {group.displayName}
-                                </Label>
+                                <input
+                                    type="text"
+                                    value={group.color}
+                                    onChange={(e) => {
+                                        handleColorChange(colorKey, e.target.value);
+                                        // setActiveColorPickerKey(colorKey); // This line would open the color picker when typing
+                                    }}
+                                    // onFocus={() => setActiveColorPickerKey(colorKey)} // Removed to prevent picker opening on focus
+                                    className="w-24 px-2 py-1 border border-transparent rounded bg-transparent focus:bg-gray-700 text-white focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none"
+                                    disabled={disabled}
+                                    id={`color-text-input-${colorKey}`}
+                                    aria-label={`Edit color for ${group.displayName || 'group'}`}
+                                />
                             </div>
                             <Switch
                                 id={`visibility-${colorKey}-setting`}

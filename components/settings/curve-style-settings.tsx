@@ -98,6 +98,31 @@ export default function CurveStyleSettings({
                             disabled={disabled}
                         />
                     </div>
+                    {/* TODO: Add a slider for the stroke width */}
+                    <div className="space-y-2">
+                        <div className="flex gap-2">
+                            <Label htmlFor="strokeWidth-setting">Stroke Width: {curveControls.strokeWidth}</Label>
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <Info className="h-4 w-4 text-gray-300" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p className="max-w-xs">
+                                        Adjusts the width of the strokes in the output SVG.
+                                    </p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </div>
+                        <Slider
+                            id="strokeWidth-setting"
+                            min={0.1}
+                            max={10}
+                            step={0.1}
+                            value={[curveControls.strokeWidth]}
+                            onValueChange={(value) => onCurveControlsChange({ strokeWidth: value[0] })}
+                            disabled={disabled}
+                        />
+                    </div>
                 </div>
             </details>
         </TooltipProvider>
