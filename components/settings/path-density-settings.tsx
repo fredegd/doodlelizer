@@ -17,26 +17,31 @@ export default function PathDensitySettings({ settings, onSettingsChange, disabl
     return (
         <TooltipProvider>
             <details className="group" >
-                <summary className="cursor-pointer my-6 text-sm font-bold flex items-center justify-between">
+                <summary className="cursor-pointer my-6 text-md font-bold flex items-center justify-between">
                     <h3 className="flex items-center gap-2">
                         Path Density
                         <Tooltip>
                             <TooltipTrigger>
                                 <Info className="h-4 w-4 text-gray-300" />
                             </TooltipTrigger>
+                            *
                             <TooltipContent>
                                 <p className="max-w-xs">
-                                    Density controls how many zigzags appear in each tile. Darker pixels have more zigzags, creating a denser pattern.
+                                    <span>
+                                        Density controls how how often the serpentine path repeats for each tile.
+                                    </span>
+                                    <br />
+
+                                    <span>
+                                        Darker pixels have more zigzags, creating a denser pattern.
+                                    </span>
                                 </p>
                             </TooltipContent>
                         </Tooltip>
                     </h3>
                     <ChevronDown className="h-5 w-5 text-gray-300 transition-transform duration-200 group-open:rotate-180" />
                 </summary>
-                <p className="text-xs text-gray-300 mb-3">
-                    (auto-adjusted to tile width: {calculatedDensity / 2}px)
-                </p>
-                <div className="space-y-4 mt-4 text-gray-300 px-4">
+                <div className="flex flex-col gap-8 mt-4 text-gray-300 lg:px-4 px-8">
                     <div className="space-y-2">
                         <div className="flex justify-between">
                             <Label htmlFor="minDensity-setting">Min Density: {settings.minDensity}</Label>
@@ -65,6 +70,9 @@ export default function PathDensitySettings({ settings, onSettingsChange, disabl
                             disabled={disabled}
                         />
                     </div>
+                    <p className="text-xs pl-4">
+                        * auto-adjusted to tile width: {calculatedDensity / 2}px
+                    </p>
                 </div>
             </details>
         </TooltipProvider>

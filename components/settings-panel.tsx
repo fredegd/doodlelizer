@@ -95,12 +95,12 @@ export default function SettingsPanel({
       <>
         <Separator className="bg-gray-700" />
         <details className="group" >
-          <summary className="cursor-pointer text-sm font-bold mb-4 flex items-center justify-between">
-            <h3 className="flex items-center gap-2">Advanced Path Shape Controls</h3>
+          <summary className="cursor-pointer text-md font-bold mb-4 flex items-center justify-between">
+            <h3 className="flex items-center gap-2">Advanced Shape Controls</h3>
             <ChevronDown className="h-5 w-5 text-gray-300 transition-transform duration-200 group-open:rotate-180" />
           </summary>
 
-          <div className="space-y-4 mt-4  text-gray-300 px-4">
+          <div className="flex flex-col gap-8 mt-4 text-gray-300 lg:px-4 px-8">
             {settings.curvedPaths && (
               <div className="space-y-2">
                 <div className="flex gap-2">
@@ -257,18 +257,20 @@ export default function SettingsPanel({
 
       <Separator className="bg-gray-700" />
 
-      {processedData?.colorGroups && Object.keys(processedData.colorGroups).length > 0 && (
-        <PathVisibilitySettings
-          colorGroups={processedData.colorGroups}
-          visiblePaths={settings.visiblePaths}
-          onSettingsChange={onSettingsChange}
-          disabled={disabled}
-          processingMode={settings.processingMode}
-          settings={settings}
-        />
+      {processedData?.colorGroups && Object.keys(processedData.colorGroups).length > 0 && settings.processingMode !== "monochrome" && (
+        <>
+          <PathVisibilitySettings
+            colorGroups={processedData.colorGroups}
+            visiblePaths={settings.visiblePaths}
+            onSettingsChange={onSettingsChange}
+            disabled={disabled}
+            processingMode={settings.processingMode}
+            settings={settings}
+          />
+          <Separator className="bg-gray-700" />
+        </>
       )}
 
-      <Separator className="bg-gray-700" />
 
       <ProcessingModeSettings
         settings={settings}

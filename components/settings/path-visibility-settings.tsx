@@ -84,9 +84,7 @@ const PathVisibilitySettings = React.memo(function PathVisibilitySettings({
             },
         };
         onSettingsChange({ colorGroups: updatedColorGroups });
-        // We might want to keep the picker open if the user is still adjusting,
-        // but for now, let's close it on change for simplicity with onChange.
-        // If using onInput + a separate confirm button, this would be different.
+
         // setActiveColorPickerKey(null); // Optionally close picker on every change
     };
 
@@ -96,56 +94,58 @@ const PathVisibilitySettings = React.memo(function PathVisibilitySettings({
 
     return (
         <details className="group" >
-            <summary className="cursor-pointer text-sm font-bold  my-6 flex items-center justify-between">
+            <summary className="cursor-pointer text-md font-bold  my-6 flex items-center justify-between">
                 <h3 className="flex items-center gap-2">
                     Colors and Visibility
                 </h3>
                 <ChevronDown className="h-5 w-5 text-gray-300 transition-transform duration-200 group-open:rotate-180" />
             </summary>
 
-            <div className="space-y-4 mt-4  text-gray-300 px-4">
+            <div className="flex flex-col gap-4 mt-4 text-gray-300 lg:px-4 px-8">
 
-                {sortedColorGroups.map(([colorKey, group]: [string, ColorGroup]) => (
-                    <div key={colorKey} className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            {activeColorPickerKey === colorKey ? (
-                                <input
-                                    ref={colorInputRef}
-                                    id={`color-picker-${colorKey}`}
-                                    type="color"
-                                    value={group.color}
-                                    onChange={(e) => handleColorChange(colorKey, e.target.value)}
-                                    onBlur={() => setActiveColorPickerKey(null)}
-                                    className="w-8 h-8 p-0 border rounded cursor-pointer" // Adjusted styling
-                                    autoFocus
-                                    disabled={disabled}
-                                />
-                            ) : (
-                                <button
-                                    id={`color-picker-${colorKey}-setting`}
-                                    className="w-6 h-6 rounded border-none p-0 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    style={{ backgroundColor: group.color }}
-                                    onClick={() => !disabled && setActiveColorPickerKey(colorKey)}
-                                    disabled={disabled}
-                                    aria-label={`Change color for ${group.displayName || 'group'}`}
-                                />
-                            )}
-                            <Label htmlFor={`color-picker-${colorKey}-setting`} className="cursor-pointer">
-                                {group.displayName}
-                            </Label>
+                <div className="flex flex-col gap-4">
+                    {sortedColorGroups.map(([colorKey, group]: [string, ColorGroup]) => (
+                        <div key={colorKey} className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                {activeColorPickerKey === colorKey ? (
+                                    <input
+                                        ref={colorInputRef}
+                                        id={`color-picker-${colorKey}`}
+                                        type="color"
+                                        value={group.color}
+                                        onChange={(e) => handleColorChange(colorKey, e.target.value)}
+                                        onBlur={() => setActiveColorPickerKey(null)}
+                                        className="w-8 h-8 p-0 border rounded cursor-pointer" // Adjusted styling
+                                        autoFocus
+                                        disabled={disabled}
+                                    />
+                                ) : (
+                                    <button
+                                        id={`color-picker-${colorKey}-setting`}
+                                        className="w-6 h-6 rounded border-none p-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        style={{ backgroundColor: group.color }}
+                                        onClick={() => !disabled && setActiveColorPickerKey(colorKey)}
+                                        disabled={disabled}
+                                        aria-label={`Change color for ${group.displayName || 'group'}`}
+                                    />
+                                )}
+                                <Label htmlFor={`color-picker-${colorKey}-setting`} className="cursor-pointer">
+                                    {group.displayName}
+                                </Label>
+                            </div>
+                            <Switch
+                                id={`visibility-${colorKey}-setting`}
+                                checked={visiblePaths[colorKey] !== false}
+                                onCheckedChange={(checked) => handleVisibilityChange(colorKey, checked)}
+                                disabled={disabled}
+                            />
                         </div>
-                        <Switch
-                            id={`visibility-${colorKey}-setting`}
-                            checked={visiblePaths[colorKey] !== false}
-                            onCheckedChange={(checked) => handleVisibilityChange(colorKey, checked)}
-                            disabled={disabled}
-                        />
+                    ))}
+                    <div className="w-full flex justify-end">
+                        <button className="text-sm text-gray-300 hover:text-white disabled:opacity-50" onClick={handleToggleAll} disabled={disabled || Object.keys(colorGroups).length === 0}>
+                            {allVisible ? "Hide All" : "Show All"}
+                        </button>
                     </div>
-                ))}
-                <div className="w-full flex justify-end">
-                    <button className="text-sm text-gray-300 hover:text-white disabled:opacity-50" onClick={handleToggleAll} disabled={disabled || Object.keys(colorGroups).length === 0}>
-                        {allVisible ? "Hide All" : "Show All"}
-                    </button>
                 </div>
                 {(processingMode === "grayscale" || processingMode === "posterize") && (
                     <div className="mb-4 space-y-2 ">
